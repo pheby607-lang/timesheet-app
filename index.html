@@ -245,7 +245,7 @@
         }
     }
 
-    // Account Authentication Engine
+    // Account Authentication Engine with Smart Error Splitting
     function login() {
         const email = document.getElementById('login-email').value;
         const pass = document.getElementById('login-password').value;
@@ -253,7 +253,11 @@
         if (!email || !pass) return alert("Please fill standard login parameters.");
 
         auth.signInWithEmailAndPassword(email, pass).catch(err => {
-            if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
+            console.log("Firebase Error Code:", err.code);
+            // Explicit error conditions requested by user
+            if (err.code === "auth/wrong-password") {
+                alert("Wrong password");
+            } else if (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential") {
                 alert("No account found, please register.");
             } else {
                 alert(err.message);
