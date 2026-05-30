@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Attendance Timesheet</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h1, h2 { color: #1a365d; text-align: center; }
+        
+        /* Forms */
+        input, button, select { width: 100%; padding: 10px; margin: 8px 0; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; }
+        .btn { background: #2b6cb0; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .btn:hover { background: #2c5282; }
+        .btn-outline { background: white; color: #2b6cb0; border: 2px solid #2b6cb0; }
+        
+        /* Layout */
+        .hidden { display: none; }
+        .flex-row { display: flex; gap: 15px; margin-bottom: 20px; }
+        .flex-row > div { flex: 1; }
+        
+        /* Timesheet Specifics */
+        .profile-header { display: flex; justify-content: space-between; border: 1px solid #cbd5e0; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+        .profile-header div p { margin: 5px 0; font-size: 14px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; text-align: center; }
+        th, td { border: 1px solid #e2e8f0; padding: 8px; }
+        th { background-color: #1a365d; color: white; }
+        .status-present { color: green; font-weight: bold; }
+        .status-leave { color: red; font-weight: bold; }
+        .status-weekend { color: blue; font-weight: bold; }
+        .status-half { color: orange; font-weight: bold; }
+        
+        .export-btn { background: #38a169; width: auto; padding: 10px 30px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div id="auth-section">
+        <h1>Timesheet Portal</h1>
+        
+        <div id="login-form">
+            <h2>Log In</h2>
+            <input type="email" id="login-email" placeholder="Email Address">
+            <input type="password" id="login-password" placeholder="Password">
+            <button class="btn" onclick="login()">Log In</button>
+            <button class="btn btn-outline" onclick="toggleAuth('register')">Need to register?</button>
+        </div>
+
+        <div id="register-form" class="hidden">
+            <h2>First-Time Registration</h2>
+            <input type="text" id="reg-name" placeholder="Full Name (e.g. Rahul Sharma)">
+            <input type="text" id="reg-empId" placeholder="Employee ID (e.g. EMP10025)">
+            <input type="number" id="reg-hours" placeholder="Standard Working Hours (e.g. 8)">
+            <input type="email" id="reg-email" placeholder="Email Address">
+            <input type="password" id="reg-password" placeholder="Password">
+            <button class="btn" onclick="register()">Complete Registration</button>
+            <button class="btn btn-outline" onclick="toggleAuth('login')">Back to Login</button>
+        </div>
+    </div>
+
+    <div id="app-section" class="hidden">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Monthly Attendance Timesheet</h2>
+            <button class="btn btn-outline" style="width: auto;" onclick="logout()">Log Out</button>
+        </div>
+
+        <div id="timesheet-report">
+            <div class="profile-header">
+                <div>
+                    <p><strong>Employee Name:</strong> <span id="display-name">...</span></p>
+                    <p><strong>Employee Number:</strong> <span id="display-empId">...</span></p>
+                </div>
+                <div>
+                    <p><strong>Standard Hours:</strong> <span id="display-hours">...</span> hrs/day</p>
+                    <p><strong>Month:</strong> <span id="display-month">May 2025</span></p>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>In Time</th>
+                        <th>Out Time</th>
+                        <th>Break (Mins)</th>
+                        <th>Working Hrs</th>
+                        <th>Overtime</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="timesheet-body">
+                    </tbody>
+            </table>
+        </div>
+
+        <hr style="margin: 30px 0;">
+        <h3>Log Daily Attendance</h3>
+        <div class="flex-row">
+            <div>
+                <label>Date</label>
+                <input type="date" id="entry-date">
+            </div>
+            <div>
+                <label>In Time</label>
+                <input type="time" id="entry-in">
+            </div>
+            <div>
+                <label>Out Time</label>
+                <input type="time" id="entry-out">
+            </div>
+            <div>
+                <label>Break (Minutes)</label>
+                <input type="number" id="entry-break" value="60">
+            </div>
+            <div>
+                <label>Status</label>
+                <select id="entry-status">
+                    <option value="Present">Present</option>
+                    <option value="Leave">Leave</option>
+                    <option value="Weekend">Weekend</option>
+                    <option value="Half Day">Half Day</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn" onclick="addEntry()">Save Daily Entry</button>
+
+        <div style="text-align: right;">
+            <button class="btn export-btn" onclick="downloadPDF()">Download as PDF</button>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script>
+    // 1. REPLACE WITH YOUR FIREBASE CONFIG
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUserData = {};
+
+    // UI Toggles
+    function toggleAuth(view) {
+        document.getElementById('login-form').classList.toggle('hidden', view !== 'login');
+        document.getElementById('register-form').classList.toggle('hidden', view !== 'register');
+    }
+
+    // Auth State Listener (Persistent Login)
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('app-section').classList.remove('hidden');
+            
+            // Fetch User Profile Data
+            const doc = await db.collection('users').doc(user.uid).get();
+            if (doc.exists) {
+                currentUserData = doc.data();
+                document.getElementById('display-name').innerText = currentUserData.name;
+                document.getElementById('display-empId').innerText = currentUserData.empId;
+                document.getElementById('display-hours').innerText = currentUserData.standardHours;
+                
+                // Set Current Month
+                const date = new Date();
+                document.getElementById('display-month').innerText = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+                
+                loadTimesheets(user.uid);
+            }
+        } else {
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('app-section').classList.add('hidden');
+        }
+    });
+
+    // Registration with Custom Data
+    async function register() {
+        const email = document.getElementById('reg-email').value;
+        const pass = document.getElementById('reg-password').value;
+        const name = document.getElementById('reg-name').value;
+        const empId = document.getElementById('reg-empId').value;
+        const standardHours = document.getElementById('reg-hours').value;
+
+        if(!name || !empId || !standardHours) return alert("Please fill all profile fields.");
+
+        try {
+            const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
+            // Save extra data to Firestore
+            await db.collection('users').doc(userCredential.user.uid).set({
+                name: name,
+                empId: empId,
+                standardHours: Number(standardHours)
+            });
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    function login() {
+        const email = document.getElementById('login-email').value;
+        const pass = document.getElementById('login-password').value;
+        auth.signInWithEmailAndPassword(email, pass).catch(err => alert(err.message));
+    }
+
+    function logout() { auth.signOut(); }
+
+    // Time Calculation Engine
+    function calculateTimeMath(inTimeStr, outTimeStr, breakMinsStr, status) {
+        if (status === 'Leave' || status === 'Weekend') {
+            return { workFormatted: '-', overFormatted: '-' };
+        }
+
+        const breakMins = parseInt(breakMinsStr) || 0;
+        const stdMins = currentUserData.standardHours * 60;
+
+        // Convert HH:MM to Minutes
+        const inMins = parseInt(inTimeStr.split(':')[0]) * 60 + parseInt(inTimeStr.split(':')[1]);
+        let outMins = parseInt(outTimeStr.split(':')[0]) * 60 + parseInt(outTimeStr.split(':')[1]);
+        
+        // Handle night shifts / passing midnight
+        if (outMins < inMins) outMins += 24 * 60;
+
+        const totalWorkedMins = (outMins - inMins) - breakMins;
+        const overtimeMins = Math.max(0, totalWorkedMins - stdMins);
+
+        // Format to HH:MM
+        const formatTime = (mins) => {
+            const h = Math.floor(mins / 60).toString().padStart(2, '0');
+            const m = (mins % 60).toString().padStart(2, '0');
+            return `${h}:${m}`;
+        };
+
+        return {
+            workFormatted: formatTime(totalWorkedMins),
+            overFormatted: overtimeMins > 0 ? formatTime(overtimeMins) : '00:00'
+        };
+    }
+
+    function addEntry() {
+        const date = document.getElementById('entry-date').value;
+        const inTime = document.getElementById('entry-in').value;
+        const outTime = document.getElementById('entry-out').value;
+        const breakMins = document.getElementById('entry-break').value;
+        const status = document.getElementById('entry-status').value;
+
+        if (!date) return alert("Date is required.");
+
+        const calc = calculateTimeMath(inTime, outTime, breakMins, status);
+
+        db.collection('timesheets').add({
+            userId: auth.currentUser.uid,
+            date: date,
+            inTime: inTime || '-',
+            outTime: outTime || '-',
+            breakMins: breakMins || '-',
+            workingHrs: calc.workFormatted,
+            overtime: calc.overFormatted,
+            status: status
+        }).then(() => {
+            alert("Entry Saved!");
+            // Reset fields
+            document.getElementById('entry-in').value = '';
+            document.getElementById('entry-out').value = '';
+        }).catch(err => alert("Error: " + err.message));
+    }
+
+    function loadTimesheets(userId) {
+        // Load sorted by date ascending to look like a standard calendar timesheet
+        db.collection('timesheets').where("userId", "==", userId)
+          .orderBy("date", "asc")
+          .onSnapshot(snapshot => {
+            const tbody = document.getElementById('timesheet-body');
+            tbody.innerHTML = '';
+            
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                
+                // Determine styling class based on status
+                let statusClass = '';
+                if(data.status === 'Present') statusClass = 'status-present';
+                if(data.status === 'Leave') statusClass = 'status-leave';
+                if(data.status === 'Weekend') statusClass = 'status-weekend';
+                if(data.status === 'Half Day') statusClass = 'status-half';
+
+                // Format In/Out times for 12hr clock visually if they exist
+                const format12hr = (timeStr) => {
+                    if (timeStr === '-') return '-';
+                    let [h, m] = timeStr.split(':');
+                    let ampm = h >= 12 ? 'PM' : 'AM';
+                    h = h % 12 || 12;
+                    return `${h.toString().padStart(2, '0')}:${m} ${ampm}`;
+                };
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${data.date}</td>
+                        <td>${format12hr(data.inTime)}</td>
+                        <td>${format12hr(data.outTime)}</td>
+                        <td>${data.breakMins === '-' ? '-' : (data.breakMins + ' min')}</td>
+                        <td>${data.workingHrs}</td>
+                        <td>${data.overtime}</td>
+                        <td class="${statusClass}">${data.status}</td>
+                    </tr>
+                `;
+            });
+        });
+    }
+
+    // PDF Generation Feature
+    function downloadPDF() {
+        const element = document.getElementById('timesheet-report');
+        const opt = {
+            margin:       0.5,
+            filename:     'Monthly_Timesheet.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+</script>
+</body>
+</html>
