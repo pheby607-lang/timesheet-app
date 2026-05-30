@@ -2,187 +2,134 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Worksheet Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
-            --primary: #5a57ea; /* The vibrant indigo/purple from your image */
+            --primary: #5a57ea;
             --primary-hover: #4845d1;
             --bg-color: #f4f5f9;
             --card-bg: #ffffff;
             --text-main: #111827;
             --text-muted: #6b7280;
             --border-color: #e5e7eb;
+            --sidebar-bg: #111827;
+            --sidebar-text: #ffffff;
+        }
+
+        /* Dark Mode Variables */
+        body.dark-theme {
+            --bg-color: #111827;
+            --card-bg: #1f2937;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --border-color: #374151;
+            --sidebar-bg: #0f141e;
         }
 
         body { 
             font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background: var(--bg-color); 
             margin: 0; 
-            padding: 20px; 
+            padding: 0; 
             color: var(--text-main); 
+            overscroll-behavior: none;
+            transition: background 0.3s, color 0.3s;
         }
 
-        /* --- AUTHENTICATION CARDS (Matching your image) --- */
-        .auth-container {
-            max-width: 440px;
-            margin: 60px auto;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
-        }
-
-        .brand-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 30px;
-        }
-
-        .brand-icon {
-            width: 36px;
-            height: 36px;
-            background: var(--primary);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .brand-text {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        h2 { margin: 0 0 8px 0; font-size: 26px; font-weight: 700; }
+        /* --- AUTHENTICATION CARDS --- */
+        .auth-container { max-width: 440px; margin: 60px auto; padding: 20px; }
+        .card { background: var(--card-bg); border-radius: 16px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); margin-bottom: 24px; transition: background 0.3s; }
+        .brand-header { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
+        .brand-icon { width: 36px; height: 36px; background: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; }
+        .brand-text { font-size: 16px; font-weight: 700; color: var(--text-main); }
+        h2 { margin: 0 0 8px 0; font-size: 26px; font-weight: 700; color: var(--text-main); }
+        h3 { color: var(--text-main); margin-top: 0; }
         p.subtitle { color: var(--text-muted); font-size: 14px; margin-top: 0; margin-bottom: 24px; }
 
         /* Forms & Inputs */
         .input-group { margin-bottom: 16px; }
         label { display: block; font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
-        
-        input, select { 
-            width: 100%; 
-            padding: 14px 16px; 
-            border-radius: 8px; 
-            border: 1px solid var(--border-color); 
-            box-sizing: border-box; 
-            font-size: 14px; 
-            transition: all 0.2s;
-            color: var(--text-main);
-        }
-        input:focus, select:focus { 
-            outline: none; 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 3px rgba(90, 87, 234, 0.1); 
-        }
+        input, select { width: 100%; padding: 14px 16px; border-radius: 8px; border: 1px solid var(--border-color); box-sizing: border-box; font-size: 14px; background: var(--bg-color); color: var(--text-main); transition: all 0.2s; }
+        input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(90, 87, 234, 0.1); }
+        input[readonly] { opacity: 0.7; cursor: not-allowed; }
 
-        .btn { 
-            width: 100%;
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            padding: 14px; 
-            font-size: 15px;
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: background 0.2s; 
-        }
+        .btn { width: 100%; background: var(--primary); color: white; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn:hover { background: var(--primary-hover); }
+        .btn-sm { width: auto; padding: 8px 16px; font-size: 13px; }
+        .btn-danger { background: #dc2626; }
+        .btn-danger:hover { background: #b91c1c; }
         
-        .divider-text { 
-            text-align: center; 
-            margin: 24px 0; 
-            color: var(--text-muted); 
-            font-size: 12px; 
-            position: relative;
-        }
-        .divider-text::before, .divider-text::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            width: 40%;
-            height: 1px;
-            background: var(--border-color);
-        }
+        .divider-text { text-align: center; margin: 24px 0; color: var(--text-muted); font-size: 12px; position: relative; }
+        .divider-text::before, .divider-text::after { content: ""; position: absolute; top: 50%; width: 40%; height: 1px; background: var(--border-color); }
         .divider-text::before { left: 0; }
         .divider-text::after { right: 0; }
 
-        /* Side-by-side OAuth Buttons */
-        .oauth-grid {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-        .btn-outline { 
-            flex: 1;
-            background: white; 
-            color: var(--text-main); 
-            border: 1px solid var(--border-color); 
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .btn-outline:hover { background: #f9fafb; }
+        .oauth-grid { display: flex; gap: 12px; margin-bottom: 24px; }
+        .btn-outline { flex: 1; background: transparent; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn-outline:hover { background: var(--bg-color); }
 
         .toggle-text { text-align: center; font-size: 14px; color: var(--text-muted); margin-top: 24px; }
         .toggle-text a { color: var(--primary); text-decoration: none; font-weight: 600; cursor: pointer; }
-        .toggle-text a:hover { text-decoration: underline; }
 
         .hidden { display: none !important; }
 
-        /* --- DASHBOARD WORKSPACE (Applying the same theme) --- */
-        .dashboard-container { max-width: 1000px; margin: 20px auto; }
+        /* --- DASHBOARD & SIDEBAR --- */
+        #app-section { display: flex; min-height: 100vh; overflow-x: hidden; }
         
-        .dash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .btn-sm { width: auto; padding: 10px 20px; font-size: 13px; }
+        .sidebar { width: 250px; background: var(--sidebar-bg); color: var(--sidebar-text); position: fixed; top: 0; left: -250px; height: 100vh; transition: left 0.3s ease; z-index: 1000; padding-top: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
+        .sidebar.open { left: 0; }
+        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 1px solid #374151; display: flex; align-items: center; gap: 10px;}
+        .sidebar-menu { list-style: none; padding: 0; margin: 20px 0; }
+        .sidebar-menu li { padding: 15px 20px; cursor: pointer; transition: background 0.2s; font-size: 15px; border-left: 3px solid transparent; }
+        .sidebar-menu li:hover, .sidebar-menu li.active { background: rgba(255,255,255,0.1); border-left: 3px solid var(--primary); }
+        
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
+        .overlay.open { display: block; }
 
-        .profile-header { 
-            display: flex; justify-content: space-between; 
-            padding: 20px; margin-bottom: 24px; 
-            border: 1px solid var(--border-color);
-            background: #fdfdfd;
-        }
-        .profile-header p { margin: 5px 0; font-size: 14px; color: var(--text-muted); }
-        .profile-header strong { color: var(--text-main); }
+        .main-content { flex: 1; padding: 20px; width: 100%; transition: margin-left 0.3s; max-width: 1000px; margin: 0 auto; }
+        
+        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; background: var(--card-bg); padding: 15px 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .menu-btn { font-size: 24px; cursor: pointer; background: none; border: none; color: var(--text-main); }
+        
+        /* Profile Image Styles */
+        .profile-pic-wrapper { position: relative; width: 100px; height: 100px; margin: 0 auto 20px auto; }
+        .profile-pic { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); background: #e5e7eb; }
+        .upload-btn { position: absolute; bottom: 0; right: 0; background: var(--primary); color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; border: 2px solid var(--card-bg); }
+        .upload-btn input { display: none; }
+        .sidebar-pic { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
 
         .flex-grid { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 16px; }
         .flex-grid > div { flex: 1; min-width: 150px; }
 
-        /* Table Styling */
+        /* Tables */
+        .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; font-size: 14px; text-align: left; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
-        th, td { padding: 16px; border-bottom: 1px solid var(--border-color); }
-        th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        th, td { padding: 16px; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
+        th { background-color: rgba(90, 87, 234, 0.05); color: var(--text-muted); font-weight: 600; font-size: 13px; text-transform: uppercase; }
         td:last-child, th:last-child { border-right: none; }
         tr:last-child td { border-bottom: none; }
         
-        .status-present { color: #059669; font-weight: 600; background: #d1fae5; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
-        .status-leave { color: #dc2626; font-weight: 600; background: #fee2e2; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
-        .status-weekend { color: #3b82f6; font-weight: 600; background: #dbeafe; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
-        .status-half { color: #d97706; font-weight: 600; background: #fef3c7; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .badge-green { color: #059669; background: #d1fae5; }
+        .badge-red { color: #dc2626; background: #fee2e2; }
+        .badge-blue { color: #3b82f6; background: #dbeafe; }
+        .badge-yellow { color: #d97706; background: #fef3c7; }
 
         .export-btn { background: #10b981; margin-top: 24px; width: auto; float: right; }
         .export-btn:hover { background: #059669; }
         .clearfix::after { content: ""; clear: both; display: table; }
+
+        /* SVG Icons */
+        .icon { width: 20px; height: 20px; fill: currentColor; }
     </style>
 </head>
 <body>
 
 <div id="auth-section" class="auth-container">
-    
     <div id="login-form" class="card">
         <div class="brand-header">
             <div class="brand-icon">✓</div>
@@ -200,14 +147,19 @@
             <label>Password</label>
             <input type="password" id="login-password" placeholder="Enter your password">
         </div>
-        
         <button class="btn" onclick="login()">Log in</button>
         
         <div class="divider-text">or continue with</div>
         
         <div class="oauth-grid">
-            <button class="btn-outline" onclick="loginWithGoogle()">Google</button>
-            <button class="btn-outline" onclick="loginWithPhone()">Phone</button>
+            <button class="btn-outline" onclick="loginWithGoogle()">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"/></svg>
+                Google
+            </button>
+            <button class="btn-outline" onclick="loginWithPhone()">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                Phone
+            </button>
         </div>
 
         <div class="toggle-text">
@@ -220,7 +172,6 @@
             <div class="brand-icon">✓</div>
             <div class="brand-text">Worksheet</div>
         </div>
-
         <h2>Create your account</h2>
         <p class="subtitle">Sign up to get started with Worksheet</p>
         
@@ -244,91 +195,213 @@
             <label>Password</label>
             <input type="password" id="reg-password" placeholder="Create a password">
         </div>
-        
         <button class="btn" onclick="register()">Sign up</button>
-        
         <div class="toggle-text">
             Already have an account? <a onclick="toggleAuth('login')">Log in</a>
         </div>
     </div>
-    
     <div id="recaptcha-container"></div>
 </div>
 
-<div id="app-section" class="dashboard-container hidden">
+<div id="app-section" class="hidden">
     
-    <div class="dash-header">
-        <div class="brand-header" style="margin: 0;">
-            <div class="brand-icon">✓</div>
-            <div class="brand-text" style="font-size: 20px;">Worksheet</div>
-        </div>
-        <button class="btn-outline btn-sm" onclick="logout()">Log Out</button>
-    </div>
-
-    <div class="card" style="margin-bottom: 24px; padding: 30px;">
-        <h3 style="margin-top: 0; font-size: 18px;">Log Daily Hours</h3>
-        <div class="flex-grid">
+    <div class="overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img id="sidebar-profile-img" src="https://via.placeholder.com/150" class="sidebar-pic" alt="Profile">
             <div>
-                <label>Date</label>
-                <input type="date" id="entry-date">
-            </div>
-            <div>
-                <label>Clock-In</label>
-                <input type="time" id="entry-in">
-            </div>
-            <div>
-                <label>Clock-Out</label>
-                <input type="time" id="entry-out">
-            </div>
-            <div>
-                <label>Break (Mins)</label>
-                <input type="number" id="entry-break" value="60">
-            </div>
-            <div>
-                <label>Status</label>
-                <select id="entry-status">
-                    <option value="Present">Present</option>
-                    <option value="Leave">Leave</option>
-                    <option value="Weekend">Weekend</option>
-                    <option value="Half Day">Half Day</option>
-                </select>
+                <div style="font-weight: bold; font-size: 14px;" id="sidebar-name">User</div>
+                <div style="font-size: 12px; color: #9ca3af;" id="sidebar-empId">ID</div>
             </div>
         </div>
-        <button class="btn btn-sm" style="width: auto;" onclick="addEntry()">Save Record</button>
+        <ul class="sidebar-menu">
+            <li onclick="switchView('timesheet')" id="nav-timesheet" class="active">Daily Timesheet</li>
+            <li onclick="switchView('work')" id="nav-work">My Work</li>
+            <li onclick="switchView('profile')" id="nav-profile">My Profile</li>
+            <li onclick="switchView('settings')" id="nav-settings">Settings</li>
+        </ul>
     </div>
 
-    <div class="card clearfix" style="padding: 30px;">
-        <div id="timesheet-report">
-            <div class="profile-header card" style="box-shadow: none; padding: 20px;">
-                <div>
-                    <p><strong>Employee:</strong> <span id="display-name">...</span></p>
-                    <p><strong>ID Number:</strong> <span id="display-empId">...</span></p>
+    <div class="main-content">
+        <div class="top-nav">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+                <div class="brand-text" style="font-size: 20px;">Worksheet</div>
+            </div>
+            <button class="btn-outline btn-sm" onclick="logout()">Log Out</button>
+        </div>
+
+        <div id="view-timesheet" class="view-panel">
+            <div class="card" style="padding: 30px;">
+                <h3>Log Daily Hours</h3>
+                <div class="flex-grid">
+                    <div>
+                        <label>Date (IST)</label>
+                        <input type="date" id="entry-date" readonly>
+                    </div>
+                    <div>
+                        <label>Clock-In</label>
+                        <input type="time" id="entry-in">
+                    </div>
+                    <div>
+                        <label>Clock-Out</label>
+                        <input type="time" id="entry-out">
+                    </div>
+                    <div>
+                        <label>Break (Mins)</label>
+                        <input type="number" id="entry-break" value="60">
+                    </div>
+                    <div>
+                        <label>Status</label>
+                        <select id="entry-status">
+                            <option value="Present">Present</option>
+                            <option value="Leave">Leave</option>
+                            <option value="Weekend">Weekend</option>
+                            <option value="Half Day">Half Day</option>
+                        </select>
+                    </div>
                 </div>
-                <div style="text-align: right;">
-                    <p><strong>Standard Hours:</strong> <span id="display-hours">...</span> hrs/day</p>
-                    <p><strong>Month:</strong> <span id="display-month">...</span></p>
+                <button class="btn btn-sm" onclick="addEntry()">Save Record</button>
+            </div>
+
+            <div class="card clearfix" style="padding: 30px;">
+                <div id="timesheet-report">
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="margin-bottom: 5px;">Timesheet Report</h3>
+                        <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Non-editable permanent record.</p>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>In Time</th>
+                                    <th>Out Time</th>
+                                    <th>Break</th>
+                                    <th>Working Hrs</th>
+                                    <th>Overtime</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="timesheet-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <button class="btn export-btn" onclick="downloadPDF('timesheet-report', 'Timesheet')">Download as PDF</button>
+            </div>
+        </div>
+
+        <div id="view-work" class="view-panel hidden">
+            <div class="card" style="padding: 30px;">
+                <h3>Log Work Task</h3>
+                <div class="flex-grid">
+                    <div>
+                        <label>Date (IST)</label>
+                        <input type="date" id="work-date" readonly>
+                    </div>
+                    <div style="flex: 2;">
+                        <label>Work Done Description</label>
+                        <input type="text" id="work-desc" placeholder="What did you accomplish today?">
+                    </div>
+                    <div>
+                        <label>Task Status</label>
+                        <select id="work-status">
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-sm" onclick="addWorkLog()">Save Work Record</button>
+            </div>
+
+            <div class="card clearfix" style="padding: 30px;">
+                <div id="work-report">
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="margin-bottom: 5px;">My Work Report</h3>
+                        <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Non-editable permanent record.</p>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Work Done</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="work-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <button class="btn export-btn" onclick="downloadPDF('work-report', 'My_Work_Log')">Download as PDF</button>
+            </div>
+        </div>
+
+        <div id="view-profile" class="view-panel hidden">
+            <div class="card" style="max-width: 500px; margin: 0 auto;">
+                <h3 style="text-align: center; margin-bottom: 30px;">My Profile</h3>
+                
+                <div class="profile-pic-wrapper">
+                    <img id="profile-img" src="https://via.placeholder.com/150" class="profile-pic" alt="Profile">
+                    <label class="upload-btn">
+                        +
+                        <input type="file" accept="image/png, image/jpeg" onchange="uploadProfilePic(event)">
+                    </label>
+                </div>
+                <p style="text-align: center; font-size: 12px; color: var(--text-muted); margin-bottom: 30px;">Tap + to upload image</p>
+
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="prof-name" readonly>
+                </div>
+                <div class="input-group">
+                    <label>Employee ID</label>
+                    <input type="text" id="prof-id" readonly>
+                </div>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="prof-email" readonly>
+                </div>
+                <div class="input-group">
+                    <label>Standard Working Hours</label>
+                    <input type="text" id="prof-hours" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-settings" class="view-panel hidden">
+            <div class="card" style="max-width: 500px; margin: 0 auto; margin-bottom: 20px;">
+                <h3>Preferences</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                    <span style="font-weight: 600;">Dark Theme UI</span>
+                    <label style="position: relative; display: inline-block; width: 50px; height: 24px;">
+                        <input type="checkbox" id="theme-toggle" onchange="toggleTheme()" style="opacity: 0; width: 0; height: 0;">
+                        <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); transition: .4s; border-radius: 24px;">
+                            <span id="theme-slider" style="position: absolute; content: ''; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+                        </span>
+                    </label>
                 </div>
             </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>In Time</th>
-                        <th>Out Time</th>
-                        <th>Break</th>
-                        <th>Working Hrs</th>
-                        <th>Overtime</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="timesheet-body">
-                    </tbody>
-            </table>
+            <div class="card" style="max-width: 500px; margin: 0 auto;">
+                <h3>Change Password</h3>
+                <div class="input-group">
+                    <label>Present Password</label>
+                    <input type="password" id="old-pass" placeholder="Enter current password">
+                </div>
+                <div class="input-group">
+                    <label>New Password</label>
+                    <input type="password" id="new-pass" placeholder="Enter new password">
+                </div>
+                <div class="input-group">
+                    <label>Confirm New Password</label>
+                    <input type="password" id="confirm-pass" placeholder="Confirm new password">
+                </div>
+                <button class="btn btn-danger" onclick="updateSecurityPassword()">Update Security Password</button>
+            </div>
         </div>
-        <button class="btn export-btn" onclick="downloadPDF()">Download as PDF</button>
-    </div>
 
+    </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -353,27 +426,81 @@
 
     let currentUserData = {};
 
+    // Generate strict IST Date function
+    function getISTDateString() {
+        const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
+        const formatter = new Intl.DateTimeFormat('en-CA', options); 
+        return formatter.format(new Date()); 
+    }
+
+    // Apply Dark Theme on Load if saved
+    if(localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-theme');
+        document.getElementById('theme-toggle').checked = true;
+        document.getElementById('theme-slider').style.transform = "translateX(26px)";
+    }
+
+    // UI Logic
     function toggleAuth(view) {
         document.getElementById('login-form').classList.toggle('hidden', view !== 'login');
         document.getElementById('register-form').classList.toggle('hidden', view !== 'register');
     }
 
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebar-overlay').classList.toggle('open');
+    }
+
+    function switchView(viewName) {
+        const views = ['timesheet', 'work', 'profile', 'settings'];
+        views.forEach(v => {
+            document.getElementById('view-' + v).classList.add('hidden');
+            document.getElementById('nav-' + v).classList.remove('active');
+        });
+        document.getElementById('view-' + viewName).classList.remove('hidden');
+        document.getElementById('nav-' + viewName).classList.add('active');
+        toggleSidebar(); 
+    }
+
+    function toggleTheme() {
+        const isDark = document.body.classList.toggle('dark-theme');
+        document.getElementById('theme-slider').style.transform = isDark ? "translateX(26px)" : "translateX(0)";
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    // Auth State Observer
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('app-section').classList.remove('hidden');
             
+            // Set fixed IST Dates
+            const istDate = getISTDateString();
+            document.getElementById('entry-date').value = istDate;
+            document.getElementById('work-date').value = istDate;
+            
             const doc = await db.collection('users').doc(user.uid).get();
             if (doc.exists) {
                 currentUserData = doc.data();
-                document.getElementById('display-name').innerText = currentUserData.name;
-                document.getElementById('display-empId').innerText = currentUserData.empId;
-                document.getElementById('display-hours').innerText = currentUserData.standardHours;
                 
-                const date = new Date();
-                document.getElementById('display-month').innerText = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+                // Populate Sidebar
+                document.getElementById('sidebar-name').innerText = currentUserData.name;
+                document.getElementById('sidebar-empId').innerText = currentUserData.empId;
+                
+                // Populate Profile View
+                document.getElementById('prof-name').value = currentUserData.name;
+                document.getElementById('prof-id').value = currentUserData.empId;
+                document.getElementById('prof-email').value = currentUserData.email;
+                document.getElementById('prof-hours').value = currentUserData.standardHours;
+
+                // Load Profile Picture if exists
+                if(currentUserData.photoURL) {
+                    document.getElementById('profile-img').src = currentUserData.photoURL;
+                    document.getElementById('sidebar-profile-img').src = currentUserData.photoURL;
+                }
                 
                 loadTimesheets(user.uid);
+                loadWorkLogs(user.uid);
             } else {
                 alert("Account authenticated! Please set up your worksheet profile.");
                 toggleAuth('register');
@@ -387,6 +514,42 @@
         }
     });
 
+    // Compress and Upload Profile Pic to Firestore
+    function uploadProfilePic(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = async () => {
+                // Downscale logic to prevent Firebase 1MB limit crash
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 200;
+                const scaleSize = MAX_WIDTH / img.width;
+                canvas.width = MAX_WIDTH;
+                canvas.height = img.height * scaleSize;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                
+                try {
+                    await db.collection('users').doc(auth.currentUser.uid).update({ photoURL: compressedBase64 });
+                    document.getElementById('profile-img').src = compressedBase64;
+                    document.getElementById('sidebar-profile-img').src = compressedBase64;
+                    alert("Profile picture updated successfully!");
+                } catch(err) {
+                    alert("Error saving image: " + err.message);
+                }
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // REGISTRATION
     async function register() {
         const email = document.getElementById('reg-email').value.trim().toLowerCase();
         const pass = document.getElementById('reg-password').value;
@@ -394,9 +557,7 @@
         const empId = document.getElementById('reg-empId').value;
         const standardHours = document.getElementById('reg-hours').value;
 
-        if(!name || !empId || !standardHours || !email) {
-            return alert("Name, Employee ID, Hours, and Email are mandatory.");
-        }
+        if(!name || !empId || !standardHours || !email) return alert("Name, Employee ID, Hours, and Email are mandatory.");
 
         try {
             let userUid;
@@ -408,25 +569,17 @@
                 userUid = userCredential.user.uid;
             }
 
-            await db.collection('users').doc(userUid).set({
-                name: name,
-                empId: empId,
-                standardHours: Number(standardHours),
-                email: email
-            });
-            
+            await db.collection('users').doc(userUid).set({ name: name, empId: empId, standardHours: Number(standardHours), email: email });
             alert("Profile successfully saved!");
             window.location.reload(); 
-            
         } catch (error) {
             if (error.code === "auth/email-already-in-use" || error.code === 400) {
                 alert("This email is already linked to an account. If you used Google earlier, please go back and click 'Google'.");
-            } else {
-                alert(error.message);
-            }
+            } else { alert(error.message); }
         }
     }
 
+    // LOGIN
     async function login() {
         const email = document.getElementById('login-email').value.trim().toLowerCase();
         const pass = document.getElementById('login-password').value;
@@ -435,20 +588,43 @@
 
         try {
             const profileScan = await db.collection('users').where("email", "==", email).get();
-            
             if (profileScan.empty) {
                 alert("No account found, please register.");
                 return;
             }
-
             await auth.signInWithEmailAndPassword(email, pass);
-            
         } catch (err) {
             if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
-                alert("invalid credentials");
-            } else {
-                alert(err.message);
-            }
+                alert("wrong password"); // Exact string requested
+            } else { alert(err.message); }
+        }
+    }
+
+    // CHANGE PASSWORD ENGINE
+    async function updateSecurityPassword() {
+        const oldPass = document.getElementById('old-pass').value;
+        const newPass = document.getElementById('new-pass').value;
+        const confirmPass = document.getElementById('confirm-pass').value;
+
+        if(!oldPass || !newPass || !confirmPass) return alert("Please fill out all password fields.");
+        if(newPass !== confirmPass) return alert("New passwords do not match!");
+
+        const user = auth.currentUser;
+        const credential = firebase.auth.EmailAuthProvider.credential(user.email, oldPass);
+
+        try {
+            // Re-authenticate first to verify old password
+            await user.reauthenticateWithCredential(credential);
+            // If successful, update to new
+            await user.updatePassword(newPass);
+            alert("Password successfully changed!");
+            document.getElementById('old-pass').value = '';
+            document.getElementById('new-pass').value = '';
+            document.getElementById('confirm-pass').value = '';
+        } catch (err) {
+            if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
+                alert("wrong password");
+            } else { alert(err.message); }
         }
     }
 
@@ -465,18 +641,15 @@
         auth.signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
             .then((confirmationResult) => {
                 const code = prompt("Enter verification OTP token:");
-                if(code) {
-                    confirmationResult.confirm(code).catch(() => alert("Verification handshake rejected."));
-                }
+                if(code) confirmationResult.confirm(code).catch(() => alert("Verification handshake rejected."));
             }).catch(err => alert(err.message));
     }
 
     function logout() { auth.signOut(); }
 
+    // TIMESHEET ENGINE
     function calculateTimeMath(inTimeStr, outTimeStr, breakMinsStr, status) {
-        if (status === 'Leave' || status === 'Weekend') {
-            return { workFormatted: '-', overFormatted: '-' };
-        }
+        if (status === 'Leave' || status === 'Weekend') return { workFormatted: '-', overFormatted: '-' };
 
         const breakMins = parseInt(breakMinsStr) || 0;
         const stdMins = currentUserData.standardHours * 60;
@@ -495,10 +668,7 @@
             return `${h}:${m}`;
         };
 
-        return {
-            workFormatted: formatTime(totalWorkedMins),
-            overFormatted: overtimeMins > 0 ? formatTime(overtimeMins) : '00:00'
-        };
+        return { workFormatted: formatTime(totalWorkedMins), overFormatted: overtimeMins > 0 ? formatTime(overtimeMins) : '00:00' };
     }
 
     function addEntry() {
@@ -508,7 +678,7 @@
         const breakMins = document.getElementById('entry-break').value;
         const status = document.getElementById('entry-status').value;
 
-        if (!date) return alert("Date registration parameter is required.");
+        if (!date) return alert("Date is required.");
 
         const calc = calculateTimeMath(inTime, outTime, breakMins, status);
 
@@ -521,30 +691,23 @@
             workingHrs: calc.workFormatted,
             overtime: calc.overFormatted,
             status: status
-        }).then(() => {
-            alert("Entry appended successfully to worksheet!");
-        }).catch(err => alert("Database transmission failure: " + err.message));
+        }).then(() => alert("Timesheet record locked securely!")).catch(err => alert("Error: " + err.message));
     }
 
     function loadTimesheets(userId) {
-        db.collection('timesheets').where("userId", "==", userId)
-          .orderBy("date", "asc")
+        db.collection('timesheets').where("userId", "==", userId).orderBy("date", "asc")
           .onSnapshot(snapshot => {
             const tbody = document.getElementById('timesheet-body');
             tbody.innerHTML = '';
             
             if(snapshot.empty) {
-                tbody.innerHTML = `<tr><td colspan="7" style="color: #9ca3af; padding: 20px; text-align: center;">No entries logged yet. Complete the 'Log Daily Hours' block parameters to begin.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="color: var(--text-muted); padding: 20px; text-align: center;">No entries logged yet.</td></tr>`;
                 return;
             }
 
             snapshot.forEach(doc => {
                 const data = doc.data();
-                let statusClass = '';
-                if(data.status === 'Present') statusClass = 'status-present';
-                if(data.status === 'Leave') statusClass = 'status-leave';
-                if(data.status === 'Weekend') statusClass = 'status-weekend';
-                if(data.status === 'Half Day') statusClass = 'status-half';
+                let statusClass = data.status === 'Present' ? 'badge-green' : data.status === 'Leave' ? 'badge-red' : data.status === 'Weekend' ? 'badge-blue' : 'badge-yellow';
 
                 const format12hr = (timeStr) => {
                     if (!timeStr || timeStr === '-') return '-';
@@ -561,23 +724,68 @@
                         <td>${format12hr(data.outTime)}</td>
                         <td>${data.breakMins === '-' ? '-' : (data.breakMins + ' min')}</td>
                         <td style="font-weight: 600;">${data.workingHrs}</td>
-                        <td style="color: ${data.overtime !== '00:00' && data.overtime !== '-' ? '#dc2626' : 'var(--text-main)'}; font-weight: ${data.overtime !== '00:00' && data.overtime !== '-' ? 'bold' : 'normal'};">
-                            ${data.overtime}
-                        </td>
-                        <td><span class="${statusClass}">${data.status}</span></td>
+                        <td style="color: ${data.overtime !== '00:00' && data.overtime !== '-' ? '#dc2626' : 'var(--text-main)'}; font-weight: ${data.overtime !== '00:00' && data.overtime !== '-' ? 'bold' : 'normal'};">${data.overtime}</td>
+                        <td><span class="badge ${statusClass}">${data.status}</span></td>
                     </tr>
                 `;
             });
         });
     }
 
-    function downloadPDF() {
-        const element = document.getElementById('timesheet-report');
+    // WORK ENGINE
+    function addWorkLog() {
+        const date = document.getElementById('work-date').value;
+        const desc = document.getElementById('work-desc').value;
+        const status = document.getElementById('work-status').value;
+
+        // STRICT VALIDATION RULE
+        if (status !== 'Completed') {
+            return alert("please click completed to save it");
+        }
+        if (!desc.trim()) return alert("Please enter a description of work done.");
+
+        db.collection('workLogs').add({
+            userId: auth.currentUser.uid,
+            date: date,
+            description: desc,
+            status: status
+        }).then(() => {
+            alert("Work task logged securely!");
+            document.getElementById('work-desc').value = ''; 
+        }).catch(err => alert("Error: " + err.message));
+    }
+
+    function loadWorkLogs(userId) {
+        db.collection('workLogs').where("userId", "==", userId).orderBy("date", "asc")
+          .onSnapshot(snapshot => {
+            const tbody = document.getElementById('work-body');
+            tbody.innerHTML = '';
+            
+            if(snapshot.empty) {
+                tbody.innerHTML = `<tr><td colspan="3" style="color: var(--text-muted); padding: 20px; text-align: center;">No work tasks logged yet.</td></tr>`;
+                return;
+            }
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="width: 15%;"><strong>${data.date}</strong></td>
+                        <td>${data.description}</td>
+                        <td style="width: 15%;"><span class="badge badge-green">${data.status}</span></td>
+                    </tr>
+                `;
+            });
+        });
+    }
+
+    function downloadPDF(elementId, filename) {
+        const element = document.getElementById(elementId);
         const opt = {
             margin:       0.4,
-            filename:     'Monthly_Worksheet.pdf',
+            filename:     `${filename}.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
+            html2canvas:  { scale: 2, useCORS: true, backgroundColor: document.body.classList.contains('dark-theme') ? '#1f2937' : '#ffffff' },
             jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
         };
         html2pdf().set(opt).from(element).save();
