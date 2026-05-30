@@ -64,8 +64,8 @@
         /* Custom Guaranteed Time Picker */
         .time-group { display: flex; align-items: center; gap: 4px; }
         .time-group select { padding: 12px 8px; text-align: center; flex: 1; }
-        .time-group select[id$="-ampm"] { flex: 0 0 64px; background: var(--primary); color: #ffffff; border-color: var(--primary); font-weight: 700; cursor: pointer; }
         .time-group span { font-weight: bold; color: var(--text-main); }
+        .time-group select[id$="-ampm"] { flex: 0 0 62px; background: var(--primary); color: #ffffff; border-color: var(--primary); font-weight: 700; cursor: pointer; }
 
         .btn { width: 100%; background: var(--primary); color: white; border: none; border-radius: 6px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn:hover { background: var(--primary-hover); }
@@ -470,7 +470,7 @@
                             </select>
                             <span>:</span>
                             <select id="entry-in-m">
-                        <option value="" disabled selected>Min</option>
+                                <option value="" disabled selected>Min</option>
                         <option value="00">00</option>
                         <option value="01">01</option>
                         <option value="02">02</option>
@@ -546,7 +546,7 @@
                             </select>
                             <span>:</span>
                             <select id="entry-out-m">
-                        <option value="" disabled selected>Min</option>
+                                <option value="" disabled selected>Min</option>
                         <option value="00">00</option>
                         <option value="01">01</option>
                         <option value="02">02</option>
@@ -1058,27 +1058,34 @@
 
     function calculateTimeMath(inTimeStr, outTimeStr, breakMinsStr, status) {
         if (status === 'Leave' || status === 'Weekend') return { workFormatted: '-', overFormatted: '-' };
+        if (!inTimeStr || !outTimeStr || inTimeStr === '-' || outTimeStr === '-') return { workFormatted: '00:00', overFormatted: '00:00' };
         
-        const getMins = (t) => parseInt(t.split(':')[0]) * 60 + parseInt(t.split(':')[1]);
-        
-        const stdIn = getMins(currentUserData.shiftStart);
-        let stdOut = getMins(currentUserData.shiftEnd);
-        if (stdOut < stdIn) stdOut += 24 * 60;
-        const requiredMins = (stdOut - stdIn) - (currentUserData.stdBreak || 0);
-
-        const actualBreak = parseInt(breakMinsStr) || 0;
-        const actualIn = getMins(inTimeStr);
-        let actualOut = getMins(outTimeStr);
-        if (actualOut < actualIn) actualOut += 24 * 60; 
-        
-        const totalWorkedMins = (actualOut - actualIn) - actualBreak;
-        const overtimeMins = Math.max(0, totalWorkedMins - requiredMins);
-        
+        const getMins = (t) => {
+            const parts = String(t).split(':');
+            return (parseInt(parts[0], 10) * 60) + parseInt(parts[1], 10);
+        };
         const formatTime = (mins) => {
+            mins = Math.max(0, Math.round(mins));
             const h = Math.floor(mins / 60).toString().padStart(2, '0');
             const m = (mins % 60).toString().padStart(2, '0');
             return `${h}:${m}`;
         };
+        
+        let requiredMins = 0;
+        if (currentUserData.shiftStart && currentUserData.shiftEnd) {
+            const stdIn = getMins(currentUserData.shiftStart);
+            let stdOut = getMins(currentUserData.shiftEnd);
+            if (stdOut < stdIn) stdOut += 24 * 60;
+            requiredMins = Math.max(0, (stdOut - stdIn) - (Number(currentUserData.stdBreak) || 0));
+        }
+
+        const actualBreak = Number(breakMinsStr) || 0;
+        const actualIn = getMins(inTimeStr);
+        let actualOut = getMins(outTimeStr);
+        if (actualOut < actualIn) actualOut += 24 * 60;
+        
+        const totalWorkedMins = Math.max(0, (actualOut - actualIn) - actualBreak);
+        const overtimeMins = requiredMins > 0 ? Math.max(0, totalWorkedMins - requiredMins) : 0;
         
         return { 
             workFormatted: formatTime(totalWorkedMins), 
@@ -1091,33 +1098,36 @@
         const breakMins = document.getElementById('entry-break').value;
         const status = document.getElementById('entry-status').value;
         
-        // Fetch explicit times from the custom guaranteed dropdowns
         const inTime = parseCustomTime('entry-in');
         const outTime = parseCustomTime('entry-out');
+        const needsTime = status !== 'Leave' && status !== 'Weekend';
 
         if (!date) return showToast("Date is required.", true);
-        const needsTime = status !== 'Leave' && status !== 'Weekend';
         if (needsTime && (!inTime || !outTime)) return showToast("Please select Clock-In and Clock-Out times.", true);
 
         const calc = calculateTimeMath(inTime, outTime, breakMins, status);
-
-        db.collection('timesheets').add({
+        const record = {
             userId: auth.currentUser.uid,
             date: date,
             inTime: inTime || '-',
             outTime: outTime || '-',
-            breakMins: breakMins || '-',
+            breakMins: breakMins || '0',
             workingHrs: calc.workFormatted,
             workedHrs: calc.workFormatted,
             overtime: calc.overFormatted,
-            status: status
-        }).then(() => {
+            status: status,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        db.collection('timesheets').add(record).then(() => {
             showToast("Timesheet record saved securely!");
             document.getElementById('entry-in-h').selectedIndex = 0;
             document.getElementById('entry-in-m').selectedIndex = 0;
+            document.getElementById('entry-in-ampm').value = 'AM';
             document.getElementById('entry-out-h').selectedIndex = 0;
             document.getElementById('entry-out-m').selectedIndex = 0;
-        }).catch(err => showToast("Error: " + err.message, true));
+            document.getElementById('entry-out-ampm').value = 'PM';
+        }).catch(err => showToast("Error saving record: " + err.message, true));
     }
 
     function loadTimesheets(userId) {
@@ -1144,7 +1154,7 @@
                         <td>${format12hr(data.inTime)}</td>
                         <td>${format12hr(data.outTime)}</td>
                         <td>${data.breakMins === '-' ? '-' : (data.breakMins + ' min')}</td>
-                        <td style="font-weight: 600;">${data.workedHrs || data.workingHrs}</td>
+                        <td style="font-weight: 600;">${data.workedHrs || data.workingHrs || '00:00'}</td>
                         <td style="color: ${data.overtime !== '00:00' && data.overtime !== '-' ? '#dc2626' : 'var(--text-main)'}; font-weight: ${data.overtime !== '00:00' && data.overtime !== '-' ? 'bold' : 'normal'};">${data.overtime}</td>
                         <td><span class="badge ${statusClass}">${data.status}</span></td>
                     </tr>
