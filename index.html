@@ -8,7 +8,7 @@
     <title>Worksheet Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-       :root {
+        :root {
             /* Pure White Light Theme */
             --primary: #5a57ea; 
             --primary-hover: #4845d1;
@@ -17,8 +17,8 @@
             --text-main: #111827;
             --text-muted: #6b7280;
             --border-color: #e5e7eb;
-            --sidebar-bg: #ffffff; /* Changed this to pure white */
-            --sidebar-text: #111827; /* Changed this to dark text */
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #111827;
         }
 
         /* Black & Purple Dark Theme */
@@ -28,8 +28,8 @@
             --text-main: #ffffff;
             --text-muted: #a1a1aa;
             --border-color: #27272a;
-            --sidebar-bg: #050505;
-            --sidebar-text: #ffffff; /* Added this so text stays white in dark mode */
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #111827;
             --primary: #a855f7; 
             --primary-hover: #9333ea;
         }
@@ -61,6 +61,12 @@
         input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2); }
         input[readonly] { opacity: 0.6; cursor: not-allowed; }
 
+        /* Custom Guaranteed Time Picker */
+        .time-group { display: flex; align-items: center; gap: 4px; }
+        .time-group select { padding: 12px 8px; text-align: center; flex: 1; }
+        .time-group select[id$="-ampm"] { flex: 0 0 64px; background: var(--primary); color: #ffffff; border-color: var(--primary); font-weight: 700; cursor: pointer; }
+        .time-group span { font-weight: bold; color: var(--text-main); }
+
         .btn { width: 100%; background: var(--primary); color: white; border: none; border-radius: 6px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn:hover { background: var(--primary-hover); }
         .btn-sm { width: auto; padding: 6px 12px; font-size: 12px; }
@@ -86,7 +92,7 @@
         
         .sidebar { width: 250px; background: var(--sidebar-bg); color: var(--sidebar-text); position: fixed; top: 0; left: -250px; height: 100vh; transition: left 0.3s ease; z-index: 1000; padding-top: 20px; border-right: 1px solid var(--border-color); }
         .sidebar.open { left: 0; }
-        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 1px solid #27272a; display: flex; align-items: center; gap: 10px;}
+        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px;}
         .sidebar-menu { list-style: none; padding: 0; margin: 20px 0; }
         .sidebar-menu li { padding: 15px 20px; cursor: pointer; transition: background 0.2s; font-size: 14px; border-left: 3px solid transparent; }
         .sidebar-menu li:hover, .sidebar-menu li.active { background: rgba(168, 85, 247, 0.1); border-left: 3px solid var(--primary); color: var(--primary); }
@@ -132,7 +138,7 @@
         .clearfix::after { content: ""; clear: both; display: table; }
         .icon { width: 18px; height: 18px; fill: currentColor; }
 
-        /* --- TOAST NOTIFICATIONS (Pop up down the bar) --- */
+        /* --- TOAST NOTIFICATIONS --- */
         .toast-container {
             position: fixed;
             bottom: 30px;
@@ -224,14 +230,43 @@
         
         <div class="flex-grid" style="margin-bottom: 0;">
             <div class="input-group">
-                <label>Standard Shift Start</label>
-                <input type="time" id="reg-shift-start" value="10:00">
+                <label>Shift Start</label>
+                <div class="time-group">
+                    <select id="reg-start-h">
+                        <option value="" disabled selected>Hr</option>
+                        <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09" selected>09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                    </select>
+                    <span>:</span>
+                    <select id="reg-start-m">
+                        <option value="" disabled selected>Min</option>
+                        <option value="00" selected>00</option><option value="05">05</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option>
+                    </select>
+                    <select id="reg-start-ampm">
+                        <option value="AM" selected>AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
             </div>
             <div class="input-group">
-                <label>Standard Shift End</label>
-                <input type="time" id="reg-shift-end" value="19:00">
+                <label>Shift End</label>
+                <div class="time-group">
+                    <select id="reg-end-h">
+                        <option value="" disabled selected>Hr</option>
+                        <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06" selected>06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                    </select>
+                    <span>:</span>
+                    <select id="reg-end-m">
+                        <option value="" disabled selected>Min</option>
+                        <option value="00" selected>00</option><option value="05">05</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option>
+                    </select>
+                    <select id="reg-end-ampm">
+                        <option value="AM">AM</option>
+                        <option value="PM" selected>PM</option>
+                    </select>
+                </div>
             </div>
         </div>
+        
         <div class="input-group">
             <label>Standard Break (Minutes)</label>
             <input type="number" id="reg-std-break" placeholder="e.g., 60" value="60">
@@ -286,22 +321,11 @@
         <div id="view-timesheet" class="view-panel">
             <div class="card">
                 <h3 style="font-size: 16px;">Log Daily Hours</h3>
+                
                 <div class="flex-grid">
                     <div>
                         <label>Date (IST)</label>
                         <input type="date" id="entry-date" readonly>
-                    </div>
-                    <div>
-                        <label>Clock-In</label>
-                        <input type="time" id="entry-in">
-                    </div>
-                    <div>
-                        <label>Clock-Out</label>
-                        <input type="time" id="entry-out">
-                    </div>
-                    <div>
-                        <label>Break (Mins)</label>
-                        <input type="number" id="entry-break" value="60">
                     </div>
                     <div>
                         <label>Status</label>
@@ -312,8 +336,50 @@
                             <option value="Half Day">Half Day</option>
                         </select>
                     </div>
+                    <div>
+                        <label>Break (Mins)</label>
+                        <input type="number" id="entry-break" value="60">
+                    </div>
                 </div>
-                <button class="btn btn-sm" onclick="addEntry()">Save Record</button>
+
+                <div class="flex-grid" style="margin-top: 10px;">
+                    <div>
+                        <label>Clock-In Time</label>
+                        <div class="time-group">
+                            <select id="entry-in-h">
+                                <option value="" disabled selected>Hr</option>
+                                <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                            </select>
+                            <span>:</span>
+                            <select id="entry-in-m">
+                                <option value="" disabled selected>Min</option>
+                                <option value="00">00</option><option value="05">05</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option>
+                            </select>
+                            <select id="entry-in-ampm">
+                                <option value="AM" selected>AM</option><option value="PM">PM</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label>Clock-Out Time</label>
+                        <div class="time-group">
+                            <select id="entry-out-h">
+                                <option value="" disabled selected>Hr</option>
+                                <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                            </select>
+                            <span>:</span>
+                            <select id="entry-out-m">
+                                <option value="" disabled selected>Min</option>
+                                <option value="00">00</option><option value="05">05</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option>
+                            </select>
+                            <select id="entry-out-ampm">
+                                <option value="AM">AM</option><option value="PM" selected>PM</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-sm" style="margin-top: 15px;" onclick="addEntry()">Save Record</button>
             </div>
 
             <div class="card clearfix">
@@ -482,7 +548,6 @@
     const db = firebase.firestore();
     let currentUserData = {};
 
-    // --- REPLACED ALERTS WITH TOAST NOTIFICATIONS ---
     function showToast(message, isError = false) {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
@@ -490,8 +555,6 @@
         toast.innerText = message;
         
         container.appendChild(toast);
-        
-        // Trigger reflow to play animation
         void toast.offsetWidth; 
         toast.classList.add('show');
 
@@ -504,6 +567,21 @@
     function getISTDateString() {
         const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
         return new Intl.DateTimeFormat('en-CA', options).format(new Date()); 
+    }
+
+    // UTILITY: Extracts standard 24h format from custom AM/PM dropdowns
+    function parseCustomTime(idPrefix) {
+        const h = document.getElementById(idPrefix + '-h').value;
+        const m = document.getElementById(idPrefix + '-m').value;
+        const ampm = document.getElementById(idPrefix + '-ampm').value;
+        
+        if(!h || !m) return '';
+        
+        let hour24 = parseInt(h);
+        if(ampm === 'PM' && hour24 !== 12) hour24 += 12;
+        if(ampm === 'AM' && hour24 === 12) hour24 = 0;
+        
+        return `${hour24.toString().padStart(2,'0')}:${m}`;
     }
 
     const format12hr = (timeStr) => {
@@ -649,8 +727,10 @@
         const pass = document.getElementById('reg-password').value;
         const name = document.getElementById('reg-name').value;
         const empId = document.getElementById('reg-empId').value;
-        const shiftStart = document.getElementById('reg-shift-start').value;
-        const shiftEnd = document.getElementById('reg-shift-end').value;
+        
+        // Fetch explicit Shift variables from custom dropdowns
+        const shiftStart = parseCustomTime('reg-start');
+        const shiftEnd = parseCustomTime('reg-end');
         const stdBreak = document.getElementById('reg-std-break').value;
 
         if(!name || !empId || !shiftStart || !shiftEnd || !email) return showToast("All fields are mandatory.", true);
@@ -772,13 +852,15 @@
 
     function addEntry() {
         const date = document.getElementById('entry-date').value;
-        const inTime = document.getElementById('entry-in').value;
-        const outTime = document.getElementById('entry-out').value;
         const breakMins = document.getElementById('entry-break').value;
         const status = document.getElementById('entry-status').value;
+        
+        // Fetch explicit times from the custom guaranteed dropdowns
+        const inTime = parseCustomTime('entry-in');
+        const outTime = parseCustomTime('entry-out');
 
         if (!date) return showToast("Date is required.", true);
-        if (status === 'Present' && (!inTime || !outTime)) return showToast("Please enter Clock-In and Clock-Out times.", true);
+        if (status === 'Present' && (!inTime || !outTime)) return showToast("Please select Clock-In and Clock-Out times.", true);
 
         const calc = calculateTimeMath(inTime, outTime, breakMins, status);
 
@@ -793,8 +875,10 @@
             status: status
         }).then(() => {
             showToast("Timesheet record saved securely!");
-            document.getElementById('entry-in').value = '';
-            document.getElementById('entry-out').value = '';
+            document.getElementById('entry-in-h').selectedIndex = 0;
+            document.getElementById('entry-in-m').selectedIndex = 0;
+            document.getElementById('entry-out-h').selectedIndex = 0;
+            document.getElementById('entry-out-m').selectedIndex = 0;
         }).catch(err => showToast("Error: " + err.message, true));
     }
 
