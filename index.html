@@ -245,7 +245,7 @@
         }
     }
 
-    // Smart Split Login Engine: Checks Firestore email record first to isolate non-existent users
+    // STRICT STEPPED LOGIN FLOW
     async function login() {
         const email = document.getElementById('login-email').value.trim().toLowerCase();
         const pass = document.getElementById('login-password').value;
@@ -253,20 +253,20 @@
         if (!email || !pass) return alert("Please fill standard login parameters.");
 
         try {
-            // Step 1: Query the Firestore 'users' collection to check if email exists
-            const userCheck = await db.collection('users').where("email", "==", email).get();
+            // STEP 1: Scan Firestore collection manually to verify if the email layout exists at all
+            const profileScan = await db.collection('users').where("email", "==", email).get();
             
-            if (userCheck.empty) {
-                // Email doesn't exist anywhere in our registered workspace database
+            if (profileScan.empty) {
+                // The email address does not exist anywhere inside our workspace database
                 alert("No account found, please register.");
                 return;
             }
 
-            // Step 2: Email exists, proceed to verify password credentials
+            // STEP 2: The email was found. Now check if the password matches the account credentials
             await auth.signInWithEmailAndPassword(email, pass);
             
         } catch (err) {
-            // Explicitly catches wrong password errors triggered during auth handshake
+            // Because Step 1 guaranteed the email exists, any auth failure here means the password itself is bad
             if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
                 alert("Wrong password");
             } else {
