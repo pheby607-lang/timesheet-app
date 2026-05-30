@@ -12,7 +12,7 @@
             /* Pure White Light Theme */
             --primary: #5a57ea; 
             --primary-hover: #4845d1;
-            --bg-color: #ffffff; 
+            --bg-color: #f9fafb; /* Slight contrast for the white cards */
             --card-bg: #ffffff;
             --text-main: #111827;
             --text-muted: #6b7280;
@@ -95,9 +95,11 @@
 
         .main-content { flex: 1; padding: 20px; width: 100%; transition: margin-left 0.3s; max-width: 1000px; margin: 0 auto; }
         
-        /* Top Nav & Small Logout */
+        /* Slim Top Nav & Text Logout */
         .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; background: var(--card-bg); padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border-color); }
-        .menu-btn { font-size: 20px; cursor: pointer; background: none; border: none; color: var(--text-main); padding: 0; }
+        .menu-btn { cursor: pointer; background: none; border: none; color: var(--text-main); padding: 0; display: flex; align-items: center; }
+        .logout-btn { background: transparent; border: none; color: var(--text-main); font-weight: 600; font-size: 14px; cursor: pointer; padding: 0; transition: color 0.2s; }
+        .logout-btn:hover { color: var(--primary); }
         
         /* Profile Image Styles */
         .profile-pic-wrapper { position: relative; width: 100px; height: 100px; margin: 0 auto 20px auto; }
@@ -128,9 +130,41 @@
         .export-btn:hover { background: #059669; }
         .clearfix::after { content: ""; clear: both; display: table; }
         .icon { width: 18px; height: 18px; fill: currentColor; }
+
+        /* --- TOAST NOTIFICATIONS (Pop up down the bar) --- */
+        .toast-container {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast.error { background: #dc2626; }
     </style>
 </head>
 <body>
+
+<div id="toast-container" class="toast-container"></div>
 
 <div id="auth-section" class="auth-container">
     <div id="login-form" class="card">
@@ -186,10 +220,22 @@
             <label>Employee ID</label>
             <input type="text" id="reg-empId" placeholder="e.g., I210062">
         </div>
-        <div class="input-group">
-            <label>Standard Hours</label>
-            <input type="number" id="reg-hours" placeholder="e.g., 9">
+        
+        <div class="flex-grid" style="margin-bottom: 0;">
+            <div class="input-group">
+                <label>Standard Shift Start</label>
+                <input type="time" id="reg-shift-start" value="10:00">
+            </div>
+            <div class="input-group">
+                <label>Standard Shift End</label>
+                <input type="time" id="reg-shift-end" value="19:00">
+            </div>
         </div>
+        <div class="input-group">
+            <label>Standard Break (Minutes)</label>
+            <input type="number" id="reg-std-break" placeholder="e.g., 60" value="60">
+        </div>
+
         <div class="input-group">
             <label>Email address</label>
             <input type="email" id="reg-email" placeholder="you@example.com">
@@ -228,10 +274,12 @@
     <div class="main-content">
         <div class="top-nav">
             <div style="display: flex; align-items: center; gap: 15px;">
-                <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-                <div class="brand-text" style="font-size: 18px;">Worksheet</div>
+                <button class="menu-btn" onclick="toggleSidebar()">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                </button>
+                <div class="brand-text" style="font-size: 16px;">Worksheet</div>
             </div>
-            <button class="btn-outline btn-sm" onclick="logout()">Log Out</button>
+            <button class="logout-btn" onclick="logout()">Log Out</button>
         </div>
 
         <div id="view-timesheet" class="view-panel">
@@ -269,9 +317,14 @@
 
             <div class="card clearfix">
                 <div id="timesheet-report">
-                    <div style="margin-bottom: 15px;">
-                        <h3 style="margin-bottom: 4px; font-size: 16px;">Timesheet Report</h3>
-                        <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Non-editable permanent record.</p>
+                    <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-end;">
+                        <div>
+                            <h3 style="margin-bottom: 4px; font-size: 16px;">Timesheet Report</h3>
+                            <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Non-editable permanent record.</p>
+                        </div>
+                        <div style="text-align: right; font-size: 12px; color: var(--text-muted);">
+                            <strong>Your Standard Shift:</strong> <span id="display-hours">...</span>
+                        </div>
                     </div>
                     <div class="table-responsive">
                         <table>
@@ -367,7 +420,7 @@
                     <input type="email" id="prof-email" readonly>
                 </div>
                 <div class="input-group">
-                    <label>Standard Working Hours</label>
+                    <label>Standard Shift Settings</label>
                     <input type="text" id="prof-hours" readonly>
                 </div>
             </div>
@@ -428,10 +481,37 @@
     const db = firebase.firestore();
     let currentUserData = {};
 
+    // --- REPLACED ALERTS WITH TOAST NOTIFICATIONS ---
+    function showToast(message, isError = false) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${isError ? 'error' : ''}`;
+        toast.innerText = message;
+        
+        container.appendChild(toast);
+        
+        // Trigger reflow to play animation
+        void toast.offsetWidth; 
+        toast.classList.add('show');
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => { toast.remove(); }, 300);
+        }, 3000);
+    }
+
     function getISTDateString() {
         const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
         return new Intl.DateTimeFormat('en-CA', options).format(new Date()); 
     }
+
+    const format12hr = (timeStr) => {
+        if (!timeStr || timeStr === '-') return '-';
+        let [h, m] = timeStr.split(':');
+        let ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        return `${h.toString().padStart(2, '0')}:${m} ${ampm}`;
+    };
 
     if(localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-theme');
@@ -485,7 +565,10 @@
                 document.getElementById('prof-name').value = currentUserData.name;
                 document.getElementById('prof-id').value = currentUserData.empId;
                 document.getElementById('prof-email').value = currentUserData.email;
-                document.getElementById('prof-hours').value = currentUserData.standardHours;
+                
+                const shiftDisplay = `${format12hr(currentUserData.shiftStart)} to ${format12hr(currentUserData.shiftEnd)} (${currentUserData.stdBreak}m break)`;
+                document.getElementById('prof-hours').value = shiftDisplay;
+                document.getElementById('display-hours').innerText = shiftDisplay;
 
                 if(currentUserData.photoURL) {
                     document.getElementById('profile-img').src = currentUserData.photoURL;
@@ -498,7 +581,7 @@
                 loadTimesheets(user.uid);
                 loadWorkLogs(user.uid);
             } else {
-                alert("Please set up your worksheet profile.");
+                showToast("Please set up your worksheet profile.", true);
                 toggleAuth('register');
                 document.getElementById('reg-email').value = user.email || "";
                 document.getElementById('auth-section').classList.remove('hidden');
@@ -515,7 +598,7 @@
         if (!file) return;
 
         if (file.size > 5 * 1024 * 1024) {
-            return alert("File is too large. Maximum size is 5MB.");
+            return showToast("File is too large. Maximum size is 5MB.", true);
         }
 
         const reader = new FileReader();
@@ -537,9 +620,9 @@
                     document.getElementById('profile-img').src = compressedBase64;
                     document.getElementById('sidebar-profile-img').src = compressedBase64;
                     document.getElementById('delete-pic-btn').classList.remove('hidden');
-                    alert("Profile picture updated!");
+                    showToast("Profile picture updated!");
                 } catch(err) {
-                    alert("Error saving image: " + err.message);
+                    showToast("Error saving image: " + err.message, true);
                 }
             };
             img.src = e.target.result;
@@ -554,8 +637,9 @@
             document.getElementById('profile-img').src = "https://via.placeholder.com/150";
             document.getElementById('sidebar-profile-img').src = "https://via.placeholder.com/150";
             document.getElementById('delete-pic-btn').classList.add('hidden');
+            showToast("Profile picture removed");
         } catch(err) {
-            alert("Error removing image: " + err.message);
+            showToast("Error removing image: " + err.message, true);
         }
     }
 
@@ -564,43 +648,48 @@
         const pass = document.getElementById('reg-password').value;
         const name = document.getElementById('reg-name').value;
         const empId = document.getElementById('reg-empId').value;
-        const standardHours = document.getElementById('reg-hours').value;
+        const shiftStart = document.getElementById('reg-shift-start').value;
+        const shiftEnd = document.getElementById('reg-shift-end').value;
+        const stdBreak = document.getElementById('reg-std-break').value;
 
-        if(!name || !empId || !standardHours || !email) return alert("All fields are mandatory.");
+        if(!name || !empId || !shiftStart || !shiftEnd || !email) return showToast("All fields are mandatory.", true);
 
         try {
             let userUid;
             if (auth.currentUser) {
                 userUid = auth.currentUser.uid;
             } else {
-                if(!pass) return alert("Please provide a password.");
+                if(!pass) return showToast("Please provide a password.", true);
                 const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
                 userUid = userCredential.user.uid;
             }
 
-            await db.collection('users').doc(userUid).set({ name: name, empId: empId, standardHours: Number(standardHours), email: email });
-            alert("Profile successfully saved!");
-            window.location.reload(); 
+            await db.collection('users').doc(userUid).set({ 
+                name: name, empId: empId, shiftStart: shiftStart, shiftEnd: shiftEnd, stdBreak: Number(stdBreak) || 0, email: email 
+            });
+            showToast("Profile successfully saved!");
+            setTimeout(() => window.location.reload(), 1000); 
         } catch (error) {
             if (error.code === "auth/email-already-in-use" || error.code === 400) {
-                alert("Email already linked to an account.");
-            } else { alert(error.message); }
+                showToast("Email already linked to an account.", true);
+            } else { showToast(error.message, true); }
         }
     }
 
     async function login() {
         const email = document.getElementById('login-email').value.trim().toLowerCase();
         const pass = document.getElementById('login-password').value;
-        if (!email || !pass) return alert("Please enter credentials.");
+        if (!email || !pass) return showToast("Please enter credentials.", true);
 
         try {
             const profileScan = await db.collection('users').where("email", "==", email).get();
-            if (profileScan.empty) return alert("No account found, please register.");
+            if (profileScan.empty) return showToast("No account found, please register.", true);
             await auth.signInWithEmailAndPassword(email, pass);
+            showToast("Logged in successfully!");
         } catch (err) {
             if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
-                alert("wrong password");
-            } else { alert(err.message); }
+                showToast("wrong password", true);
+            } else { showToast(err.message, true); }
         }
     }
 
@@ -609,8 +698,8 @@
         const newPass = document.getElementById('new-pass').value;
         const confirmPass = document.getElementById('confirm-pass').value;
 
-        if(!oldPass || !newPass || !confirmPass) return alert("Please fill out all password fields.");
-        if(newPass !== confirmPass) return alert("New passwords do not match!");
+        if(!oldPass || !newPass || !confirmPass) return showToast("Please fill out all password fields.", true);
+        if(newPass !== confirmPass) return showToast("New passwords do not match!", true);
 
         const user = auth.currentUser;
         const credential = firebase.auth.EmailAuthProvider.credential(user.email, oldPass);
@@ -618,20 +707,20 @@
         try {
             await user.reauthenticateWithCredential(credential);
             await user.updatePassword(newPass);
-            alert("Password successfully changed!");
+            showToast("Password successfully changed!");
             document.getElementById('old-pass').value = '';
             document.getElementById('new-pass').value = '';
             document.getElementById('confirm-pass').value = '';
         } catch (err) {
             if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
-                alert("wrong password");
-            } else { alert(err.message); }
+                showToast("wrong password", true);
+            } else { showToast(err.message, true); }
         }
     }
 
     function loginWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch(err => alert(err.message));
+        auth.signInWithPopup(provider).catch(err => showToast(err.message, true));
     }
 
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
@@ -641,27 +730,43 @@
         auth.signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
             .then((confirmationResult) => {
                 const code = prompt("Enter verification OTP token:");
-                if(code) confirmationResult.confirm(code).catch(() => alert("Verification rejected."));
-            }).catch(err => alert(err.message));
+                if(code) confirmationResult.confirm(code).catch(() => showToast("Verification rejected.", true));
+            }).catch(err => showToast(err.message, true));
     }
 
-    function logout() { auth.signOut(); }
+    function logout() { 
+        auth.signOut(); 
+        showToast("Logged out successfully");
+    }
 
     function calculateTimeMath(inTimeStr, outTimeStr, breakMinsStr, status) {
         if (status === 'Leave' || status === 'Weekend') return { workFormatted: '-', overFormatted: '-' };
-        const breakMins = parseInt(breakMinsStr) || 0;
-        const stdMins = currentUserData.standardHours * 60;
-        const inMins = parseInt(inTimeStr.split(':')[0]) * 60 + parseInt(inTimeStr.split(':')[1]);
-        let outMins = parseInt(outTimeStr.split(':')[0]) * 60 + parseInt(outTimeStr.split(':')[1]);
-        if (outMins < inMins) outMins += 24 * 60; 
-        const totalWorkedMins = (outMins - inMins) - breakMins;
-        const overtimeMins = Math.max(0, totalWorkedMins - stdMins);
+        
+        const getMins = (t) => parseInt(t.split(':')[0]) * 60 + parseInt(t.split(':')[1]);
+        
+        const stdIn = getMins(currentUserData.shiftStart);
+        let stdOut = getMins(currentUserData.shiftEnd);
+        if (stdOut < stdIn) stdOut += 24 * 60;
+        const requiredMins = (stdOut - stdIn) - (currentUserData.stdBreak || 0);
+
+        const actualBreak = parseInt(breakMinsStr) || 0;
+        const actualIn = getMins(inTimeStr);
+        let actualOut = getMins(outTimeStr);
+        if (actualOut < actualIn) actualOut += 24 * 60; 
+        
+        const totalWorkedMins = (actualOut - actualIn) - actualBreak;
+        const overtimeMins = Math.max(0, totalWorkedMins - requiredMins);
+        
         const formatTime = (mins) => {
             const h = Math.floor(mins / 60).toString().padStart(2, '0');
             const m = (mins % 60).toString().padStart(2, '0');
             return `${h}:${m}`;
         };
-        return { workFormatted: formatTime(totalWorkedMins), overFormatted: overtimeMins > 0 ? formatTime(overtimeMins) : '00:00' };
+        
+        return { 
+            workFormatted: formatTime(totalWorkedMins), 
+            overFormatted: overtimeMins > 0 ? formatTime(overtimeMins) : '00:00' 
+        };
     }
 
     function addEntry() {
@@ -671,7 +776,8 @@
         const breakMins = document.getElementById('entry-break').value;
         const status = document.getElementById('entry-status').value;
 
-        if (!date) return alert("Date is required.");
+        if (!date) return showToast("Date is required.", true);
+        if (status === 'Present' && (!inTime || !outTime)) return showToast("Please enter Clock-In and Clock-Out times.", true);
 
         const calc = calculateTimeMath(inTime, outTime, breakMins, status);
 
@@ -685,13 +791,12 @@
             overtime: calc.overFormatted,
             status: status
         }).then(() => {
-            alert("Timesheet record locked securely!");
+            showToast("Timesheet record saved securely!");
             document.getElementById('entry-in').value = '';
             document.getElementById('entry-out').value = '';
-        }).catch(err => alert("Error: " + err.message));
+        }).catch(err => showToast("Error: " + err.message, true));
     }
 
-    // FIX: Manual sorting in the browser prevents Firebase Index errors
     function loadTimesheets(userId) {
         db.collection('timesheets').where("userId", "==", userId)
           .onSnapshot(snapshot => {
@@ -703,21 +808,12 @@
                 return;
             }
 
-            // Manually sort the data by date so Firebase doesn't block the request
             let records = [];
             snapshot.forEach(doc => records.push(doc.data()));
             records.sort((a, b) => new Date(a.date) - new Date(b.date));
 
             records.forEach(data => {
                 let statusClass = data.status === 'Present' ? 'badge-green' : data.status === 'Leave' ? 'badge-red' : data.status === 'Weekend' ? 'badge-blue' : 'badge-yellow';
-
-                const format12hr = (timeStr) => {
-                    if (!timeStr || timeStr === '-') return '-';
-                    let [h, m] = timeStr.split(':');
-                    let ampm = h >= 12 ? 'PM' : 'AM';
-                    h = h % 12 || 12;
-                    return `${h.toString().padStart(2, '0')}:${m} ${ampm}`;
-                };
 
                 tbody.innerHTML += `
                     <tr>
@@ -739,8 +835,8 @@
         const desc = document.getElementById('work-desc').value;
         const status = document.getElementById('work-status').value;
 
-        if (status !== 'Completed') return alert("please click completed to save it");
-        if (!desc.trim()) return alert("Please enter a description of work done.");
+        if (status !== 'Completed') return showToast("please click completed to save it", true);
+        if (!desc.trim()) return showToast("Please enter a description of work done.", true);
 
         db.collection('workLogs').add({
             userId: auth.currentUser.uid,
@@ -748,12 +844,11 @@
             description: desc,
             status: status
         }).then(() => {
-            alert("Work task logged securely!");
+            showToast("Work task logged securely!");
             document.getElementById('work-desc').value = ''; 
-        }).catch(err => alert("Error: " + err.message));
+        }).catch(err => showToast("Error: " + err.message, true));
     }
 
-    // FIX: Manual sorting in the browser prevents Firebase Index errors
     function loadWorkLogs(userId) {
         db.collection('workLogs').where("userId", "==", userId)
           .onSnapshot(snapshot => {
@@ -765,7 +860,6 @@
                 return;
             }
 
-            // Manually sort the data by date so Firebase doesn't block the request
             let records = [];
             snapshot.forEach(doc => records.push(doc.data()));
             records.sort((a, b) => new Date(a.date) - new Date(b.date));
