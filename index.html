@@ -10,11 +10,9 @@
         .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         h1, h2, h3 { color: #1a365d; text-align: center; }
         
-        /* Unified Theme Forms & Inputs */
         input, button, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 4px; border: 1px solid #cbd5e0; box-sizing: border-box; font-size: 14px; }
         input:focus, select:focus { outline: none; border-color: #2b6cb0; box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); }
         
-        /* Buttons matching Navy/Slate Worksheet Theme */
         .btn { background: #1a365d; color: white; border: none; cursor: pointer; font-weight: bold; transition: background 0.2s; }
         .btn:hover { background: #2c5282; }
         .btn-outline { background: white; color: #1a365d; border: 2px solid #1a365d; }
@@ -22,21 +20,17 @@
         
         .hidden { display: none; }
         
-        /* Theme Synchronized Login Interface */
         .login-card { max-width: 450px; margin: 40px auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 6px; background: #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
         .divider-text { text-align: center; margin: 15px 0; color: #718096; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
         
-        /* Timesheet Structure matching sheet requirements */
         .profile-header { display: flex; justify-content: space-between; border: 1px solid #cbd5e0; padding: 15px; margin-bottom: 20px; border-radius: 4px; background: #fff; }
         .profile-header div p { margin: 5px 0; font-size: 14px; }
         
-        /* Daily Entry Form Block */
         .entry-sheet-block { background: #f7fafc; border: 1px solid #edf2f7; padding: 20px; border-radius: 6px; margin: 25px 0; }
         .flex-grid { display: flex; gap: 15px; flex-wrap: wrap; }
         .flex-grid > div { flex: 1; min-width: 150px; }
         .flex-grid label { font-size: 13px; font-weight: 600; color: #4a5568; display: block; margin-bottom: 4px; }
         
-        /* Table Layout Configuration */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; text-align: center; }
         th, td { border: 1px solid #e2e8f0; padding: 12px; }
         th { background-color: #1a365d; color: white; }
@@ -152,7 +146,7 @@
                     </tr>
                 </thead>
                 <tbody id="timesheet-body">
-                    </tbody>
+                </tbody>
             </table>
         </div>
 
@@ -160,7 +154,6 @@
             <button class="btn export-btn" onclick="downloadPDF()">Download as PDF</button>
         </div>
     </div>
-
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -168,7 +161,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
-    // System Config Tokens
     const firebaseConfig = {
         apiKey: "AIzaSyDoUUzyRcrCO-gabmXrt2Z-snBgBhA7J_c",
         authDomain: "timesheet-app-ce774.firebaseapp.com",
@@ -190,7 +182,6 @@
         document.getElementById('register-form').classList.toggle('hidden', view !== 'register');
     }
 
-    // Auth State Observer
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             document.getElementById('auth-section').classList.add('hidden');
@@ -208,8 +199,9 @@
                 
                 loadTimesheets(user.uid);
             } else {
-                alert("Account authenticated! Please perform profile parameter assignment.");
+                alert("Account authenticated! Please set up your timesheet profile.");
                 toggleAuth('register');
+                document.getElementById('reg-email').value = user.email || "";
                 document.getElementById('auth-section').classList.remove('hidden');
                 document.getElementById('app-section').classList.add('hidden');
             }
@@ -219,7 +211,7 @@
         }
     });
 
-    // Registration Handler
+    // UPDATED & FIXED REGISTRATION LOGIC
     async function register() {
         const email = document.getElementById('reg-email').value.trim().toLowerCase();
         const pass = document.getElementById('reg-password').value;
@@ -227,25 +219,44 @@
         const empId = document.getElementById('reg-empId').value;
         const standardHours = document.getElementById('reg-hours').value;
 
-        if(!name || !empId || !standardHours || !email || !pass) {
-            return alert("All field inputs are mandatory to map profile parameters.");
+        if(!name || !empId || !standardHours || !email) {
+            return alert("Name, Employee ID, Hours, and Email are mandatory.");
         }
 
         try {
-            const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
-            await db.collection('users').doc(userCredential.user.uid).set({
+            let userUid;
+
+            // BUG FIX: If you are already logged in (like via Google), skip creating a new account!
+            if (auth.currentUser) {
+                userUid = auth.currentUser.uid;
+            } else {
+                // If you are completely new, create the email/password account
+                if(!pass) return alert("Please provide a password.");
+                const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
+                userUid = userCredential.user.uid;
+            }
+
+            // Save your profile data securely
+            await db.collection('users').doc(userUid).set({
                 name: name,
                 empId: empId,
                 standardHours: Number(standardHours),
                 email: email
             });
-            alert("Profile successfully committed!");
+            
+            alert("Profile successfully saved!");
+            window.location.reload(); // Refresh to let the dashboard load cleanly
+            
         } catch (error) {
-            alert(error.message);
+            // BUG FIX: Translate that ugly error JSON into a clear message
+            if (error.code === "auth/email-already-in-use" || error.code === 400) {
+                alert("This email is already linked to an account. If you used Google earlier, please go back and click 'Login with Google'.");
+            } else {
+                alert(error.message);
+            }
         }
     }
 
-    // STRICT STEPPED LOGIN FLOW
     async function login() {
         const email = document.getElementById('login-email').value.trim().toLowerCase();
         const pass = document.getElementById('login-password').value;
@@ -253,22 +264,18 @@
         if (!email || !pass) return alert("Please fill standard login parameters.");
 
         try {
-            // STEP 1: Scan Firestore collection manually to verify if the email layout exists at all
             const profileScan = await db.collection('users').where("email", "==", email).get();
             
             if (profileScan.empty) {
-                // The email address does not exist anywhere inside our workspace database
                 alert("No account found, please register.");
                 return;
             }
 
-            // STEP 2: The email was found. Now check if the password matches the account credentials
             await auth.signInWithEmailAndPassword(email, pass);
             
         } catch (err) {
-            // Because Step 1 guaranteed the email exists, any auth failure here means the password itself is bad
             if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
-                alert("Wrong password");
+                alert("invalid credentials"); // Set exactly to your request
             } else {
                 alert(err.message);
             }
@@ -296,7 +303,6 @@
 
     function logout() { auth.signOut(); }
 
-    // Logic Engine for Minute-Level Overtime
     function calculateTimeMath(inTimeStr, outTimeStr, breakMinsStr, status) {
         if (status === 'Leave' || status === 'Weekend') {
             return { workFormatted: '-', overFormatted: '-' };
