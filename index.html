@@ -9,9 +9,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
-            --primary: #5a57ea;
+            /* Pure White Light Theme */
+            --primary: #5a57ea; 
             --primary-hover: #4845d1;
-            --bg-color: #f4f5f9;
+            --bg-color: #ffffff; 
             --card-bg: #ffffff;
             --text-main: #111827;
             --text-muted: #6b7280;
@@ -20,14 +21,16 @@
             --sidebar-text: #ffffff;
         }
 
-        /* Dark Mode Variables */
+        /* Black & Purple Dark Theme */
         body.dark-theme {
-            --bg-color: #111827;
-            --card-bg: #1f2937;
-            --text-main: #f9fafb;
-            --text-muted: #9ca3af;
-            --border-color: #374151;
-            --sidebar-bg: #0f141e;
+            --bg-color: #000000; 
+            --card-bg: #0a0a0a; 
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --border-color: #27272a;
+            --sidebar-bg: #050505;
+            --primary: #a855f7; 
+            --primary-hover: #9333ea;
         }
 
         body { 
@@ -42,24 +45,24 @@
 
         /* --- AUTHENTICATION CARDS --- */
         .auth-container { max-width: 440px; margin: 60px auto; padding: 20px; }
-        .card { background: var(--card-bg); border-radius: 16px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); margin-bottom: 24px; transition: background 0.3s; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 30px; border: 1px solid var(--border-color); margin-bottom: 24px; transition: background 0.3s, border 0.3s; }
         .brand-header { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
-        .brand-icon { width: 36px; height: 36px; background: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; }
+        .brand-icon { width: 36px; height: 36px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; }
         .brand-text { font-size: 16px; font-weight: 700; color: var(--text-main); }
-        h2 { margin: 0 0 8px 0; font-size: 26px; font-weight: 700; color: var(--text-main); }
+        h2 { margin: 0 0 8px 0; font-size: 24px; font-weight: 700; color: var(--text-main); }
         h3 { color: var(--text-main); margin-top: 0; }
         p.subtitle { color: var(--text-muted); font-size: 14px; margin-top: 0; margin-bottom: 24px; }
 
         /* Forms & Inputs */
         .input-group { margin-bottom: 16px; }
         label { display: block; font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
-        input, select { width: 100%; padding: 14px 16px; border-radius: 8px; border: 1px solid var(--border-color); box-sizing: border-box; font-size: 14px; background: var(--bg-color); color: var(--text-main); transition: all 0.2s; }
-        input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(90, 87, 234, 0.1); }
-        input[readonly] { opacity: 0.7; cursor: not-allowed; }
+        input, select { width: 100%; padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border-color); box-sizing: border-box; font-size: 14px; background: var(--bg-color); color: var(--text-main); transition: all 0.2s; }
+        input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2); }
+        input[readonly] { opacity: 0.6; cursor: not-allowed; }
 
-        .btn { width: 100%; background: var(--primary); color: white; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn { width: 100%; background: var(--primary); color: white; border: none; border-radius: 6px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn:hover { background: var(--primary-hover); }
-        .btn-sm { width: auto; padding: 8px 16px; font-size: 13px; }
+        .btn-sm { width: auto; padding: 6px 12px; font-size: 12px; }
         .btn-danger { background: #dc2626; }
         .btn-danger:hover { background: #b91c1c; }
         
@@ -69,10 +72,10 @@
         .divider-text::after { right: 0; }
 
         .oauth-grid { display: flex; gap: 12px; margin-bottom: 24px; }
-        .btn-outline { flex: 1; background: transparent; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
-        .btn-outline:hover { background: var(--bg-color); }
+        .btn-outline { flex: 1; background: transparent; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn-outline:hover { background: rgba(168, 85, 247, 0.05); border-color: var(--primary); }
 
-        .toggle-text { text-align: center; font-size: 14px; color: var(--text-muted); margin-top: 24px; }
+        .toggle-text { text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 24px; }
         .toggle-text a { color: var(--primary); text-decoration: none; font-weight: 600; cursor: pointer; }
 
         .hidden { display: none !important; }
@@ -80,26 +83,28 @@
         /* --- DASHBOARD & SIDEBAR --- */
         #app-section { display: flex; min-height: 100vh; overflow-x: hidden; }
         
-        .sidebar { width: 250px; background: var(--sidebar-bg); color: var(--sidebar-text); position: fixed; top: 0; left: -250px; height: 100vh; transition: left 0.3s ease; z-index: 1000; padding-top: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
+        .sidebar { width: 250px; background: var(--sidebar-bg); color: var(--sidebar-text); position: fixed; top: 0; left: -250px; height: 100vh; transition: left 0.3s ease; z-index: 1000; padding-top: 20px; border-right: 1px solid var(--border-color); }
         .sidebar.open { left: 0; }
-        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 1px solid #374151; display: flex; align-items: center; gap: 10px;}
+        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 1px solid #27272a; display: flex; align-items: center; gap: 10px;}
         .sidebar-menu { list-style: none; padding: 0; margin: 20px 0; }
-        .sidebar-menu li { padding: 15px 20px; cursor: pointer; transition: background 0.2s; font-size: 15px; border-left: 3px solid transparent; }
-        .sidebar-menu li:hover, .sidebar-menu li.active { background: rgba(255,255,255,0.1); border-left: 3px solid var(--primary); }
+        .sidebar-menu li { padding: 15px 20px; cursor: pointer; transition: background 0.2s; font-size: 14px; border-left: 3px solid transparent; }
+        .sidebar-menu li:hover, .sidebar-menu li.active { background: rgba(168, 85, 247, 0.1); border-left: 3px solid var(--primary); color: var(--primary); }
         
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
         .overlay.open { display: block; }
 
         .main-content { flex: 1; padding: 20px; width: 100%; transition: margin-left 0.3s; max-width: 1000px; margin: 0 auto; }
         
-        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; background: var(--card-bg); padding: 15px 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-        .menu-btn { font-size: 24px; cursor: pointer; background: none; border: none; color: var(--text-main); }
+        /* Top Nav & Small Logout */
+        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; background: var(--card-bg); padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .menu-btn { font-size: 20px; cursor: pointer; background: none; border: none; color: var(--text-main); padding: 0; }
         
         /* Profile Image Styles */
         .profile-pic-wrapper { position: relative; width: 100px; height: 100px; margin: 0 auto 20px auto; }
-        .profile-pic { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); background: #e5e7eb; }
-        .upload-btn { position: absolute; bottom: 0; right: 0; background: var(--primary); color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; border: 2px solid var(--card-bg); }
+        .profile-pic { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); background: #e5e7eb; }
+        .upload-btn { position: absolute; bottom: 0; right: 0; background: var(--primary); color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; border: 2px solid var(--card-bg); }
         .upload-btn input { display: none; }
+        .delete-pic-btn { position: absolute; bottom: 0; left: 0; background: #dc2626; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 12px; border: 2px solid var(--card-bg); }
         .sidebar-pic { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
 
         .flex-grid { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 16px; }
@@ -107,24 +112,22 @@
 
         /* Tables */
         .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; font-size: 14px; text-align: left; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
-        th, td { padding: 16px; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
-        th { background-color: rgba(90, 87, 234, 0.05); color: var(--text-muted); font-weight: 600; font-size: 13px; text-transform: uppercase; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; font-size: 13px; text-align: left; border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
+        th, td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
+        th { background-color: rgba(168, 85, 247, 0.05); color: var(--primary); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
         td:last-child, th:last-child { border-right: none; }
         tr:last-child td { border-bottom: none; }
         
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
-        .badge-green { color: #059669; background: #d1fae5; }
-        .badge-red { color: #dc2626; background: #fee2e2; }
-        .badge-blue { color: #3b82f6; background: #dbeafe; }
-        .badge-yellow { color: #d97706; background: #fef3c7; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .badge-green { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .badge-red { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .badge-blue { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+        .badge-yellow { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
 
         .export-btn { background: #10b981; margin-top: 24px; width: auto; float: right; }
         .export-btn:hover { background: #059669; }
         .clearfix::after { content: ""; clear: both; display: table; }
-
-        /* SVG Icons */
-        .icon { width: 20px; height: 20px; fill: currentColor; }
+        .icon { width: 18px; height: 18px; fill: currentColor; }
     </style>
 </head>
 <body>
@@ -210,8 +213,8 @@
         <div class="sidebar-header">
             <img id="sidebar-profile-img" src="https://via.placeholder.com/150" class="sidebar-pic" alt="Profile">
             <div>
-                <div style="font-weight: bold; font-size: 14px;" id="sidebar-name">User</div>
-                <div style="font-size: 12px; color: #9ca3af;" id="sidebar-empId">ID</div>
+                <div style="font-weight: bold; font-size: 13px;" id="sidebar-name">User</div>
+                <div style="font-size: 11px; color: var(--text-muted);" id="sidebar-empId">ID</div>
             </div>
         </div>
         <ul class="sidebar-menu">
@@ -226,14 +229,14 @@
         <div class="top-nav">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-                <div class="brand-text" style="font-size: 20px;">Worksheet</div>
+                <div class="brand-text" style="font-size: 18px;">Worksheet</div>
             </div>
             <button class="btn-outline btn-sm" onclick="logout()">Log Out</button>
         </div>
 
         <div id="view-timesheet" class="view-panel">
-            <div class="card" style="padding: 30px;">
-                <h3>Log Daily Hours</h3>
+            <div class="card">
+                <h3 style="font-size: 16px;">Log Daily Hours</h3>
                 <div class="flex-grid">
                     <div>
                         <label>Date (IST)</label>
@@ -264,11 +267,11 @@
                 <button class="btn btn-sm" onclick="addEntry()">Save Record</button>
             </div>
 
-            <div class="card clearfix" style="padding: 30px;">
+            <div class="card clearfix">
                 <div id="timesheet-report">
-                    <div style="margin-bottom: 20px;">
-                        <h3 style="margin-bottom: 5px;">Timesheet Report</h3>
-                        <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Non-editable permanent record.</p>
+                    <div style="margin-bottom: 15px;">
+                        <h3 style="margin-bottom: 4px; font-size: 16px;">Timesheet Report</h3>
+                        <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Non-editable permanent record.</p>
                     </div>
                     <div class="table-responsive">
                         <table>
@@ -287,13 +290,13 @@
                         </table>
                     </div>
                 </div>
-                <button class="btn export-btn" onclick="downloadPDF('timesheet-report', 'Timesheet')">Download as PDF</button>
+                <button class="btn export-btn btn-sm" onclick="downloadPDF('timesheet-report', 'Timesheet')">Download PDF</button>
             </div>
         </div>
 
         <div id="view-work" class="view-panel hidden">
-            <div class="card" style="padding: 30px;">
-                <h3>Log Work Task</h3>
+            <div class="card">
+                <h3 style="font-size: 16px;">Log Work Task</h3>
                 <div class="flex-grid">
                     <div>
                         <label>Date (IST)</label>
@@ -314,11 +317,11 @@
                 <button class="btn btn-sm" onclick="addWorkLog()">Save Work Record</button>
             </div>
 
-            <div class="card clearfix" style="padding: 30px;">
+            <div class="card clearfix">
                 <div id="work-report">
-                    <div style="margin-bottom: 20px;">
-                        <h3 style="margin-bottom: 5px;">My Work Report</h3>
-                        <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Non-editable permanent record.</p>
+                    <div style="margin-bottom: 15px;">
+                        <h3 style="margin-bottom: 4px; font-size: 16px;">My Work Report</h3>
+                        <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Non-editable permanent record.</p>
                     </div>
                     <div class="table-responsive">
                         <table>
@@ -333,7 +336,7 @@
                         </table>
                     </div>
                 </div>
-                <button class="btn export-btn" onclick="downloadPDF('work-report', 'My_Work_Log')">Download as PDF</button>
+                <button class="btn export-btn btn-sm" onclick="downloadPDF('work-report', 'My_Work_Log')">Download PDF</button>
             </div>
         </div>
 
@@ -347,8 +350,9 @@
                         +
                         <input type="file" accept="image/png, image/jpeg" onchange="uploadProfilePic(event)">
                     </label>
+                    <div id="delete-pic-btn" class="delete-pic-btn hidden" onclick="deleteProfilePic()">✖</div>
                 </div>
-                <p style="text-align: center; font-size: 12px; color: var(--text-muted); margin-bottom: 30px;">Tap + to upload image</p>
+                <p style="text-align: center; font-size: 11px; color: var(--text-muted); margin-bottom: 30px;">Max size 5MB. Tap + to upload image.</p>
 
                 <div class="input-group">
                     <label>Full Name</label>
@@ -371,20 +375,20 @@
 
         <div id="view-settings" class="view-panel hidden">
             <div class="card" style="max-width: 500px; margin: 0 auto; margin-bottom: 20px;">
-                <h3>Preferences</h3>
+                <h3 style="font-size: 16px;">Preferences</h3>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
-                    <span style="font-weight: 600;">Dark Theme UI</span>
-                    <label style="position: relative; display: inline-block; width: 50px; height: 24px;">
+                    <span style="font-weight: 600; font-size: 14px;">Dark Theme (Black & Purple)</span>
+                    <label style="position: relative; display: inline-block; width: 44px; height: 22px;">
                         <input type="checkbox" id="theme-toggle" onchange="toggleTheme()" style="opacity: 0; width: 0; height: 0;">
                         <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); transition: .4s; border-radius: 24px;">
-                            <span id="theme-slider" style="position: absolute; content: ''; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+                            <span id="theme-slider" style="position: absolute; content: ''; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
                         </span>
                     </label>
                 </div>
             </div>
 
             <div class="card" style="max-width: 500px; margin: 0 auto;">
-                <h3>Change Password</h3>
+                <h3 style="font-size: 16px;">Change Password</h3>
                 <div class="input-group">
                     <label>Present Password</label>
                     <input type="password" id="old-pass" placeholder="Enter current password">
@@ -397,7 +401,7 @@
                     <label>Confirm New Password</label>
                     <input type="password" id="confirm-pass" placeholder="Confirm new password">
                 </div>
-                <button class="btn btn-danger" onclick="updateSecurityPassword()">Update Security Password</button>
+                <button class="btn btn-danger btn-sm" onclick="updateSecurityPassword()">Update Security Password</button>
             </div>
         </div>
 
@@ -409,7 +413,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
-    // System Config Tokens
     const firebaseConfig = {
         apiKey: "AIzaSyDoUUzyRcrCO-gabmXrt2Z-snBgBhA7J_c",
         authDomain: "timesheet-app-ce774.firebaseapp.com",
@@ -423,24 +426,19 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-
     let currentUserData = {};
 
-    // Generate strict IST Date function
     function getISTDateString() {
         const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
-        const formatter = new Intl.DateTimeFormat('en-CA', options); 
-        return formatter.format(new Date()); 
+        return new Intl.DateTimeFormat('en-CA', options).format(new Date()); 
     }
 
-    // Apply Dark Theme on Load if saved
     if(localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-theme');
         document.getElementById('theme-toggle').checked = true;
-        document.getElementById('theme-slider').style.transform = "translateX(26px)";
+        document.getElementById('theme-slider').style.transform = "translateX(22px)";
     }
 
-    // UI Logic
     function toggleAuth(view) {
         document.getElementById('login-form').classList.toggle('hidden', view !== 'login');
         document.getElementById('register-form').classList.toggle('hidden', view !== 'register');
@@ -464,17 +462,15 @@
 
     function toggleTheme() {
         const isDark = document.body.classList.toggle('dark-theme');
-        document.getElementById('theme-slider').style.transform = isDark ? "translateX(26px)" : "translateX(0)";
+        document.getElementById('theme-slider').style.transform = isDark ? "translateX(22px)" : "translateX(0)";
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
     }
 
-    // Auth State Observer
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('app-section').classList.remove('hidden');
             
-            // Set fixed IST Dates
             const istDate = getISTDateString();
             document.getElementById('entry-date').value = istDate;
             document.getElementById('work-date').value = istDate;
@@ -483,26 +479,26 @@
             if (doc.exists) {
                 currentUserData = doc.data();
                 
-                // Populate Sidebar
                 document.getElementById('sidebar-name').innerText = currentUserData.name;
                 document.getElementById('sidebar-empId').innerText = currentUserData.empId;
                 
-                // Populate Profile View
                 document.getElementById('prof-name').value = currentUserData.name;
                 document.getElementById('prof-id').value = currentUserData.empId;
                 document.getElementById('prof-email').value = currentUserData.email;
                 document.getElementById('prof-hours').value = currentUserData.standardHours;
 
-                // Load Profile Picture if exists
                 if(currentUserData.photoURL) {
                     document.getElementById('profile-img').src = currentUserData.photoURL;
                     document.getElementById('sidebar-profile-img').src = currentUserData.photoURL;
+                    document.getElementById('delete-pic-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('delete-pic-btn').classList.add('hidden');
                 }
                 
                 loadTimesheets(user.uid);
                 loadWorkLogs(user.uid);
             } else {
-                alert("Account authenticated! Please set up your worksheet profile.");
+                alert("Please set up your worksheet profile.");
                 toggleAuth('register');
                 document.getElementById('reg-email').value = user.email || "";
                 document.getElementById('auth-section').classList.remove('hidden');
@@ -514,32 +510,34 @@
         }
     });
 
-    // Compress and Upload Profile Pic to Firestore
     function uploadProfilePic(event) {
         const file = event.target.files[0];
         if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            return alert("File is too large. Maximum size is 5MB.");
+        }
 
         const reader = new FileReader();
         reader.onload = (e) => {
             const img = new Image();
             img.onload = async () => {
-                // Downscale logic to prevent Firebase 1MB limit crash
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 200;
+                const MAX_WIDTH = 250;
                 const scaleSize = MAX_WIDTH / img.width;
                 canvas.width = MAX_WIDTH;
                 canvas.height = img.height * scaleSize;
                 
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
-                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
                 
                 try {
                     await db.collection('users').doc(auth.currentUser.uid).update({ photoURL: compressedBase64 });
                     document.getElementById('profile-img').src = compressedBase64;
                     document.getElementById('sidebar-profile-img').src = compressedBase64;
-                    alert("Profile picture updated successfully!");
+                    document.getElementById('delete-pic-btn').classList.remove('hidden');
+                    alert("Profile picture updated!");
                 } catch(err) {
                     alert("Error saving image: " + err.message);
                 }
@@ -549,7 +547,18 @@
         reader.readAsDataURL(file);
     }
 
-    // REGISTRATION
+    async function deleteProfilePic() {
+        if(!confirm("Are you sure you want to remove your profile photo?")) return;
+        try {
+            await db.collection('users').doc(auth.currentUser.uid).update({ photoURL: firebase.firestore.FieldValue.delete() });
+            document.getElementById('profile-img').src = "https://via.placeholder.com/150";
+            document.getElementById('sidebar-profile-img').src = "https://via.placeholder.com/150";
+            document.getElementById('delete-pic-btn').classList.add('hidden');
+        } catch(err) {
+            alert("Error removing image: " + err.message);
+        }
+    }
+
     async function register() {
         const email = document.getElementById('reg-email').value.trim().toLowerCase();
         const pass = document.getElementById('reg-password').value;
@@ -557,7 +566,7 @@
         const empId = document.getElementById('reg-empId').value;
         const standardHours = document.getElementById('reg-hours').value;
 
-        if(!name || !empId || !standardHours || !email) return alert("Name, Employee ID, Hours, and Email are mandatory.");
+        if(!name || !empId || !standardHours || !email) return alert("All fields are mandatory.");
 
         try {
             let userUid;
@@ -574,33 +583,27 @@
             window.location.reload(); 
         } catch (error) {
             if (error.code === "auth/email-already-in-use" || error.code === 400) {
-                alert("This email is already linked to an account. If you used Google earlier, please go back and click 'Google'.");
+                alert("Email already linked to an account.");
             } else { alert(error.message); }
         }
     }
 
-    // LOGIN
     async function login() {
         const email = document.getElementById('login-email').value.trim().toLowerCase();
         const pass = document.getElementById('login-password').value;
-        
-        if (!email || !pass) return alert("Please fill standard login parameters.");
+        if (!email || !pass) return alert("Please enter credentials.");
 
         try {
             const profileScan = await db.collection('users').where("email", "==", email).get();
-            if (profileScan.empty) {
-                alert("No account found, please register.");
-                return;
-            }
+            if (profileScan.empty) return alert("No account found, please register.");
             await auth.signInWithEmailAndPassword(email, pass);
         } catch (err) {
             if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
-                alert("wrong password"); // Exact string requested
+                alert("wrong password");
             } else { alert(err.message); }
         }
     }
 
-    // CHANGE PASSWORD ENGINE
     async function updateSecurityPassword() {
         const oldPass = document.getElementById('old-pass').value;
         const newPass = document.getElementById('new-pass').value;
@@ -613,9 +616,7 @@
         const credential = firebase.auth.EmailAuthProvider.credential(user.email, oldPass);
 
         try {
-            // Re-authenticate first to verify old password
             await user.reauthenticateWithCredential(credential);
-            // If successful, update to new
             await user.updatePassword(newPass);
             alert("Password successfully changed!");
             document.getElementById('old-pass').value = '';
@@ -637,37 +638,29 @@
     function loginWithPhone() {
         const phoneNumber = prompt("Enter Phone Number (e.g., +919876543210):");
         if (!phoneNumber) return;
-
         auth.signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
             .then((confirmationResult) => {
                 const code = prompt("Enter verification OTP token:");
-                if(code) confirmationResult.confirm(code).catch(() => alert("Verification handshake rejected."));
+                if(code) confirmationResult.confirm(code).catch(() => alert("Verification rejected."));
             }).catch(err => alert(err.message));
     }
 
     function logout() { auth.signOut(); }
 
-    // TIMESHEET ENGINE
     function calculateTimeMath(inTimeStr, outTimeStr, breakMinsStr, status) {
         if (status === 'Leave' || status === 'Weekend') return { workFormatted: '-', overFormatted: '-' };
-
         const breakMins = parseInt(breakMinsStr) || 0;
         const stdMins = currentUserData.standardHours * 60;
-
         const inMins = parseInt(inTimeStr.split(':')[0]) * 60 + parseInt(inTimeStr.split(':')[1]);
         let outMins = parseInt(outTimeStr.split(':')[0]) * 60 + parseInt(outTimeStr.split(':')[1]);
-        
         if (outMins < inMins) outMins += 24 * 60; 
-
         const totalWorkedMins = (outMins - inMins) - breakMins;
         const overtimeMins = Math.max(0, totalWorkedMins - stdMins);
-
         const formatTime = (mins) => {
             const h = Math.floor(mins / 60).toString().padStart(2, '0');
             const m = (mins % 60).toString().padStart(2, '0');
             return `${h}:${m}`;
         };
-
         return { workFormatted: formatTime(totalWorkedMins), overFormatted: overtimeMins > 0 ? formatTime(overtimeMins) : '00:00' };
     }
 
@@ -691,11 +684,16 @@
             workingHrs: calc.workFormatted,
             overtime: calc.overFormatted,
             status: status
-        }).then(() => alert("Timesheet record locked securely!")).catch(err => alert("Error: " + err.message));
+        }).then(() => {
+            alert("Timesheet record locked securely!");
+            document.getElementById('entry-in').value = '';
+            document.getElementById('entry-out').value = '';
+        }).catch(err => alert("Error: " + err.message));
     }
 
+    // FIX: Manual sorting in the browser prevents Firebase Index errors
     function loadTimesheets(userId) {
-        db.collection('timesheets').where("userId", "==", userId).orderBy("date", "asc")
+        db.collection('timesheets').where("userId", "==", userId)
           .onSnapshot(snapshot => {
             const tbody = document.getElementById('timesheet-body');
             tbody.innerHTML = '';
@@ -705,8 +703,12 @@
                 return;
             }
 
-            snapshot.forEach(doc => {
-                const data = doc.data();
+            // Manually sort the data by date so Firebase doesn't block the request
+            let records = [];
+            snapshot.forEach(doc => records.push(doc.data()));
+            records.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            records.forEach(data => {
                 let statusClass = data.status === 'Present' ? 'badge-green' : data.status === 'Leave' ? 'badge-red' : data.status === 'Weekend' ? 'badge-blue' : 'badge-yellow';
 
                 const format12hr = (timeStr) => {
@@ -732,16 +734,12 @@
         });
     }
 
-    // WORK ENGINE
     function addWorkLog() {
         const date = document.getElementById('work-date').value;
         const desc = document.getElementById('work-desc').value;
         const status = document.getElementById('work-status').value;
 
-        // STRICT VALIDATION RULE
-        if (status !== 'Completed') {
-            return alert("please click completed to save it");
-        }
+        if (status !== 'Completed') return alert("please click completed to save it");
         if (!desc.trim()) return alert("Please enter a description of work done.");
 
         db.collection('workLogs').add({
@@ -755,8 +753,9 @@
         }).catch(err => alert("Error: " + err.message));
     }
 
+    // FIX: Manual sorting in the browser prevents Firebase Index errors
     function loadWorkLogs(userId) {
-        db.collection('workLogs').where("userId", "==", userId).orderBy("date", "asc")
+        db.collection('workLogs').where("userId", "==", userId)
           .onSnapshot(snapshot => {
             const tbody = document.getElementById('work-body');
             tbody.innerHTML = '';
@@ -766,8 +765,12 @@
                 return;
             }
 
-            snapshot.forEach(doc => {
-                const data = doc.data();
+            // Manually sort the data by date so Firebase doesn't block the request
+            let records = [];
+            snapshot.forEach(doc => records.push(doc.data()));
+            records.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            records.forEach(data => {
                 tbody.innerHTML += `
                     <tr>
                         <td style="width: 15%;"><strong>${data.date}</strong></td>
@@ -785,7 +788,7 @@
             margin:       0.4,
             filename:     `${filename}.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true, backgroundColor: document.body.classList.contains('dark-theme') ? '#1f2937' : '#ffffff' },
+            html2canvas:  { scale: 2, useCORS: true, backgroundColor: document.body.classList.contains('dark-theme') ? '#0a0a0a' : '#ffffff' },
             jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
         };
         html2pdf().set(opt).from(element).save();
