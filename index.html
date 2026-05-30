@@ -3,131 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monthly Attendance Timesheet</title>
+    <title>Worksheet Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        h1, h2, h3 { color: #1a365d; text-align: center; }
+        :root {
+            --primary: #5a57ea; /* The vibrant indigo/purple from your image */
+            --primary-hover: #4845d1;
+            --bg-color: #f4f5f9;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        body { 
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg-color); 
+            margin: 0; 
+            padding: 20px; 
+            color: var(--text-main); 
+        }
+
+        /* --- AUTHENTICATION CARDS (Matching your image) --- */
+        .auth-container {
+            max-width: 440px;
+            margin: 60px auto;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .brand-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        h2 { margin: 0 0 8px 0; font-size: 26px; font-weight: 700; }
+        p.subtitle { color: var(--text-muted); font-size: 14px; margin-top: 0; margin-bottom: 24px; }
+
+        /* Forms & Inputs */
+        .input-group { margin-bottom: 16px; }
+        label { display: block; font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
         
-        input, button, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 4px; border: 1px solid #cbd5e0; box-sizing: border-box; font-size: 14px; }
-        input:focus, select:focus { outline: none; border-color: #2b6cb0; box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); }
+        input, select { 
+            width: 100%; 
+            padding: 14px 16px; 
+            border-radius: 8px; 
+            border: 1px solid var(--border-color); 
+            box-sizing: border-box; 
+            font-size: 14px; 
+            transition: all 0.2s;
+            color: var(--text-main);
+        }
+        input:focus, select:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 3px rgba(90, 87, 234, 0.1); 
+        }
+
+        .btn { 
+            width: 100%;
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            padding: 14px; 
+            font-size: 15px;
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: background 0.2s; 
+        }
+        .btn:hover { background: var(--primary-hover); }
         
-        .btn { background: #1a365d; color: white; border: none; cursor: pointer; font-weight: bold; transition: background 0.2s; }
-        .btn:hover { background: #2c5282; }
-        .btn-outline { background: white; color: #1a365d; border: 2px solid #1a365d; }
-        .btn-outline:hover { background: #f7fafc; }
+        .divider-text { 
+            text-align: center; 
+            margin: 24px 0; 
+            color: var(--text-muted); 
+            font-size: 12px; 
+            position: relative;
+        }
+        .divider-text::before, .divider-text::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: var(--border-color);
+        }
+        .divider-text::before { left: 0; }
+        .divider-text::after { right: 0; }
+
+        /* Side-by-side OAuth Buttons */
+        .oauth-grid {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .btn-outline { 
+            flex: 1;
+            background: white; 
+            color: var(--text-main); 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-outline:hover { background: #f9fafb; }
+
+        .toggle-text { text-align: center; font-size: 14px; color: var(--text-muted); margin-top: 24px; }
+        .toggle-text a { color: var(--primary); text-decoration: none; font-weight: 600; cursor: pointer; }
+        .toggle-text a:hover { text-decoration: underline; }
+
+        .hidden { display: none !important; }
+
+        /* --- DASHBOARD WORKSPACE (Applying the same theme) --- */
+        .dashboard-container { max-width: 1000px; margin: 20px auto; }
         
-        .hidden { display: none; }
-        
-        .login-card { max-width: 450px; margin: 40px auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 6px; background: #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
-        .divider-text { text-align: center; margin: 15px 0; color: #718096; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-        
-        .profile-header { display: flex; justify-content: space-between; border: 1px solid #cbd5e0; padding: 15px; margin-bottom: 20px; border-radius: 4px; background: #fff; }
-        .profile-header div p { margin: 5px 0; font-size: 14px; }
-        
-        .entry-sheet-block { background: #f7fafc; border: 1px solid #edf2f7; padding: 20px; border-radius: 6px; margin: 25px 0; }
-        .flex-grid { display: flex; gap: 15px; flex-wrap: wrap; }
+        .dash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .btn-sm { width: auto; padding: 10px 20px; font-size: 13px; }
+
+        .profile-header { 
+            display: flex; justify-content: space-between; 
+            padding: 20px; margin-bottom: 24px; 
+            border: 1px solid var(--border-color);
+            background: #fdfdfd;
+        }
+        .profile-header p { margin: 5px 0; font-size: 14px; color: var(--text-muted); }
+        .profile-header strong { color: var(--text-main); }
+
+        .flex-grid { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 16px; }
         .flex-grid > div { flex: 1; min-width: 150px; }
-        .flex-grid label { font-size: 13px; font-weight: 600; color: #4a5568; display: block; margin-bottom: 4px; }
+
+        /* Table Styling */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; font-size: 14px; text-align: left; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 16px; border-bottom: 1px solid var(--border-color); }
+        th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        td:last-child, th:last-child { border-right: none; }
+        tr:last-child td { border-bottom: none; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; text-align: center; }
-        th, td { border: 1px solid #e2e8f0; padding: 12px; }
-        th { background-color: #1a365d; color: white; }
-        .status-present { color: green; font-weight: bold; }
-        .status-leave { color: red; font-weight: bold; }
-        .status-weekend { color: blue; font-weight: bold; }
-        .status-half { color: orange; font-weight: bold; }
-        
-        .export-btn { background: #38a169; width: auto; padding: 10px 30px; margin-top: 20px; }
-        .export-container { text-align: right; }
+        .status-present { color: #059669; font-weight: 600; background: #d1fae5; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .status-leave { color: #dc2626; font-weight: 600; background: #fee2e2; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .status-weekend { color: #3b82f6; font-weight: 600; background: #dbeafe; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .status-half { color: #d97706; font-weight: 600; background: #fef3c7; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+
+        .export-btn { background: #10b981; margin-top: 24px; width: auto; float: right; }
+        .export-btn:hover { background: #059669; }
+        .clearfix::after { content: ""; clear: both; display: table; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div id="auth-section" class="auth-container">
     
-    <div id="auth-section">
-        <div class="login-card">
-            <h2>Timesheet Portal</h2>
-            
-            <div id="login-form">
-                <input type="email" id="login-email" placeholder="Email Address">
-                <input type="password" id="login-password" placeholder="Password">
-                <button class="btn" onclick="login()">Login with Email</button>
-                
-                <div class="divider-text">OR</div>
-                
-                <input type="text" id="login-phone" placeholder="Phone Number (e.g., +919876543210)">
-                <button class="btn" style="background: #4a5568;" onclick="loginWithPhone()">Login with Phone</button>
-
-                <div class="divider-text">OR</div>
-                
-                <button class="btn" style="background: #e53e3e;" onclick="loginWithGoogle()">Login with Google</button>
-                
-                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-                <button class="btn btn-outline" onclick="toggleAuth('register')">New Account Registration</button>
-            </div>
-
-            <div id="register-form" class="hidden">
-                <h3>First-Time Setup</h3>
-                <input type="text" id="reg-name" placeholder="Full Name (e.g., shricharan bharadwaj)">
-                <input type="text" id="reg-empId" placeholder="Employee ID (e.g., I210062)">
-                <input type="number" id="reg-hours" placeholder="Standard Hours (e.g., 9)">
-                <input type="email" id="reg-email" placeholder="Email Address">
-                <input type="password" id="reg-password" placeholder="Password">
-                <button class="btn" onclick="register()">Complete Registration</button>
-                <button class="btn btn-outline" onclick="toggleAuth('login')">Return to Login</button>
-            </div>
+    <div id="login-form" class="card">
+        <div class="brand-header">
+            <div class="brand-icon">✓</div>
+            <div class="brand-text">Worksheet</div>
         </div>
-        <div id="recaptcha-container"></div>
+        
+        <h2>Welcome back!</h2>
+        <p class="subtitle">Login to your account to continue</p>
+        
+        <div class="input-group">
+            <label>Email address</label>
+            <input type="email" id="login-email" placeholder="you@example.com">
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="login-password" placeholder="Enter your password">
+        </div>
+        
+        <button class="btn" onclick="login()">Log in</button>
+        
+        <div class="divider-text">or continue with</div>
+        
+        <div class="oauth-grid">
+            <button class="btn-outline" onclick="loginWithGoogle()">Google</button>
+            <button class="btn-outline" onclick="loginWithPhone()">Phone</button>
+        </div>
+
+        <div class="toggle-text">
+            Don't have an account? <a onclick="toggleAuth('register')">Sign up</a>
+        </div>
     </div>
 
-    <div id="app-section" class="hidden">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h2 style="margin: 0;">Monthly Attendance Timesheet</h2>
-            <button class="btn btn-outline" style="width: auto; padding: 6px 15px;" onclick="logout()">Log Out</button>
+    <div id="register-form" class="card hidden">
+        <div class="brand-header">
+            <div class="brand-icon">✓</div>
+            <div class="brand-text">Worksheet</div>
         </div>
 
-        <div class="entry-sheet-block">
-            <h3 style="margin-top: 0; text-align: left; font-size: 16px;">Log Daily Hours</h3>
-            <div class="flex-grid">
-                <div>
-                    <label>Working Date</label>
-                    <input type="date" id="entry-date">
-                </div>
-                <div>
-                    <label>Clock-In Time</label>
-                    <input type="time" id="entry-in">
-                </div>
-                <div>
-                    <label>Clock-Out Time</label>
-                    <input type="time" id="entry-out">
-                </div>
-                <div>
-                    <label>Break (Mins)</label>
-                    <input type="number" id="entry-break" value="60">
-                </div>
-                <div>
-                    <label>Day Status</label>
-                    <select id="entry-status">
-                        <option value="Present">Present</option>
-                        <option value="Leave">Leave</option>
-                        <option value="Weekend">Weekend</option>
-                        <option value="Half Day">Half Day</option>
-                    </select>
-                </div>
+        <h2>Create your account</h2>
+        <p class="subtitle">Sign up to get started with Worksheet</p>
+        
+        <div class="input-group">
+            <label>Full name</label>
+            <input type="text" id="reg-name" placeholder="Enter your full name">
+        </div>
+        <div class="input-group">
+            <label>Employee ID</label>
+            <input type="text" id="reg-empId" placeholder="e.g., I210062">
+        </div>
+        <div class="input-group">
+            <label>Standard Hours</label>
+            <input type="number" id="reg-hours" placeholder="e.g., 9">
+        </div>
+        <div class="input-group">
+            <label>Email address</label>
+            <input type="email" id="reg-email" placeholder="you@example.com">
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="reg-password" placeholder="Create a password">
+        </div>
+        
+        <button class="btn" onclick="register()">Sign up</button>
+        
+        <div class="toggle-text">
+            Already have an account? <a onclick="toggleAuth('login')">Log in</a>
+        </div>
+    </div>
+    
+    <div id="recaptcha-container"></div>
+</div>
+
+<div id="app-section" class="dashboard-container hidden">
+    
+    <div class="dash-header">
+        <div class="brand-header" style="margin: 0;">
+            <div class="brand-icon">✓</div>
+            <div class="brand-text" style="font-size: 20px;">Worksheet</div>
+        </div>
+        <button class="btn-outline btn-sm" onclick="logout()">Log Out</button>
+    </div>
+
+    <div class="card" style="margin-bottom: 24px; padding: 30px;">
+        <h3 style="margin-top: 0; font-size: 18px;">Log Daily Hours</h3>
+        <div class="flex-grid">
+            <div>
+                <label>Date</label>
+                <input type="date" id="entry-date">
             </div>
-            <button class="btn" style="margin-top: 15px;" onclick="addEntry()">Save Record to Sheet</button>
+            <div>
+                <label>Clock-In</label>
+                <input type="time" id="entry-in">
+            </div>
+            <div>
+                <label>Clock-Out</label>
+                <input type="time" id="entry-out">
+            </div>
+            <div>
+                <label>Break (Mins)</label>
+                <input type="number" id="entry-break" value="60">
+            </div>
+            <div>
+                <label>Status</label>
+                <select id="entry-status">
+                    <option value="Present">Present</option>
+                    <option value="Leave">Leave</option>
+                    <option value="Weekend">Weekend</option>
+                    <option value="Half Day">Half Day</option>
+                </select>
+            </div>
         </div>
+        <button class="btn btn-sm" style="width: auto;" onclick="addEntry()">Save Record</button>
+    </div>
 
+    <div class="card clearfix" style="padding: 30px;">
         <div id="timesheet-report">
-            <div class="profile-header">
+            <div class="profile-header card" style="box-shadow: none; padding: 20px;">
                 <div>
-                    <p><strong>Employee Name:</strong> <span id="display-name">...</span></p>
-                    <p><strong>Employee Number:</strong> <span id="display-empId">...</span></p>
+                    <p><strong>Employee:</strong> <span id="display-name">...</span></p>
+                    <p><strong>ID Number:</strong> <span id="display-empId">...</span></p>
                 </div>
-                <div>
+                <div style="text-align: right;">
                     <p><strong>Standard Hours:</strong> <span id="display-hours">...</span> hrs/day</p>
                     <p><strong>Month:</strong> <span id="display-month">...</span></p>
                 </div>
@@ -139,21 +316,19 @@
                         <th>Date</th>
                         <th>In Time</th>
                         <th>Out Time</th>
-                        <th>Break (Mins)</th>
+                        <th>Break</th>
                         <th>Working Hrs</th>
                         <th>Overtime</th>
                         <th>Status</th>
                     </tr>
                 </thead>
                 <tbody id="timesheet-body">
-                </tbody>
+                    </tbody>
             </table>
         </div>
-
-        <div class="export-container">
-            <button class="btn export-btn" onclick="downloadPDF()">Download as PDF</button>
-        </div>
+        <button class="btn export-btn" onclick="downloadPDF()">Download as PDF</button>
     </div>
+
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -161,6 +336,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
+    // System Config Tokens
     const firebaseConfig = {
         apiKey: "AIzaSyDoUUzyRcrCO-gabmXrt2Z-snBgBhA7J_c",
         authDomain: "timesheet-app-ce774.firebaseapp.com",
@@ -199,7 +375,7 @@
                 
                 loadTimesheets(user.uid);
             } else {
-                alert("Account authenticated! Please set up your timesheet profile.");
+                alert("Account authenticated! Please set up your worksheet profile.");
                 toggleAuth('register');
                 document.getElementById('reg-email').value = user.email || "";
                 document.getElementById('auth-section').classList.remove('hidden');
@@ -211,7 +387,6 @@
         }
     });
 
-    // UPDATED & FIXED REGISTRATION LOGIC
     async function register() {
         const email = document.getElementById('reg-email').value.trim().toLowerCase();
         const pass = document.getElementById('reg-password').value;
@@ -225,18 +400,14 @@
 
         try {
             let userUid;
-
-            // BUG FIX: If you are already logged in (like via Google), skip creating a new account!
             if (auth.currentUser) {
                 userUid = auth.currentUser.uid;
             } else {
-                // If you are completely new, create the email/password account
                 if(!pass) return alert("Please provide a password.");
                 const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
                 userUid = userCredential.user.uid;
             }
 
-            // Save your profile data securely
             await db.collection('users').doc(userUid).set({
                 name: name,
                 empId: empId,
@@ -245,12 +416,11 @@
             });
             
             alert("Profile successfully saved!");
-            window.location.reload(); // Refresh to let the dashboard load cleanly
+            window.location.reload(); 
             
         } catch (error) {
-            // BUG FIX: Translate that ugly error JSON into a clear message
             if (error.code === "auth/email-already-in-use" || error.code === 400) {
-                alert("This email is already linked to an account. If you used Google earlier, please go back and click 'Login with Google'.");
+                alert("This email is already linked to an account. If you used Google earlier, please go back and click 'Google'.");
             } else {
                 alert(error.message);
             }
@@ -275,7 +445,7 @@
             
         } catch (err) {
             if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
-                alert("invalid credentials"); // Set exactly to your request
+                alert("invalid credentials");
             } else {
                 alert(err.message);
             }
@@ -289,8 +459,8 @@
 
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
     function loginWithPhone() {
-        const phoneNumber = document.getElementById('login-phone').value;
-        if (!phoneNumber) return alert("Please specify country code extension (+91...)");
+        const phoneNumber = prompt("Enter Phone Number (e.g., +919876543210):");
+        if (!phoneNumber) return;
 
         auth.signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
             .then((confirmationResult) => {
@@ -364,7 +534,7 @@
             tbody.innerHTML = '';
             
             if(snapshot.empty) {
-                tbody.innerHTML = `<tr><td colspan="7" style="color: #a0aec0; padding: 20px;">No entries logged yet. Complete the 'Log Daily Hours' block parameters to begin.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="color: #9ca3af; padding: 20px; text-align: center;">No entries logged yet. Complete the 'Log Daily Hours' block parameters to begin.</td></tr>`;
                 return;
             }
 
@@ -390,11 +560,11 @@
                         <td>${format12hr(data.inTime)}</td>
                         <td>${format12hr(data.outTime)}</td>
                         <td>${data.breakMins === '-' ? '-' : (data.breakMins + ' min')}</td>
-                        <td>${data.workingHrs}</td>
-                        <td style="color: ${data.overtime !== '00:00' && data.overtime !== '-' ? '#e53e3e' : '#333'}; font-weight: ${data.overtime !== '00:00' && data.overtime !== '-' ? 'bold' : 'normal'};">
+                        <td style="font-weight: 600;">${data.workingHrs}</td>
+                        <td style="color: ${data.overtime !== '00:00' && data.overtime !== '-' ? '#dc2626' : 'var(--text-main)'}; font-weight: ${data.overtime !== '00:00' && data.overtime !== '-' ? 'bold' : 'normal'};">
                             ${data.overtime}
                         </td>
-                        <td class="${statusClass}">${data.status}</td>
+                        <td><span class="${statusClass}">${data.status}</span></td>
                     </tr>
                 `;
             });
@@ -405,10 +575,10 @@
         const element = document.getElementById('timesheet-report');
         const opt = {
             margin:       0.4,
-            filename:     'Monthly_Attendance_Timesheet.pdf',
+            filename:     'Monthly_Worksheet.pdf',
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
         };
         html2pdf().set(opt).from(element).save();
     }
