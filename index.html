@@ -8,21 +8,35 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        h1, h2 { color: #1a365d; text-align: center; }
+        h1, h2, h3 { color: #1a365d; text-align: center; }
         
-        /* Forms & Inputs */
-        input, button, select { width: 100%; padding: 10px; margin: 8px 0; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; }
-        .btn { background: #2b6cb0; color: white; border: none; cursor: pointer; font-weight: bold; padding: 12px; }
+        /* Unified Theme Forms & Inputs */
+        input, button, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 4px; border: 1px solid #cbd5e0; box-sizing: border-box; font-size: 14px; }
+        input:focus, select:focus { outline: none; border-color: #2b6cb0; box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); }
+        
+        /* Buttons matching Navy/Slate Worksheet Theme */
+        .btn { background: #1a365d; color: white; border: none; cursor: pointer; font-weight: bold; transition: background 0.2s; }
         .btn:hover { background: #2c5282; }
-        .btn-outline { background: white; color: #2b6cb0; border: 2px solid #2b6cb0; }
+        .btn-outline { background: white; color: #1a365d; border: 2px solid #1a365d; }
+        .btn-outline:hover { background: #f7fafc; }
         
         .hidden { display: none; }
         
-        /* Profile Summary Area matching your design */
+        /* Theme Synchronized Login Interface */
+        .login-card { max-width: 450px; margin: 40px auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 6px; background: #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .divider-text { text-align: center; margin: 15px 0; color: #718096; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Timesheet Structure matching sheet requirements */
         .profile-header { display: flex; justify-content: space-between; border: 1px solid #cbd5e0; padding: 15px; margin-bottom: 20px; border-radius: 4px; background: #fff; }
         .profile-header div p { margin: 5px 0; font-size: 14px; }
         
-        /* Table Structure matching image_4dc358.png */
+        /* Daily Entry Form Block */
+        .entry-sheet-block { background: #f7fafc; border: 1px solid #edf2f7; padding: 20px; border-radius: 6px; margin: 25px 0; }
+        .flex-grid { display: flex; gap: 15px; flex-wrap: wrap; }
+        .flex-grid > div { flex: 1; min-width: 150px; }
+        .flex-grid label { font-size: 13px; font-weight: 600; color: #4a5568; display: block; margin-bottom: 4px; }
+        
+        /* Table Layout Configuration */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; text-align: center; }
         th, td { border: 1px solid #e2e8f0; padding: 12px; }
         th { background-color: #1a365d; color: white; }
@@ -31,16 +45,8 @@
         .status-weekend { color: blue; font-weight: bold; }
         .status-half { color: orange; font-weight: bold; }
         
-        /* Action Utility Buttons */
-        .action-bar { display: flex; justify-content: space-between; margin-top: 20px; }
-        .export-btn { background: #38a169; width: auto; padding: 10px 30px; }
-        .add-btn { background: #2b6cb0; width: auto; padding: 10px 30px; }
-        
-        .divider-text { text-align: center; margin: 15px 0; color: #718096; font-weight: bold; font-size: 12px; text-transform: uppercase; }
-        
-        /* Data Entry Modal Pop-up Layer */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-box { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .export-btn { background: #38a169; width: auto; padding: 10px 30px; margin-top: 20px; }
+        .export-container { text-align: right; }
     </style>
 </head>
 <body>
@@ -48,48 +54,77 @@
 <div class="container">
     
     <div id="auth-section">
-        <h1>Timesheet Portal</h1>
-        
-        <div id="login-form">
-            <h2>Log In</h2>
-            <input type="email" id="login-email" placeholder="Email Address">
-            <input type="password" id="login-password" placeholder="Password">
-            <button class="btn" onclick="login()">Login with Email</button>
+        <div class="login-card">
+            <h2>Timesheet Portal</h2>
             
-            <div class="divider-text">OR</div>
-            
-            <div id="phone-login-box">
+            <div id="login-form">
+                <input type="email" id="login-email" placeholder="Email Address">
+                <input type="password" id="login-password" placeholder="Password">
+                <button class="btn" onclick="login()">Login with Email</button>
+                
+                <div class="divider-text">OR</div>
+                
                 <input type="text" id="login-phone" placeholder="Phone Number (e.g., +919876543210)">
                 <button class="btn" style="background: #4a5568;" onclick="loginWithPhone()">Login with Phone</button>
+
+                <div class="divider-text">OR</div>
+                
+                <button class="btn" style="background: #e53e3e;" onclick="loginWithGoogle()">Login with Google</button>
+                
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+                <button class="btn btn-outline" onclick="toggleAuth('register')">New Account Registration</button>
             </div>
 
-            <div class="divider-text">OR</div>
-            
-            <button class="btn" style="background: #e53e3e;" onclick="loginWithGoogle()">Login with Google</button>
-            
-            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-            <button class="btn btn-outline" onclick="toggleAuth('register')">New Here? Register for Timesheet</button>
+            <div id="register-form" class="hidden">
+                <h3>First-Time Setup</h3>
+                <input type="text" id="reg-name" placeholder="Full Name (e.g., shricharan bharadwaj)">
+                <input type="text" id="reg-empId" placeholder="Employee ID (e.g., I210062)">
+                <input type="number" id="reg-hours" placeholder="Standard Hours (e.g., 9)">
+                <input type="email" id="reg-email" placeholder="Email Address">
+                <input type="password" id="reg-password" placeholder="Password">
+                <button class="btn" onclick="register()">Complete Registration</button>
+                <button class="btn btn-outline" onclick="toggleAuth('login')">Return to Login</button>
+            </div>
         </div>
-
-        <div id="register-form" class="hidden">
-            <h2>First-Time Registration</h2>
-            <input type="text" id="reg-name" placeholder="Full Name (e.g. shricharan bharadwaj)">
-            <input type="text" id="reg-empId" placeholder="Employee ID (e.g. I210062)">
-            <input type="number" id="reg-hours" placeholder="Standard Working Hours (e.g. 9)">
-            <input type="email" id="reg-email" placeholder="Email Address">
-            <input type="password" id="reg-password" placeholder="Password">
-            <button class="btn" onclick="register()">Complete Registration</button>
-            <button class="btn btn-outline" onclick="toggleAuth('login')">Back to Login</button>
-        </div>
-        
         <div id="recaptcha-container"></div>
     </div>
 
     <div id="app-section" class="hidden">
-        
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <h2 style="margin: 0;">Monthly Attendance Timesheet</h2>
             <button class="btn btn-outline" style="width: auto; padding: 6px 15px;" onclick="logout()">Log Out</button>
+        </div>
+
+        <div class="entry-sheet-block">
+            <h3 style="margin-top: 0; text-align: left; font-size: 16px;">Log Daily Hours</h3>
+            <div class="flex-grid">
+                <div>
+                    <label>Working Date</label>
+                    <input type="date" id="entry-date">
+                </div>
+                <div>
+                    <label>Clock-In Time</label>
+                    <input type="time" id="entry-in">
+                </div>
+                <div>
+                    <label>Clock-Out Time</label>
+                    <input type="time" id="entry-out">
+                </div>
+                <div>
+                    <label>Break (Mins)</label>
+                    <input type="number" id="entry-break" value="60">
+                </div>
+                <div>
+                    <label>Day Status</label>
+                    <select id="entry-status">
+                        <option value="Present">Present</option>
+                        <option value="Leave">Leave</option>
+                        <option value="Weekend">Weekend</option>
+                        <option value="Half Day">Half Day</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn" style="margin-top: 15px;" onclick="addEntry()">Save Record to Sheet</button>
         </div>
 
         <div id="timesheet-report">
@@ -121,41 +156,11 @@
             </table>
         </div>
 
-        <div class="action-bar">
-            <button class="btn add-btn" onclick="toggleModal(true)">+ Log Daily Attendance</button>
+        <div class="export-container">
             <button class="btn export-btn" onclick="downloadPDF()">Download as PDF</button>
         </div>
     </div>
 
-</div>
-
-<div id="entry-modal" class="modal-overlay hidden">
-    <div class="modal-box">
-        <h3 style="margin-top: 0; color: #1a365d;">Log Daily Entry</h3>
-        
-        <label>Date</label>
-        <input type="date" id="entry-date">
-        
-        <label>In Time</label>
-        <input type="time" id="entry-in">
-        
-        <label>Out Time</label>
-        <input type="time" id="entry-out">
-        
-        <label>Break (Minutes)</label>
-        <input type="number" id="entry-break" value="60">
-        
-        <label>Status</label>
-        <select id="entry-status">
-            <option value="Present">Present</option>
-            <option value="Leave">Leave</option>
-            <option value="Weekend">Weekend</option>
-            <option value="Half Day">Half Day</option>
-        </select>
-        
-        <button class="btn" style="margin-top: 15px;" onclick="addEntry()">Save Entry</button>
-        <button class="btn btn-outline" onclick="toggleModal(false)">Cancel</button>
-    </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -163,7 +168,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
-    // Config block populated with your active tokens
+    // System Config Tokens
     const firebaseConfig = {
         apiKey: "AIzaSyDoUUzyRcrCO-gabmXrt2Z-snBgBhA7J_c",
         authDomain: "timesheet-app-ce774.firebaseapp.com",
@@ -185,10 +190,7 @@
         document.getElementById('register-form').classList.toggle('hidden', view !== 'register');
     }
 
-    function toggleModal(show) {
-        document.getElementById('entry-modal').classList.toggle('hidden', !show);
-    }
-
+    // Auth State Observer
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             document.getElementById('auth-section').classList.add('hidden');
@@ -206,7 +208,7 @@
                 
                 loadTimesheets(user.uid);
             } else {
-                alert("Authentication verified! Please complete your profile registration.");
+                alert("Account authenticated! Please perform profile parameter assignment.");
                 toggleAuth('register');
                 document.getElementById('auth-section').classList.remove('hidden');
                 document.getElementById('app-section').classList.add('hidden');
@@ -217,6 +219,7 @@
         }
     });
 
+    // Registration Handler
     async function register() {
         const email = document.getElementById('reg-email').value;
         const pass = document.getElementById('reg-password').value;
@@ -225,7 +228,7 @@
         const standardHours = document.getElementById('reg-hours').value;
 
         if(!name || !empId || !standardHours || !email || !pass) {
-            return alert("Please fill up all fields to finalize registration.");
+            return alert("All field inputs are mandatory to map profile parameters.");
         }
 
         try {
@@ -236,17 +239,18 @@
                 standardHours: Number(standardHours),
                 email: email
             });
-            alert("Registration successful!");
+            alert("Profile successfully committed!");
         } catch (error) {
             alert(error.message);
         }
     }
 
+    // Account Authentication Engine
     function login() {
         const email = document.getElementById('login-email').value;
         const pass = document.getElementById('login-password').value;
         
-        if (!email || !pass) return alert("Please provide your login credentials.");
+        if (!email || !pass) return alert("Please fill standard login parameters.");
 
         auth.signInWithEmailAndPassword(email, pass).catch(err => {
             if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
@@ -265,20 +269,20 @@
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
     function loginWithPhone() {
         const phoneNumber = document.getElementById('login-phone').value;
-        if (!phoneNumber) return alert("Please specify a phone number including country code (e.g. +91...)");
+        if (!phoneNumber) return alert("Please specify country code extension (+91...)");
 
         auth.signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
             .then((confirmationResult) => {
-                const code = prompt("Enter the OTP SMS sent to your phone:");
+                const code = prompt("Enter verification OTP token:");
                 if(code) {
-                    confirmationResult.confirm(code).catch(() => alert("Invalid verification code entry."));
+                    confirmationResult.confirm(code).catch(() => alert("Verification handshake rejected."));
                 }
             }).catch(err => alert(err.message));
     }
 
     function logout() { auth.signOut(); }
 
-    // Smart Time & Minute-Level Overtime Calculator
+    // Logic Engine for Minute-Level Overtime
     function calculateTimeMath(inTimeStr, outTimeStr, breakMinsStr, status) {
         if (status === 'Leave' || status === 'Weekend') {
             return { workFormatted: '-', overFormatted: '-' };
@@ -290,7 +294,7 @@
         const inMins = parseInt(inTimeStr.split(':')[0]) * 60 + parseInt(inTimeStr.split(':')[1]);
         let outMins = parseInt(outTimeStr.split(':')[0]) * 60 + parseInt(outTimeStr.split(':')[1]);
         
-        if (outMins < inMins) outMins += 24 * 60; // Over-midnight support
+        if (outMins < inMins) outMins += 24 * 60; 
 
         const totalWorkedMins = (outMins - inMins) - breakMins;
         const overtimeMins = Math.max(0, totalWorkedMins - stdMins);
@@ -314,7 +318,7 @@
         const breakMins = document.getElementById('entry-break').value;
         const status = document.getElementById('entry-status').value;
 
-        if (!date) return alert("Date selection is mandatory.");
+        if (!date) return alert("Date registration parameter is required.");
 
         const calc = calculateTimeMath(inTime, outTime, breakMins, status);
 
@@ -328,9 +332,8 @@
             overtime: calc.overFormatted,
             status: status
         }).then(() => {
-            alert("Daily Attendance logged successfully!");
-            toggleModal(false);
-        }).catch(err => alert("Database Error: " + err.message));
+            alert("Entry appended successfully to worksheet!");
+        }).catch(err => alert("Database transmission failure: " + err.message));
     }
 
     function loadTimesheets(userId) {
@@ -341,7 +344,7 @@
             tbody.innerHTML = '';
             
             if(snapshot.empty) {
-                tbody.innerHTML = `<tr><td colspan="7" style="color: #a0aec0; padding: 20px;">No records found. Click "+ Log Daily Attendance" below to add details.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="color: #a0aec0; padding: 20px;">No entries logged yet. Complete the 'Log Daily Hours' block parameters to begin.</td></tr>`;
                 return;
             }
 
