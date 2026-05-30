@@ -221,7 +221,7 @@
 
     // Registration Handler
     async function register() {
-        const email = document.getElementById('reg-email').value;
+        const email = document.getElementById('reg-email').value.trim().toLowerCase();
         const pass = document.getElementById('reg-password').value;
         const name = document.getElementById('reg-name').value;
         const empId = document.getElementById('reg-empId').value;
@@ -245,24 +245,34 @@
         }
     }
 
-    // Account Authentication Engine with Smart Error Splitting
-    function login() {
-        const email = document.getElementById('login-email').value;
+    // Smart Split Login Engine: Checks Firestore email record first to isolate non-existent users
+    async function login() {
+        const email = document.getElementById('login-email').value.trim().toLowerCase();
         const pass = document.getElementById('login-password').value;
         
         if (!email || !pass) return alert("Please fill standard login parameters.");
 
-        auth.signInWithEmailAndPassword(email, pass).catch(err => {
-            console.log("Firebase Error Code:", err.code);
-            // Explicit error conditions requested by user
-            if (err.code === "auth/wrong-password") {
-                alert("Wrong password");
-            } else if (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential") {
+        try {
+            // Step 1: Query the Firestore 'users' collection to check if email exists
+            const userCheck = await db.collection('users').where("email", "==", email).get();
+            
+            if (userCheck.empty) {
+                // Email doesn't exist anywhere in our registered workspace database
                 alert("No account found, please register.");
+                return;
+            }
+
+            // Step 2: Email exists, proceed to verify password credentials
+            await auth.signInWithEmailAndPassword(email, pass);
+            
+        } catch (err) {
+            // Explicitly catches wrong password errors triggered during auth handshake
+            if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
+                alert("Wrong password");
             } else {
                 alert(err.message);
             }
-        });
+        }
     }
 
     function loginWithGoogle() {
