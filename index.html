@@ -323,7 +323,7 @@
                 <div class="flex-grid">
                     <div>
                         <label>Date (IST)</label>
-                        <input type="date" id="entry-date" readonly>
+                        <input type="date" id="entry-date">
                     </div>
                     <div>
                         <label>Status</label>
@@ -418,7 +418,7 @@
                 <div class="flex-grid">
                     <div>
                         <label>Date (IST)</label>
-                        <input type="date" id="work-date" readonly>
+                        <input type="date" id="work-date">
                     </div>
                     <div style="flex: 2;">
                         <label>Work Done Description</label>
@@ -881,6 +881,7 @@
 
         db.collection('timesheets').add(record).then(() => {
             showToast("Timesheet record saved securely!");
+            loadTimesheets(auth.currentUser.uid);
             document.getElementById('entry-in-h').selectedIndex = 0;
             document.getElementById('entry-in-m').selectedIndex = 0;
             document.getElementById('entry-in-ampm').value = 'AM';
@@ -940,6 +941,7 @@
             status: status
         }).then(() => {
             showToast("Work task logged securely!");
+            loadWorkLogs(auth.currentUser.uid);
             document.getElementById('work-desc').value = ''; 
         }).catch(err => showToast("Error: " + err.message, true));
     }
