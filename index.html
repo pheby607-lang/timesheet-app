@@ -428,22 +428,23 @@
     </div>
     <div id="recaptcha-container"></div>
 
-    <!-- ===== NO USER FOUND MODAL ===== -->
-    <div id="no-user-modal" class="hidden" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9998;display:flex;align-items:center;justify-content:center;">
-        <div class="card" style="max-width:420px;width:90%;margin:0;text-align:center;padding:36px 28px;position:relative;">
-            <div style="font-size:48px;margin-bottom:12px;">🔍</div>
-            <h2 style="font-size:22px;margin-bottom:8px;color:var(--text-main);">No Account Found</h2>
-            <p style="color:var(--text-muted);font-size:14px;line-height:1.6;margin-bottom:28px;">
-                Your Google account is <strong>not registered</strong> in this system.<br>
-                Please sign up first to create your Worksheet profile.
-            </p>
-            <button class="btn" style="margin-bottom:12px;" onclick="goToRegisterFromModal()">
-                📝 Register Now
-            </button>
-            <button class="btn-outline" style="width:100%;min-height:44px;" onclick="cancelGoogleLogin()">
-                Cancel &amp; Go Back
-            </button>
-        </div>
+</div>
+
+<!-- ===== NO USER FOUND MODAL — must be outside auth-section so it is never hidden by parent display:none ===== -->
+<div id="no-user-modal" class="hidden" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">
+    <div class="card" style="max-width:420px;width:100%;margin:0;text-align:center;padding:36px 24px;">
+        <div style="font-size:48px;margin-bottom:12px;">🔍</div>
+        <h2 style="font-size:22px;margin-bottom:8px;">No Account Found</h2>
+        <p style="color:var(--text-muted);font-size:14px;line-height:1.6;margin-bottom:28px;">
+            Your Google account is <strong>not registered</strong> in this system.<br>
+            Please sign up first to create your Worksheet profile.
+        </p>
+        <button class="btn" style="margin-bottom:12px;" onclick="goToRegisterFromModal()">
+            📝 Register Now
+        </button>
+        <button class="btn-outline" style="width:100%;min-height:44px;margin-top:4px;" onclick="cancelGoogleLogin()">
+            Cancel &amp; Go Back
+        </button>
     </div>
 </div>
 
@@ -833,6 +834,13 @@
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
     }
 
+    // Handle any in-progress redirect sign-in (e.g. if popup was blocked and we fell back to redirect)
+    auth.getRedirectResult().catch(err => {
+        if (err.code && err.code !== 'auth/no-auth-event') {
+            showToast('Google sign-in failed: ' + err.message, true);
+        }
+    });
+
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             document.getElementById('auth-section').classList.add('hidden');
@@ -842,8 +850,14 @@
             document.getElementById('login-date').value = istDate;
             document.getElementById('logout-date').value = istDate;
             document.getElementById('work-date').value = istDate;
-            
-            const doc = await db.collection('users').doc(user.uid).get();
+
+            let doc;
+            try {
+                doc = await db.collection('users').doc(user.uid).get();
+            } catch (fetchErr) {
+                showToast('Could not load profile. Check your connection.', true);
+                return;
+            }
             if (doc.exists) {
                 currentUserData = doc.data();
                 
@@ -1013,19 +1027,18 @@
 
     function loginWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
-        // No prompt:'select_account' — Google will remember & auto-select the last used account.
-        // Firebase LOCAL persistence (default) keeps the session alive across browser restarts.
-
-        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-        if (isMobile) {
-            auth.signInWithRedirect(provider).catch(err => showToast(err.message, true));
-            return;
-        }
-
-        auth.signInWithPopup(provider).catch(err => {
+        // No prompt:'select_account' so Google remembers the last used account.
+        // Using signInWithPopup on all platforms — works on all modern mobile browsers and
+        // avoids the full-page redirect which can cause blank-screen issues on mobile.
+        auth.signInWithPopup(provider).then(result => {
+            // onAuthStateChanged handles the rest
+        }).catch(err => {
             if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
-                showToast('Google login was cancelled.', true);
+                showToast('Google sign-in was cancelled.', true);
+            } else if (err.code === 'auth/popup-blocked') {
+                // Fallback to redirect if popup was blocked by the browser
+                showToast('Popup blocked. Redirecting…', false);
+                auth.signInWithRedirect(provider).catch(e => showToast(e.message, true));
             } else {
                 showToast(err.message, true);
             }
