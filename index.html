@@ -174,6 +174,141 @@
             transform: translateY(0);
         }
         .toast.error { background: #dc2626; }
+
+
+        /* --- MOBILE WEB APP FRIENDLY LAYOUT --- */
+        html { -webkit-text-size-adjust: 100%; }
+        button, input, select { font: inherit; }
+
+        @media (max-width: 768px) {
+            body { background: var(--bg-color); }
+            .auth-container { margin: 0 auto; padding: 14px; max-width: 100%; }
+            .card { padding: 18px; border-radius: 16px; margin-bottom: 14px; }
+            h2 { font-size: 22px; }
+            h3 { font-size: 17px !important; }
+            p.subtitle { font-size: 13px; line-height: 1.5; }
+
+            .main-content { padding: 12px; max-width: 100%; }
+            .top-nav {
+                position: sticky;
+                top: 0;
+                z-index: 800;
+                padding: 12px 14px;
+                border-radius: 14px;
+                margin-bottom: 14px;
+                box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+            }
+            .brand-text { font-size: 15px !important; }
+            .logout-btn { font-size: 13px; }
+
+            .sidebar { width: 82vw; max-width: 310px; left: -82vw; }
+            .sidebar.open { left: 0; }
+            .sidebar-menu li { padding: 18px 20px; font-size: 15px; }
+
+            .flex-grid { display: block; margin-bottom: 0; }
+            .flex-grid > div { min-width: 100%; margin-bottom: 14px; }
+            label { font-size: 13px; }
+            input, select {
+                min-height: 48px;
+                font-size: 16px; /* prevents iPhone zoom */
+                border-radius: 10px;
+            }
+            input[readonly] { opacity: 1; background: rgba(168, 85, 247, 0.06); }
+
+            .time-group { gap: 7px; }
+            .time-group select { min-width: 0; padding: 12px 6px; }
+            .time-group select[id$="-ampm"] { flex: 0 0 72px; }
+
+            .tab-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                border-bottom: none;
+                background: rgba(168, 85, 247, 0.08);
+                padding: 6px;
+                border-radius: 14px;
+            }
+            .tab-btn {
+                padding: 14px 8px;
+                border-radius: 11px;
+                border-bottom: none;
+                background: transparent;
+                font-size: 15px;
+            }
+            .tab-btn.active {
+                background: var(--primary);
+                color: #ffffff;
+                border-bottom-color: transparent;
+                box-shadow: 0 6px 14px rgba(90, 87, 234, 0.24);
+            }
+
+            .btn, .btn-sm, .export-btn {
+                width: 100%;
+                min-height: 48px;
+                padding: 13px 14px;
+                border-radius: 12px;
+                font-size: 15px;
+            }
+            .export-btn { float: none; margin-top: 14px; }
+            .oauth-grid { flex-direction: column; }
+            .btn-outline { min-height: 46px; }
+
+            .toast-container { top: 12px; width: calc(100% - 24px); }
+            .toast { width: 100%; box-sizing: border-box; text-align: center; border-radius: 14px; }
+
+            /* Report becomes clean mobile cards instead of tiny horizontal table */
+            .table-responsive { overflow: visible; }
+            #timesheet-report table, #work-report table,
+            #timesheet-report thead, #work-report thead,
+            #timesheet-report tbody, #work-report tbody,
+            #timesheet-report tr, #work-report tr,
+            #timesheet-report td, #work-report td {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            #timesheet-report thead, #work-report thead { display: none; }
+            #timesheet-report table, #work-report table { border: none; margin-top: 4px; }
+            #timesheet-report tr, #work-report tr {
+                border: 1px solid var(--border-color);
+                border-radius: 14px;
+                background: var(--card-bg);
+                margin-bottom: 12px;
+                overflow: hidden;
+            }
+            #timesheet-report td, #work-report td {
+                display: flex;
+                justify-content: space-between;
+                gap: 14px;
+                padding: 11px 13px;
+                border-bottom: 1px solid var(--border-color);
+                text-align: right;
+                word-break: break-word;
+            }
+            #timesheet-report td:last-child, #work-report td:last-child { border-bottom: none; }
+            #timesheet-report td::before, #work-report td::before {
+                content: attr(data-label);
+                color: var(--text-muted);
+                font-weight: 700;
+                text-transform: uppercase;
+                font-size: 11px;
+                letter-spacing: 0.4px;
+                text-align: left;
+                flex: 0 0 42%;
+            }
+            #timesheet-report td[colspan]::before, #work-report td[colspan]::before { content: ''; display: none; }
+            #timesheet-report td[colspan], #work-report td[colspan] { display: block; text-align: center; }
+
+            .profile-pic-wrapper { width: 92px; height: 92px; }
+            .profile-pic { width: 92px; height: 92px; }
+        }
+
+        @media (max-width: 380px) {
+            .card { padding: 14px; }
+            .time-group select[id$="-ampm"] { flex-basis: 64px; }
+            #timesheet-report td, #work-report td { font-size: 12px; }
+        }
+
     </style>
 </head>
 <body>
@@ -326,7 +461,7 @@
         <div id="view-timesheet" class="view-panel">
             <div class="card">
                 <h3 style="font-size: 16px;">Employee Attendance</h3>
-                
+                <p class="subtitle" style="margin-bottom: 14px;">Login and logout can be saved any number of times per day.</p>
 
                 <div class="tab-row">
                     <button class="tab-btn active" id="login-tab-btn" onclick="switchTimesheetTab('login')">Login-In</button>
@@ -912,15 +1047,6 @@
         if (!date) return showToast("Date is required.", true);
         if (!loginTime) return showToast("Please select Login Time.", true);
 
-        const existingLogin = await db.collection('timesheets')
-                .where("userId", "==", auth.currentUser.uid)
-                .where("date", "==", date)
-                .get();
-
-        if (!existingLogin.empty) {
-            return showToast("Login already exists for this date.", true);
-        }
-
         const record = {
             userId: auth.currentUser.uid,
             employeeName: currentUserData.name || '',
@@ -971,10 +1097,6 @@
                 const bTime = b.data.createdAt && b.data.createdAt.toMillis ? b.data.createdAt.toMillis() : 0;
                 return aTime - bTime;
             });
-
-            if (openRecords.length > 1) {
-                return showToast("Logout already exists for this date.", true);
-            }
 
             if (openRecords.length > 0) {
                 const target = openRecords[0];
@@ -1046,12 +1168,12 @@
 
                 tbody.innerHTML += `
                     <tr>
-                        <td><strong>${data.employeeName || currentUserData.name || '-'}</strong></td>
-                        <td>${data.empId || currentUserData.empId || '-'}</td>
-                        <td>${data.date || '-'}</td>
-                        <td>${format12hr(loginTime)}</td>
-                        <td>${format12hr(logoutTime)}</td>
-                        <td style="font-weight: 600;">${workedHrs}</td>
+                        <td data-label="Employee Name"><strong>${data.employeeName || currentUserData.name || '-'}</strong></td>
+                        <td data-label="Employee ID">${data.empId || currentUserData.empId || '-'}</td>
+                        <td data-label="Date">${data.date || '-'}</td>
+                        <td data-label="Login Time">${format12hr(loginTime)}</td>
+                        <td data-label="Logout Time">${format12hr(logoutTime)}</td>
+                        <td data-label="Worked Hours" style="font-weight: 600;">${workedHrs}</td>
                     </tr>
                 `;
             });
@@ -1098,9 +1220,9 @@
             records.forEach(data => {
                 tbody.innerHTML += `
                     <tr>
-                        <td style="width: 15%;"><strong>${data.date}</strong></td>
-                        <td>${data.description}</td>
-                        <td style="width: 15%;"><span class="badge badge-green">${data.status}</span></td>
+                        <td data-label="Date" style="width: 15%;"><strong>${data.date}</strong></td>
+                        <td data-label="Work Done">${data.description}</td>
+                        <td data-label="Status" style="width: 15%;"><span class="badge badge-green">${data.status}</span></td>
                     </tr>
                 `;
             });
