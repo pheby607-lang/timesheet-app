@@ -824,9 +824,26 @@
             document.getElementById('logout-date').value = istDate;
             document.getElementById('work-date').value = istDate;
             
-            const doc = await db.collection('users').doc(user.uid).get();
-            if (doc.exists) {
-                currentUserData = doc.data();
+           let doc = await db.collection('users').doc(user.uid).get();
+
+if (!doc.exists && user.email) {
+    const profileScan = await db.collection('users')
+        .where("email", "==", user.email.toLowerCase())
+        .limit(1)
+        .get();
+
+    if (!profileScan.empty) {
+        const oldProfileDoc = profileScan.docs[0];
+        currentUserData = oldProfileDoc.data();
+
+        await db.collection('users').doc(user.uid).set(currentUserData, { merge: true });
+
+        doc = await db.collection('users').doc(user.uid).get();
+    }
+}
+
+if (doc.exists) {
+    currentUserData = doc.data();
                 
                 document.getElementById('sidebar-name').innerText = currentUserData.name;
                 document.getElementById('sidebar-empId').innerText = currentUserData.empId;
