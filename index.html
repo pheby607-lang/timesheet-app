@@ -995,7 +995,21 @@
         provider.setCustomParameters({
             prompt: 'select_account'
         });
-        auth.signInWithPopup(provider).catch(err => showToast(err.message, true));
+
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+        if (isMobile) {
+            auth.signInWithRedirect(provider).catch(err => showToast(err.message, true));
+            return;
+        }
+
+        auth.signInWithPopup(provider).catch(err => {
+            if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+                showToast('Google login was cancelled. Please choose an account and complete the sign-in.', true);
+            } else {
+                showToast(err.message, true);
+            }
+        });
     }
 
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
