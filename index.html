@@ -86,6 +86,7 @@
         .toggle-text a { color: var(--primary); text-decoration: none; font-weight: 600; cursor: pointer; }
 
         .hidden { display: none !important; }
+        #no-user-modal.hidden { display: none !important; }
 
         /* --- DASHBOARD & SIDEBAR --- */
         #app-section { display: flex; min-height: 100vh; overflow-x: hidden; }
@@ -426,6 +427,24 @@
         </div>
     </div>
     <div id="recaptcha-container"></div>
+
+    <!-- ===== NO USER FOUND MODAL ===== -->
+    <div id="no-user-modal" class="hidden" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9998;display:flex;align-items:center;justify-content:center;">
+        <div class="card" style="max-width:420px;width:90%;margin:0;text-align:center;padding:36px 28px;position:relative;">
+            <div style="font-size:48px;margin-bottom:12px;">🔍</div>
+            <h2 style="font-size:22px;margin-bottom:8px;color:var(--text-main);">No Account Found</h2>
+            <p style="color:var(--text-muted);font-size:14px;line-height:1.6;margin-bottom:28px;">
+                Your Google account is <strong>not registered</strong> in this system.<br>
+                Please sign up first to create your Worksheet profile.
+            </p>
+            <button class="btn" style="margin-bottom:12px;" onclick="goToRegisterFromModal()">
+                📝 Register Now
+            </button>
+            <button class="btn-outline" style="width:100%;min-height:44px;" onclick="cancelGoogleLogin()">
+                Cancel &amp; Go Back
+            </button>
+        </div>
+    </div>
 </div>
 
 <div id="app-section" class="hidden">
@@ -824,26 +843,9 @@
             document.getElementById('logout-date').value = istDate;
             document.getElementById('work-date').value = istDate;
             
-           let doc = await db.collection('users').doc(user.uid).get();
-
-if (!doc.exists && user.email) {
-    const profileScan = await db.collection('users')
-        .where("email", "==", user.email.toLowerCase())
-        .limit(1)
-        .get();
-
-    if (!profileScan.empty) {
-        const oldProfileDoc = profileScan.docs[0];
-        currentUserData = oldProfileDoc.data();
-
-        await db.collection('users').doc(user.uid).set(currentUserData, { merge: true });
-
-        doc = await db.collection('users').doc(user.uid).get();
-    }
-}
-
-if (doc.exists) {
-    currentUserData = doc.data();
+            const doc = await db.collection('users').doc(user.uid).get();
+            if (doc.exists) {
+                currentUserData = doc.data();
                 
                 document.getElementById('sidebar-name').innerText = currentUserData.name;
                 document.getElementById('sidebar-empId').innerText = currentUserData.empId;
@@ -869,11 +871,13 @@ if (doc.exists) {
                 loadTimesheets(user.uid);
                 loadWorkLogs(user.uid);
             } else {
-                showToast("Please set up your worksheet profile.", true);
-                toggleAuth('register');
-                document.getElementById('reg-email').value = user.email || "";
-                document.getElementById('auth-section').classList.remove('hidden');
+                // Google-authenticated but no Firestore profile exists — show No User Found modal
+                document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('app-section').classList.add('hidden');
+                document.getElementById('no-user-modal').classList.remove('hidden');
+                // Pre-fill register form so user can jump straight in
+                document.getElementById('reg-email').value = user.email || "";
+                document.getElementById('reg-name').value = user.displayName || "";
             }
         } else {
             document.getElementById('auth-section').classList.remove('hidden');
@@ -1009,9 +1013,8 @@ if (doc.exists) {
 
     function loginWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
-        provider.setCustomParameters({
-            prompt: 'select_account'
-        });
+        // No prompt:'select_account' — Google will remember & auto-select the last used account.
+        // Firebase LOCAL persistence (default) keeps the session alive across browser restarts.
 
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
@@ -1022,7 +1025,7 @@ if (doc.exists) {
 
         auth.signInWithPopup(provider).catch(err => {
             if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
-                showToast('Google login was cancelled. Please choose an account and complete the sign-in.', true);
+                showToast('Google login was cancelled.', true);
             } else {
                 showToast(err.message, true);
             }
@@ -1043,6 +1046,21 @@ if (doc.exists) {
     function logout() { 
         auth.signOut(); 
         showToast("Logged out successfully");
+    }
+
+    // ---- No User Found modal helpers ----
+    function goToRegisterFromModal() {
+        document.getElementById('no-user-modal').classList.add('hidden');
+        document.getElementById('auth-section').classList.remove('hidden');
+        toggleAuth('register');
+    }
+
+    async function cancelGoogleLogin() {
+        await auth.signOut();
+        document.getElementById('no-user-modal').classList.add('hidden');
+        document.getElementById('auth-section').classList.remove('hidden');
+        document.getElementById('app-section').classList.add('hidden');
+        toggleAuth('login');
     }
 
     function calculateWorkedHours(loginTimeStr, logoutTimeStr) {
