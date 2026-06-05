@@ -992,6 +992,9 @@
 
     function loginWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({
+            prompt: 'select_account'
+        });
         auth.signInWithPopup(provider).catch(err => showToast(err.message, true));
     }
 
