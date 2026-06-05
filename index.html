@@ -326,7 +326,7 @@
         <div id="view-timesheet" class="view-panel">
             <div class="card">
                 <h3 style="font-size: 16px;">Employee Attendance</h3>
-                <p class="subtitle" style="margin-bottom: 14px;">Login and logout can be saved any number of times per day.</p>
+                
 
                 <div class="tab-row">
                     <button class="tab-btn active" id="login-tab-btn" onclick="switchTimesheetTab('login')">Login-In</button>
@@ -912,6 +912,15 @@
         if (!date) return showToast("Date is required.", true);
         if (!loginTime) return showToast("Please select Login Time.", true);
 
+        const existingLogin = await db.collection('timesheets')
+                .where("userId", "==", auth.currentUser.uid)
+                .where("date", "==", date)
+                .get();
+
+        if (!existingLogin.empty) {
+            return showToast("Login already exists for this date.", true);
+        }
+
         const record = {
             userId: auth.currentUser.uid,
             employeeName: currentUserData.name || '',
@@ -962,6 +971,10 @@
                 const bTime = b.data.createdAt && b.data.createdAt.toMillis ? b.data.createdAt.toMillis() : 0;
                 return aTime - bTime;
             });
+
+            if (openRecords.length > 1) {
+                return showToast("Logout already exists for this date.", true);
+            }
 
             if (openRecords.length > 0) {
                 const target = openRecords[0];
