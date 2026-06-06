@@ -310,6 +310,27 @@
             #timesheet-report td, #work-report td { font-size: 12px; }
         }
 
+        /* ══════ QUICK-WIN FEATURES ══════ */
+        /* Stats cards */
+        .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+        .stat-card   { background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:16px 10px; text-align:center; transition:background .3s,border .3s; }
+        .stat-number { font-size:24px; font-weight:800; color:var(--primary); line-height:1.15; margin-bottom:4px; }
+        .stat-label  { font-size:10px; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+        .stat-card.ot .stat-number { color:#10b981; }
+        /* Filter row */
+        .filter-row { display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid var(--border-color); }
+        .filter-row .fg { display:flex; flex-direction:column; gap:4px; flex:1; min-width:110px; }
+        .filter-row label { font-size:11px; font-weight:600; color:var(--text-muted); }
+        .filter-row input[type=date] { padding:8px 10px; font-size:13px; border:1px solid var(--border-color); border-radius:8px; background:var(--input-bg); color:var(--text-main); }
+        .filter-row .fbtn { padding:9px 14px; font-size:13px; font-weight:700; border-radius:8px; cursor:pointer; min-height:38px; border:none; white-space:nowrap; }
+        .filter-row .fbtn.primary { background:var(--primary); color:#fff; }
+        .filter-row .fbtn.outline { background:transparent; border:1px solid var(--border-color); color:var(--text-main); }
+        /* Now button */
+        .now-btn { background:var(--primary); color:#fff; border:none; border-radius:8px; padding:10px 11px; font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap; flex-shrink:0; min-height:44px; letter-spacing:.3px; }
+        @media(max-width:768px){
+            .stats-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
+            .stat-number { font-size:20px; }
+        }
     </style>
 </head>
 <body>
@@ -479,6 +500,26 @@
         </div>
 
         <div id="view-timesheet" class="view-panel">
+            <!-- ── Monthly stats ── -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="stat-days">—</div>
+                    <div class="stat-label">Days Present</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat-hours">—</div>
+                    <div class="stat-label">Hours This Month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat-avg">—</div>
+                    <div class="stat-label">Avg hrs / Day</div>
+                </div>
+                <div class="stat-card ot">
+                    <div class="stat-number" id="stat-overtime">—</div>
+                    <div class="stat-label">Overtime</div>
+                </div>
+            </div>
+
             <div class="card">
                 <h3 style="font-size: 16px;">Employee Attendance</h3>
                 <p class="subtitle" style="margin-bottom: 14px;">Login and logout can be saved any number of times per day.</p>
@@ -506,16 +547,19 @@
                         </div>
                         <div>
                             <label>Login Time</label>
-                            <div class="time-group">
-                                <select id="login-time-h">
-                                    <option value="" disabled selected>Hr</option>
-                                    <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
-                                </select>
-                                <span>:</span>
-                                <select id="login-time-m"><option value="" disabled selected>Min</option></select>
-                                <select id="login-time-ampm">
-                                    <option value="AM" selected>AM</option><option value="PM">PM</option>
-                                </select>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                                <div class="time-group" style="flex:1;">
+                                    <select id="login-time-h">
+                                        <option value="" disabled selected>Hr</option>
+                                        <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                    </select>
+                                    <span>:</span>
+                                    <select id="login-time-m"><option value="" disabled selected>Min</option></select>
+                                    <select id="login-time-ampm">
+                                        <option value="AM" selected>AM</option><option value="PM">PM</option>
+                                    </select>
+                                </div>
+                                <button type="button" class="now-btn" onclick="setCurrentTime('login-time')">⏱ Now</button>
                             </div>
                         </div>
                     </div>
@@ -540,16 +584,19 @@
                         </div>
                         <div>
                             <label>Logout Time</label>
-                            <div class="time-group">
-                                <select id="logout-time-h">
-                                    <option value="" disabled selected>Hr</option>
-                                    <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
-                                </select>
-                                <span>:</span>
-                                <select id="logout-time-m"><option value="" disabled selected>Min</option></select>
-                                <select id="logout-time-ampm">
-                                    <option value="AM">AM</option><option value="PM" selected>PM</option>
-                                </select>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                                <div class="time-group" style="flex:1;">
+                                    <select id="logout-time-h">
+                                        <option value="" disabled selected>Hr</option>
+                                        <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                    </select>
+                                    <span>:</span>
+                                    <select id="logout-time-m"><option value="" disabled selected>Min</option></select>
+                                    <select id="logout-time-ampm">
+                                        <option value="AM">AM</option><option value="PM" selected>PM</option>
+                                    </select>
+                                </div>
+                                <button type="button" class="now-btn" onclick="setCurrentTime('logout-time')">⏱ Now</button>
                             </div>
                         </div>
                     </div>
@@ -559,11 +606,15 @@
 
             <div class="card clearfix">
                 <div id="timesheet-report">
-                    <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-end;">
-                        <div>
-                            <h3 style="margin-bottom: 4px; font-size: 16px;">Timesheet Report</h3>
-                            <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Non-editable permanent record.</p>
-                        </div>
+                    <div style="margin-bottom:12px;">
+                        <h3 style="margin-bottom:4px;font-size:16px;">Timesheet Report</h3>
+                        <p style="margin:0;font-size:12px;color:var(--text-muted);">Non-editable permanent record.</p>
+                    </div>
+                    <div class="filter-row">
+                        <div class="fg"><label>From</label><input type="date" id="ts-from"></div>
+                        <div class="fg"><label>To</label><input type="date" id="ts-to"></div>
+                        <button class="fbtn primary" onclick="applyTsFilter()">Filter</button>
+                        <button class="fbtn outline" onclick="clearTsFilter()">Clear</button>
                     </div>
                     <div class="table-responsive">
                         <table>
@@ -574,7 +625,8 @@
                                     <th>Date</th>
                                     <th>Login Time</th>
                                     <th>Logout Time</th>
-                                    <th>Worked Hours</th>
+                                    <th>Worked Hrs</th>
+                                    <th>Overtime</th>
                                 </tr>
                             </thead>
                             <tbody id="timesheet-body"></tbody>
@@ -610,9 +662,15 @@
 
             <div class="card clearfix">
                 <div id="work-report">
-                    <div style="margin-bottom: 15px;">
-                        <h3 style="margin-bottom: 4px; font-size: 16px;">My Work Report</h3>
-                        <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Non-editable permanent record.</p>
+                    <div style="margin-bottom:12px;">
+                        <h3 style="margin-bottom:4px;font-size:16px;">My Work Report</h3>
+                        <p style="margin:0;font-size:12px;color:var(--text-muted);">Non-editable permanent record.</p>
+                    </div>
+                    <div class="filter-row">
+                        <div class="fg"><label>From</label><input type="date" id="wl-from"></div>
+                        <div class="fg"><label>To</label><input type="date" id="wl-to"></div>
+                        <button class="fbtn primary" onclick="applyWlFilter()">Filter</button>
+                        <button class="fbtn outline" onclick="clearWlFilter()">Clear</button>
                     </div>
                     <div class="table-responsive">
                         <table>
@@ -633,7 +691,10 @@
 
         <div id="view-profile" class="view-panel hidden">
             <div class="card" style="max-width: 500px; margin: 0 auto;">
-                <h3 style="text-align: center; margin-bottom: 30px;">My Profile</h3>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+                    <h3 style="margin:0;font-size:18px;">My Profile</h3>
+                    <button id="edit-prof-btn" class="btn btn-sm" style="width:auto;padding:8px 18px;" onclick="enterEditMode()">✏️ Edit</button>
+                </div>
                 
                 <div class="profile-pic-wrapper">
                     <img id="profile-img" src="https://via.placeholder.com/150" class="profile-pic" alt="Profile">
@@ -657,9 +718,47 @@
                     <label>Email Address</label>
                     <input type="email" id="prof-email" readonly>
                 </div>
-                <div class="input-group">
+                <div class="input-group" id="prof-hours-grp">
                     <label>Standard Shift Settings</label>
                     <input type="text" id="prof-hours" readonly>
+                </div>
+
+                <!-- Edit-mode shift pickers (hidden until Edit clicked) -->
+                <div id="prof-edit-shifts" class="hidden">
+                    <div class="flex-grid" style="margin-bottom:0;">
+                        <div class="input-group">
+                            <label>Shift Start</label>
+                            <div class="time-group">
+                                <select id="pe-start-h"><option value="" disabled selected>Hr</option>
+                                    <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                </select>
+                                <span>:</span>
+                                <select id="pe-start-m"><option value="" disabled selected>Min</option></select>
+                                <select id="pe-start-ampm"><option value="AM">AM</option><option value="PM">PM</option></select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Shift End</label>
+                            <div class="time-group">
+                                <select id="pe-end-h"><option value="" disabled selected>Hr</option>
+                                    <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                </select>
+                                <span>:</span>
+                                <select id="pe-end-m"><option value="" disabled selected>Min</option></select>
+                                <select id="pe-end-ampm"><option value="AM">AM</option><option value="PM">PM</option></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Break Duration (minutes)</label>
+                        <input type="number" id="pe-break" placeholder="e.g. 60" min="0" max="480">
+                    </div>
+                </div>
+
+                <!-- Save / Cancel row -->
+                <div id="prof-save-row" class="hidden" style="display:flex;gap:10px;margin-top:8px;">
+                    <button class="btn" style="flex:1;" onclick="saveProfile()">💾 Save Changes</button>
+                    <button class="btn-outline" style="flex:1;min-height:44px;" onclick="exitEditMode()">Cancel</button>
                 </div>
             </div>
         </div>
@@ -717,7 +816,9 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    let currentUserData = {};
+    let currentUserData    = {};
+    let allTsRecords       = [];   // all timesheet records (for filter)
+    let allWlRecords       = [];   // all work-log records (for filter)
 
     function showToast(message, isError = false) {
         const container = document.getElementById('toast-container');
@@ -776,7 +877,7 @@
     }
 
     function initializeTimeSelectors() {
-        ['login-time-m', 'logout-time-m', 'entry-in-m', 'entry-out-m'].forEach(fillMinuteOptions);
+        ['login-time-m','logout-time-m','entry-in-m','entry-out-m','pe-start-m','pe-end-m'].forEach(fillMinuteOptions);
     }
 
     function fillEmployeeAutoFields() {
@@ -790,6 +891,130 @@
             const el = document.getElementById(id);
             if (el) el.value = value;
         });
+    }
+
+    // ── Feature 1: Now button ─────────────────────────────────────
+    function setCurrentTime(prefix) {
+        const s = new Intl.DateTimeFormat('en-US', {
+            timeZone:'Asia/Kolkata', hour:'numeric', minute:'2-digit', hour12:true
+        }).format(new Date());
+        const m = s.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
+        if (!m) return;
+        document.getElementById(prefix+'-h').value    = parseInt(m[1]).toString().padStart(2,'0');
+        document.getElementById(prefix+'-m').value    = m[2];
+        document.getElementById(prefix+'-ampm').value = m[3].toUpperCase();
+    }
+
+    // ── Feature 3 & 5: Stats + Overtime ──────────────────────────
+    function fmtMins(mins) {
+        mins = Math.max(0, Math.round(mins));
+        const h = Math.floor(mins/60), m = mins%60;
+        return m ? h+'h '+m+'m' : h+'h';
+    }
+
+    function toMins(t) {
+        const p = String(t).split(':');
+        return parseInt(p[0])*60 + parseInt(p[1]);
+    }
+
+    function updateStats(records) {
+        const month = getISTDateString().slice(0,7);
+        const mr    = records.filter(r => r.date && r.date.startsWith(month));
+
+        const daysPresent = new Set(
+            mr.filter(r => (r.inTime||r.loginTime||'-') !== '-').map(r => r.date)
+        ).size;
+
+        let totalMins = 0;
+        mr.forEach(r => {
+            const lIn  = r.inTime  || r.loginTime  || '-';
+            const lOut = r.outTime || r.logoutTime || '-';
+            if (lIn !== '-' && lOut !== '-') {
+                totalMins += toMins(calculateWorkedHours(lIn, lOut));
+            }
+        });
+
+        let schedPerDay = 0;
+        if (currentUserData.shiftStart && currentUserData.shiftEnd) {
+            schedPerDay = toMins(currentUserData.shiftEnd)
+                        - toMins(currentUserData.shiftStart)
+                        - (Number(currentUserData.stdBreak)||0);
+        }
+        const otMins  = Math.max(0, totalMins - daysPresent * schedPerDay);
+        const avgMins = daysPresent ? Math.round(totalMins/daysPresent) : 0;
+
+        document.getElementById('stat-days').textContent     = daysPresent;
+        document.getElementById('stat-hours').textContent    = fmtMins(totalMins);
+        document.getElementById('stat-avg').textContent      = fmtMins(avgMins);
+        document.getElementById('stat-overtime').textContent = fmtMins(otMins);
+    }
+
+    // ── Feature 4: Profile edit helpers ──────────────────────────
+    function setPickerFrom24(prefix, t24) {
+        if (!t24) return;
+        const [hs, ms] = t24.split(':');
+        let h = parseInt(hs,10);
+        const ap = h>=12 ? 'PM' : 'AM';
+        h = h%12 || 12;
+        const hEl = document.getElementById(prefix+'-h');
+        const mEl = document.getElementById(prefix+'-m');
+        const aEl = document.getElementById(prefix+'-ampm');
+        if(hEl) hEl.value = h.toString().padStart(2,'0');
+        if(mEl) mEl.value = ms;
+        if(aEl) aEl.value = ap;
+    }
+
+    function enterEditMode() {
+        ['prof-name','prof-id'].forEach(id => {
+            const el = document.getElementById(id);
+            el.removeAttribute('readonly');
+            el.style.opacity = '1'; el.style.cursor = 'text';
+        });
+        document.getElementById('prof-hours-grp').classList.add('hidden');
+        document.getElementById('prof-edit-shifts').classList.remove('hidden');
+        document.getElementById('prof-save-row').classList.remove('hidden');
+        document.getElementById('edit-prof-btn').classList.add('hidden');
+        setPickerFrom24('pe-start', currentUserData.shiftStart||'');
+        setPickerFrom24('pe-end',   currentUserData.shiftEnd  ||'');
+        const bEl = document.getElementById('pe-break');
+        if(bEl) bEl.value = currentUserData.stdBreak ?? 60;
+    }
+
+    function exitEditMode() {
+        ['prof-name','prof-id'].forEach(id => {
+            const el = document.getElementById(id);
+            el.setAttribute('readonly','');
+            el.style.opacity = ''; el.style.cursor = '';
+        });
+        document.getElementById('prof-hours-grp').classList.remove('hidden');
+        document.getElementById('prof-edit-shifts').classList.add('hidden');
+        document.getElementById('prof-save-row').classList.add('hidden');
+        document.getElementById('edit-prof-btn').classList.remove('hidden');
+        document.getElementById('prof-name').value = currentUserData.name  || '';
+        document.getElementById('prof-id').value   = currentUserData.empId || '';
+    }
+
+    async function saveProfile() {
+        const name       = document.getElementById('prof-name').value.trim();
+        const empId      = document.getElementById('prof-id').value.trim();
+        const shiftStart = parseCustomTime('pe-start');
+        const shiftEnd   = parseCustomTime('pe-end');
+        const stdBreak   = parseInt(document.getElementById('pe-break').value)||0;
+        if (!name||!empId||!shiftStart||!shiftEnd)
+            return showToast('Please fill in all fields.', true);
+        try {
+            await db.collection('users').doc(auth.currentUser.uid)
+                    .update({ name, empId, shiftStart, shiftEnd, stdBreak });
+            currentUserData = {...currentUserData, name, empId, shiftStart, shiftEnd, stdBreak};
+            const disp = format12hr(shiftStart)+' to '+format12hr(shiftEnd)+' ('+stdBreak+'m break)';
+            document.getElementById('prof-hours').value        = disp;
+            document.getElementById('sidebar-name').innerText  = name;
+            document.getElementById('sidebar-empId').innerText = empId;
+            fillEmployeeAutoFields();
+            updateStats(allTsRecords);
+            exitEditMode();
+            showToast('Profile updated!');
+        } catch(err) { showToast('Error: '+err.message, true); }
     }
 
     function switchTimesheetTab(tabName) {
@@ -1206,45 +1431,62 @@
     }
 
     function loadTimesheets(userId) {
-        db.collection('timesheets').where("userId", "==", userId)
+        db.collection('timesheets').where("userId","==",userId)
           .onSnapshot(snapshot => {
-            const tbody = document.getElementById('timesheet-body');
-            tbody.innerHTML = '';
-            
-            if(snapshot.empty) {
-                tbody.innerHTML = `<tr><td colspan="6" style="color: var(--text-muted); padding: 20px; text-align: center;">No login/logout records saved yet.</td></tr>`;
-                return;
+            allTsRecords = [];
+            snapshot.forEach(doc => allTsRecords.push(doc.data()));
+            allTsRecords.sort((a,b) => {
+                const dc = new Date(a.date||'') - new Date(b.date||'');
+                if (dc) return dc;
+                return (a.createdAt?.toMillis?.()||0) - (b.createdAt?.toMillis?.()||0);
+            });
+            updateStats(allTsRecords);
+            renderTs(allTsRecords);
+        }, err => showToast("DB Error: "+err.message, true));
+    }
+
+    function applyTsFilter() {
+        const f = document.getElementById('ts-from').value;
+        const t = document.getElementById('ts-to').value;
+        renderTs(allTsRecords.filter(r => (!f||r.date>=f) && (!t||r.date<=t)));
+    }
+    function clearTsFilter() {
+        document.getElementById('ts-from').value = '';
+        document.getElementById('ts-to').value   = '';
+        renderTs(allTsRecords);
+    }
+
+    function renderTs(records) {
+        const tbody = document.getElementById('timesheet-body');
+        if (!records.length) {
+            tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text-muted);padding:20px;text-align:center;">No records found.</td></tr>';
+            return;
+        }
+        let schedPerDay = 0;
+        if (currentUserData.shiftStart && currentUserData.shiftEnd) {
+            schedPerDay = toMins(currentUserData.shiftEnd)
+                        - toMins(currentUserData.shiftStart)
+                        - (Number(currentUserData.stdBreak)||0);
+        }
+        tbody.innerHTML = records.map(d => {
+            const lIn  = d.inTime  || d.loginTime  || '-';
+            const lOut = d.outTime || d.logoutTime || '-';
+            const wHrs = (lIn!=='-'&&lOut!=='-') ? calculateWorkedHours(lIn,lOut) : (d.workedHrs||'00:00');
+            let otCell = '<span style="color:var(--text-muted)">—</span>';
+            if (lIn!=='-' && lOut!=='-' && schedPerDay>0) {
+                const ot = Math.max(0, toMins(wHrs) - schedPerDay);
+                if (ot>0) otCell = `<span style="color:#10b981;font-weight:700;">${fmtMins(ot)}</span>`;
             }
-
-            let records = [];
-            snapshot.forEach(doc => records.push(doc.data()));
-            records.sort((a, b) => {
-                const dateCompare = new Date(a.date || '') - new Date(b.date || '');
-                if (dateCompare !== 0) return dateCompare;
-                const aTime = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
-                const bTime = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
-                return aTime - bTime;
-            });
-
-            records.forEach(data => {
-                const loginTime = data.inTime || data.loginTime || '-';
-                const logoutTime = data.outTime || data.logoutTime || '-';
-                const workedHrs = (loginTime !== '-' && logoutTime !== '-') ? calculateWorkedHours(loginTime, logoutTime) : (data.workedHrs || '00:00');
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td data-label="Employee Name"><strong>${data.employeeName || currentUserData.name || '-'}</strong></td>
-                        <td data-label="Employee ID">${data.empId || currentUserData.empId || '-'}</td>
-                        <td data-label="Date">${data.date || '-'}</td>
-                        <td data-label="Login Time">${format12hr(loginTime)}</td>
-                        <td data-label="Logout Time">${format12hr(logoutTime)}</td>
-                        <td data-label="Worked Hours" style="font-weight: 600;">${workedHrs}</td>
-                    </tr>
-                `;
-            });
-        }, err => {
-            showToast("Database Error: " + err.message, true);
-        });
+            return `<tr>
+                <td data-label="Employee Name"><strong>${d.employeeName||currentUserData.name||'-'}</strong></td>
+                <td data-label="Employee ID">${d.empId||currentUserData.empId||'-'}</td>
+                <td data-label="Date">${d.date||'-'}</td>
+                <td data-label="Login Time">${format12hr(lIn)}</td>
+                <td data-label="Logout Time">${format12hr(lOut)}</td>
+                <td data-label="Worked Hrs" style="font-weight:600;">${wHrs}</td>
+                <td data-label="Overtime">${otCell}</td>
+            </tr>`;
+        }).join('');
     }
 
     function addWorkLog() {
@@ -1268,32 +1510,37 @@
     }
 
     function loadWorkLogs(userId) {
-        db.collection('workLogs').where("userId", "==", userId)
+        db.collection('workLogs').where("userId","==",userId)
           .onSnapshot(snapshot => {
-            const tbody = document.getElementById('work-body');
-            tbody.innerHTML = '';
-            
-            if(snapshot.empty) {
-                tbody.innerHTML = `<tr><td colspan="3" style="color: var(--text-muted); padding: 20px; text-align: center;">No work tasks logged yet.</td></tr>`;
-                return;
-            }
+            allWlRecords = [];
+            snapshot.forEach(doc => allWlRecords.push(doc.data()));
+            allWlRecords.sort((a,b) => new Date(a.date)-new Date(b.date));
+            renderWl(allWlRecords);
+        }, err => showToast("DB Error: "+err.message, true));
+    }
 
-            let records = [];
-            snapshot.forEach(doc => records.push(doc.data()));
-            records.sort((a, b) => new Date(a.date) - new Date(b.date));
+    function applyWlFilter() {
+        const f = document.getElementById('wl-from').value;
+        const t = document.getElementById('wl-to').value;
+        renderWl(allWlRecords.filter(r => (!f||r.date>=f) && (!t||r.date<=t)));
+    }
+    function clearWlFilter() {
+        document.getElementById('wl-from').value = '';
+        document.getElementById('wl-to').value   = '';
+        renderWl(allWlRecords);
+    }
 
-            records.forEach(data => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td data-label="Date" style="width: 15%;"><strong>${data.date}</strong></td>
-                        <td data-label="Work Done">${data.description}</td>
-                        <td data-label="Status" style="width: 15%;"><span class="badge badge-green">${data.status}</span></td>
-                    </tr>
-                `;
-            });
-        }, err => {
-            showToast("Database Error: " + err.message, true);
-        });
+    function renderWl(records) {
+        const tbody = document.getElementById('work-body');
+        if (!records.length) {
+            tbody.innerHTML = '<tr><td colspan="3" style="color:var(--text-muted);padding:20px;text-align:center;">No records found.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = records.map(d => `<tr>
+            <td data-label="Date" style="width:15%;"><strong>${d.date}</strong></td>
+            <td data-label="Work Done">${d.description}</td>
+            <td data-label="Status" style="width:15%;"><span class="badge badge-green">${d.status}</span></td>
+        </tr>`).join('');
     }
 
     function downloadPDF(elementId, filename) {
