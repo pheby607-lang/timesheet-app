@@ -1013,6 +1013,45 @@
         return parseInt(p[0])*60 + parseInt(p[1]);
     }
 
+    function parseProfileWorkMinutes(value) {
+        if (value === undefined || value === null || value === '') return 0;
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return value <= 24 ? Math.round(value * 60) : Math.round(value);
+        }
+        const s = String(value).trim().toLowerCase();
+        const colon = s.match(/^(\d{1,2}):(\d{2})$/);
+        if (colon) return parseInt(colon[1], 10) * 60 + parseInt(colon[2], 10);
+        const hourMatch = s.match(/(\d+(?:\.\d+)?)\s*(h|hr|hrs|hour|hours)\b/);
+        const minMatch = s.match(/(\d+)\s*(m|min|mins|minute|minutes)\b/);
+        if (hourMatch || minMatch) {
+            return Math.round((hourMatch ? parseFloat(hourMatch[1]) * 60 : 0) + (minMatch ? parseInt(minMatch[1], 10) : 0));
+        }
+        const plain = Number(s);
+        return Number.isFinite(plain) ? (plain <= 24 ? Math.round(plain * 60) : Math.round(plain)) : 0;
+    }
+
+    function getProfileWorkMinutes() {
+        const profileHourKeys = [
+            'workingHours',
+            'workHours',
+            'dailyWorkingHours',
+            'standardWorkingHours',
+            'requiredHours',
+            'profileWorkingHours',
+            'workingMins',
+            'workMins',
+            'standardWorkMins'
+        ];
+        for (const key of profileHourKeys) {
+            const mins = parseProfileWorkMinutes(currentUserData[key]);
+            if (mins > 0) return mins;
+        }
+        if (!currentUserData.shiftStart || !currentUserData.shiftEnd) return 0;
+        let mins = toMins(currentUserData.shiftEnd) - toMins(currentUserData.shiftStart);
+        if (mins < 0) mins += 24 * 60;
+        return Math.max(0, mins - (Number(currentUserData.stdBreak) || 0));
+    }
+
     function updateStats(records) {
         const month = getISTDateString().slice(0,7);
         const mr    = records.filter(r => r.date && r.date.startsWith(month));
@@ -1030,13 +1069,8 @@
             }
         });
 
-        let schedPerDay = 0;
-        if (currentUserData.shiftStart && currentUserData.shiftEnd) {
-            schedPerDay = toMins(currentUserData.shiftEnd)
-                        - toMins(currentUserData.shiftStart)
-                        - (Number(currentUserData.stdBreak)||0);
-        }
-        const otMins  = Math.max(0, totalMins - daysPresent * schedPerDay);
+        const schedPerDay = getProfileWorkMinutes();
+        const otMins  = schedPerDay > 0 ? Math.max(0, totalMins - daysPresent * schedPerDay) : 0;
         const avgMins = daysPresent ? Math.round(totalMins/daysPresent) : 0;
 
         document.getElementById('stat-days').textContent     = daysPresent;
@@ -1103,6 +1137,7 @@
             document.getElementById('sidebar-empId').innerText = empId;
             fillEmployeeAutoFields();
             updateStats(allTsRecords);
+            renderTs(allTsRecords);
             exitEditMode();
             showToast('Profile updated!');
         } catch(err) { showToast('Error: '+err.message, true); }
@@ -1587,12 +1622,7 @@
             tbody.innerHTML = '<tr><td colspan="8" style="color:var(--text-muted);padding:20px;text-align:center;">No records found.</td></tr>';
             return;
         }
-        let schedPerDay = 0;
-        if (currentUserData.shiftStart && currentUserData.shiftEnd) {
-            schedPerDay = toMins(currentUserData.shiftEnd)
-                        - toMins(currentUserData.shiftStart)
-                        - (Number(currentUserData.stdBreak)||0);
-        }
+        const schedPerDay = getProfileWorkMinutes();
         tbody.innerHTML = records.map(d => {
             const lIn  = d.inTime  || d.loginTime  || '-';
             const lOut = d.outTime || d.logoutTime || '-';
@@ -1603,7 +1633,8 @@
             let otCell = '<span style="color:var(--text-muted)">—</span>';
             if (lIn!=='-' && lOut!=='-' && schedPerDay>0) {
                 const ot = Math.max(0, toMins(wHrs) - schedPerDay);
-                if (ot>0) otCell = `<span style="color:#10b981;font-weight:700;">${fmtMins(ot)}</span>`;
+                const otColor = ot > 0 ? '#10b981' : 'var(--text-muted)';
+                otCell = `<span style="color:${otColor};font-weight:700;">${fmtMins(ot)}</span>`;
             }
             return `<tr>
                 <td data-label="Employee Name"><strong>${d.employeeName||currentUserData.name||'-'}</strong></td>
