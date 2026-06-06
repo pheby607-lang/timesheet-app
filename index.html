@@ -65,8 +65,7 @@
         .time-group { display: flex; align-items: center; gap: 4px; }
         .time-group select { padding: 12px 8px; text-align: center; flex: 1; }
         .time-group span { font-weight: bold; color: var(--text-main); }
-        .time-row { display: flex; gap: 8px; align-items: center; }
-        .time-row .time-group { flex: 1; }
+        .time-group select[id$="-ampm"] { flex: 0 0 62px; background: var(--primary); color: #ffffff; border-color: var(--primary); font-weight: 700; cursor: pointer; }
 
         .btn { width: 100%; background: var(--primary); color: white; border: none; border-radius: 6px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn:hover { background: var(--primary-hover); }
@@ -141,14 +140,6 @@
         .badge-red { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
         .badge-blue { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
         .badge-yellow { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
-        .badge-purple { color: var(--primary); background: rgba(90, 87, 234, 0.1); }
-        .badge-slate { color: var(--text-muted); background: rgba(107, 114, 128, 0.12); }
-
-        .day-status-panel { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr); gap: 15px; align-items: stretch; }
-        .status-action-card { border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; background: linear-gradient(135deg, rgba(90, 87, 234, 0.08), rgba(16, 185, 129, 0.06)); display: flex; gap: 12px; align-items: center; min-height: 100%; box-sizing: border-box; }
-        .status-icon { width: 38px; height: 38px; border-radius: 12px; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; flex: 0 0 38px; }
-        .status-copy strong { display: block; font-size: 14px; margin-bottom: 4px; }
-        .status-copy span { display: block; color: var(--text-muted); font-size: 12px; line-height: 1.4; }
 
         .export-btn { background: #10b981; margin-top: 24px; width: auto; float: right; }
         .export-btn:hover { background: #059669; }
@@ -227,8 +218,7 @@
 
             .time-group { gap: 7px; }
             .time-group select { min-width: 0; padding: 12px 6px; }
-            .time-row { align-items: stretch; }
-            .now-btn { min-height: 48px; }
+            .time-group select[id$="-ampm"] { flex: 0 0 72px; }
 
             .tab-row {
                 display: grid;
@@ -263,8 +253,6 @@
             .export-btn { float: none; margin-top: 14px; }
             .oauth-grid { flex-direction: column; }
             .btn-outline { min-height: 46px; }
-            .day-status-panel { grid-template-columns: 1fr; }
-            .status-action-card { border-radius: 14px; }
 
             .toast-container { top: 12px; width: calc(100% - 24px); }
             .toast { width: 100%; box-sizing: border-box; text-align: center; border-radius: 14px; }
@@ -318,7 +306,7 @@
 
         @media (max-width: 380px) {
             .card { padding: 14px; }
-            .time-row { gap: 6px; }
+            .time-group select[id$="-ampm"] { flex-basis: 64px; }
             #timesheet-report td, #work-report td { font-size: 12px; }
         }
 
@@ -417,6 +405,9 @@
                         <option value="" disabled selected>Min</option>
                         <option value="00" selected>00</option><option value="05">05</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option>
                     </select>
+                    <select id="reg-start-ampm">
+                        <option value="AM" selected>AM</option><option value="PM">PM</option>
+                    </select>
                 </div>
             </div>
             <div class="input-group">
@@ -430,6 +421,9 @@
                     <select id="reg-end-m">
                         <option value="" disabled selected>Min</option>
                         <option value="00" selected>00</option><option value="05">05</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option>
+                    </select>
+                    <select id="reg-end-ampm">
+                        <option value="AM">AM</option><option value="PM" selected>PM</option>
                     </select>
                 </div>
             </div>
@@ -457,7 +451,6 @@
 
 </div>
 
-<!-- ===== NO USER FOUND MODAL — must be outside auth-section so it is never hidden by parent display:none ===== -->
 <div id="no-user-modal" class="hidden" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">
     <div class="card" style="max-width:420px;width:100%;margin:0;text-align:center;padding:36px 24px;">
         <div style="font-size:48px;margin-bottom:12px;">🔍</div>
@@ -489,6 +482,8 @@
         <ul class="sidebar-menu">
             <li onclick="switchView('timesheet')" id="nav-timesheet" class="active">Daily Timesheet</li>
             <li onclick="switchView('work')" id="nav-work">My Work</li>
+            <li onclick="switchView('weekoffs')" id="nav-weekoffs">📅 Weekoffs</li>
+            <li onclick="switchView('leaves')" id="nav-leaves">🏖️ Leaves</li>
             <li onclick="switchView('profile')" id="nav-profile">My Profile</li>
             <li onclick="switchView('settings')" id="nav-settings">Settings</li>
         </ul>
@@ -506,7 +501,6 @@
         </div>
 
         <div id="view-timesheet" class="view-panel">
-            <!-- ── Monthly stats ── -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-number" id="stat-days">—</div>
@@ -528,13 +522,11 @@
 
             <div class="card">
                 <h3 style="font-size: 16px;">Employee Attendance</h3>
-                <p class="subtitle" style="margin-bottom: 14px;">Login, logout, weekoff, and leave can be saved any number of times per day.</p>
+                <p class="subtitle" style="margin-bottom: 14px;">Login and logout can be saved any number of times per day.</p>
 
                 <div class="tab-row">
                     <button class="tab-btn active" id="login-tab-btn" onclick="switchTimesheetTab('login')">Login-In</button>
                     <button class="tab-btn" id="logout-tab-btn" onclick="switchTimesheetTab('logout')">Log-Out</button>
-                    <button class="tab-btn" id="weekoff-tab-btn" onclick="switchTimesheetTab('weekoff')">Weekoff</button>
-                    <button class="tab-btn" id="leave-tab-btn" onclick="switchTimesheetTab('leave')">Leave</button>
                 </div>
 
                 <div id="login-tab" class="tab-panel active">
@@ -555,20 +547,20 @@
                         </div>
                         <div>
                             <label>Login Time</label>
-                            <div class="time-row">
-                                <div class="time-group">
-                                    <select id="login-time-h">
-                                        <option value="" disabled selected>Hr</option>
-                                        <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
-                                    </select>
-                                    <span>:</span>
-                                    <select id="login-time-m"><option value="" disabled selected>Min</option></select>
-                                </div>
-                                <button type="button" class="now-btn" onclick="setCurrentTime('login-time')">⏱ Now</button>
+                            <div class="time-group" style="display: none;">
+                                <select id="login-time-h">
+                                    <option value="" disabled selected>Hr</option>
+                                    <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                </select>
+                                <span>:</span>
+                                <select id="login-time-m"><option value="" disabled selected>Min</option></select>
+                                <select id="login-time-ampm">
+                                    <option value="AM" selected>AM</option><option value="PM">PM</option>
+                                </select>
                             </div>
+                            <button type="button" class="btn" style="width: 100%; padding: 12px; font-size: 16px; font-weight: bold; background: var(--primary);" onclick="setCurrentTime('login-time'); saveLogin();">⏱ NOW</button>
                         </div>
                     </div>
-                    <button class="btn btn-sm" style="margin-top: 15px;" onclick="saveLogin()">Save Login</button>
                 </div>
 
                 <div id="logout-tab" class="tab-panel">
@@ -589,88 +581,18 @@
                         </div>
                         <div>
                             <label>Logout Time</label>
-                            <div class="time-row">
-                                <div class="time-group">
-                                    <select id="logout-time-h">
-                                        <option value="" disabled selected>Hr</option>
-                                        <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
-                                    </select>
-                                    <span>:</span>
-                                    <select id="logout-time-m"><option value="" disabled selected>Min</option></select>
-                                </div>
-                                <button type="button" class="now-btn" onclick="setCurrentTime('logout-time')">⏱ Now</button>
+                            <div class="time-group" style="display: none;">
+                                <select id="logout-time-h">
+                                    <option value="" disabled selected>Hr</option>
+                                    <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                </select>
+                                <span>:</span>
+                                <select id="logout-time-m"><option value="" disabled selected>Min</option></select>
+                                <select id="logout-time-ampm">
+                                    <option value="AM">AM</option><option value="PM" selected>PM</option>
+                                </select>
                             </div>
-                        </div>
-                    </div>
-                    <button class="btn btn-sm" style="margin-top: 15px;" onclick="saveLogout()">Save Logout</button>
-                </div>
-
-                <div id="weekoff-tab" class="tab-panel">
-                    <div class="day-status-panel">
-                        <div class="status-action-card">
-                            <div class="status-icon">W</div>
-                            <div class="status-copy">
-                                <strong>Weekoff</strong>
-                                <span>Save a weekly off day for the selected date.</span>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="flex-grid">
-                                <div>
-                                    <label>Employee Name</label>
-                                    <input type="text" id="weekoff-emp-name" readonly>
-                                </div>
-                                <div>
-                                    <label>Employee ID</label>
-                                    <input type="text" id="weekoff-emp-id" readonly>
-                                </div>
-                            </div>
-                            <div class="flex-grid">
-                                <div>
-                                    <label>Date</label>
-                                    <input type="date" id="weekoff-date">
-                                </div>
-                                <div>
-                                    <label>Note</label>
-                                    <input type="text" id="weekoff-note" placeholder="Optional note">
-                                </div>
-                            </div>
-                            <button class="btn btn-sm" style="margin-top: 15px;" onclick="saveDayStatus('Weekoff')">Save Weekoff</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="leave-tab" class="tab-panel">
-                    <div class="day-status-panel">
-                        <div class="status-action-card">
-                            <div class="status-icon">L</div>
-                            <div class="status-copy">
-                                <strong>Leave</strong>
-                                <span>Save a leave day for the selected date.</span>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="flex-grid">
-                                <div>
-                                    <label>Employee Name</label>
-                                    <input type="text" id="leave-emp-name" readonly>
-                                </div>
-                                <div>
-                                    <label>Employee ID</label>
-                                    <input type="text" id="leave-emp-id" readonly>
-                                </div>
-                            </div>
-                            <div class="flex-grid">
-                                <div>
-                                    <label>Date</label>
-                                    <input type="date" id="leave-date">
-                                </div>
-                                <div>
-                                    <label>Note</label>
-                                    <input type="text" id="leave-note" placeholder="Optional note">
-                                </div>
-                            </div>
-                            <button class="btn btn-sm" style="margin-top: 15px;" onclick="saveDayStatus('Leave')">Save Leave</button>
+                            <button type="button" class="btn" style="width: 100%; padding: 12px; font-size: 16px; font-weight: bold; background: var(--primary);" onclick="setCurrentTime('logout-time'); saveLogout();">⏱ NOW</button>
                         </div>
                     </div>
                 </div>
@@ -695,7 +617,6 @@
                                     <th>Employee Name</th>
                                     <th>Employee ID</th>
                                     <th>Date</th>
-                                    <th>Status</th>
                                     <th>Login Time</th>
                                     <th>Logout Time</th>
                                     <th>Worked Hrs</th>
@@ -706,7 +627,7 @@
                         </table>
                     </div>
                 </div>
-                <button type="button" class="btn export-btn btn-sm" onclick="downloadPDF('timesheet-report', 'Timesheet', this)">Download PDF</button>
+                <button class="btn export-btn btn-sm" onclick="downloadPDF('timesheet-report', 'Timesheet')">Download PDF</button>
             </div>
         </div>
 
@@ -758,7 +679,41 @@
                         </table>
                     </div>
                 </div>
-                <button type="button" class="btn export-btn btn-sm" onclick="downloadPDF('work-report', 'My_Work_Log', this)">Download PDF</button>
+                <button class="btn export-btn btn-sm" onclick="downloadPDF('work-report', 'My_Work_Log')">Download PDF</button>
+            </div>
+        </div>
+
+        <div id="view-weekoffs" class="view-panel hidden">
+            <div class="card">
+                <h3 style="font-size: 16px;">Weekoffs Management</h3>
+                <p class="subtitle" style="margin-bottom: 14px;">Your upcoming and past weekoffs will appear here.</p>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr><th>Date</th><th>Day</th><th>Status</th></tr>
+                        </thead>
+                        <tbody id="weekoffs-body">
+                            <tr><td colspan="3" style="text-align:center; padding:20px; color: var(--text-muted);">No weekoffs scheduled.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-leaves" class="view-panel hidden">
+            <div class="card">
+                <h3 style="font-size: 16px;">Leaves Management</h3>
+                <button class="btn btn-sm" style="margin-bottom: 15px; width: auto;">+ Apply Leave</button>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr><th>From</th><th>To</th><th>Type</th><th>Status</th></tr>
+                        </thead>
+                        <tbody id="leaves-body">
+                            <tr><td colspan="4" style="text-align:center; padding:20px; color: var(--text-muted);">No leaves applied.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -796,7 +751,6 @@
                     <input type="text" id="prof-hours" readonly>
                 </div>
 
-                <!-- Edit-mode shift pickers (hidden until Edit clicked) -->
                 <div id="prof-edit-shifts" class="hidden">
                     <div class="flex-grid" style="margin-bottom:0;">
                         <div class="input-group">
@@ -807,6 +761,7 @@
                                 </select>
                                 <span>:</span>
                                 <select id="pe-start-m"><option value="" disabled selected>Min</option></select>
+                                <select id="pe-start-ampm"><option value="AM">AM</option><option value="PM">PM</option></select>
                             </div>
                         </div>
                         <div class="input-group">
@@ -817,6 +772,7 @@
                                 </select>
                                 <span>:</span>
                                 <select id="pe-end-m"><option value="" disabled selected>Min</option></select>
+                                <select id="pe-end-ampm"><option value="AM">AM</option><option value="PM">PM</option></select>
                             </div>
                         </div>
                     </div>
@@ -826,7 +782,6 @@
                     </div>
                 </div>
 
-                <!-- Save / Cancel row -->
                 <div id="prof-save-row" class="hidden" style="display:flex;gap:10px;margin-top:8px;">
                     <button class="btn" style="flex:1;" onclick="saveProfile()">💾 Save Changes</button>
                     <button class="btn-outline" style="flex:1;min-height:44px;" onclick="exitEditMode()">Cancel</button>
@@ -915,11 +870,13 @@
     function parseCustomTime(idPrefix) {
         const h = document.getElementById(idPrefix + '-h').value;
         const m = document.getElementById(idPrefix + '-m').value;
+        const ampm = document.getElementById(idPrefix + '-ampm').value;
         
         if(!h || !m) return '';
         
-        let hour24 = parseInt(h, 10);
-        if (Number.isNaN(hour24) || hour24 < 0 || hour24 > 23) return '';
+        let hour24 = parseInt(h);
+        if(ampm === 'PM' && hour24 !== 12) hour24 += 12;
+        if(ampm === 'AM' && hour24 === 12) hour24 = 0;
         
         return `${hour24.toString().padStart(2,'0')}:${m}`;
     }
@@ -945,31 +902,8 @@
         select.dataset.filled = 'true';
     }
 
-    function fillHourOptions(selectId, selectedValue = '') {
-        const select = document.getElementById(selectId);
-        if (!select || select.dataset.hoursFilled === 'true') return;
-        select.innerHTML = `<option value="" disabled ${selectedValue ? '' : 'selected'}>Hr</option>`;
-        for (let i = 0; i < 24; i++) {
-            const value = i.toString().padStart(2, '0');
-            const option = document.createElement('option');
-            option.value = value;
-            option.textContent = value;
-            option.selected = value === selectedValue;
-            select.appendChild(option);
-        }
-        select.dataset.hoursFilled = 'true';
-    }
-
     function initializeTimeSelectors() {
         ['login-time-m','logout-time-m','entry-in-m','entry-out-m','pe-start-m','pe-end-m'].forEach(fillMinuteOptions);
-        [
-            ['reg-start-h', '09'],
-            ['reg-end-h', '18'],
-            ['login-time-h', ''],
-            ['logout-time-h', ''],
-            ['pe-start-h', ''],
-            ['pe-end-h', '']
-        ].forEach(([id, selected]) => fillHourOptions(id, selected));
     }
 
     function fillEmployeeAutoFields() {
@@ -977,11 +911,7 @@
             ['login-emp-name', currentUserData.name || ''],
             ['login-emp-id', currentUserData.empId || ''],
             ['logout-emp-name', currentUserData.name || ''],
-            ['logout-emp-id', currentUserData.empId || ''],
-            ['weekoff-emp-name', currentUserData.name || ''],
-            ['weekoff-emp-id', currentUserData.empId || ''],
-            ['leave-emp-name', currentUserData.name || ''],
-            ['leave-emp-id', currentUserData.empId || '']
+            ['logout-emp-id', currentUserData.empId || '']
         ];
         fields.forEach(([id, value]) => {
             const el = document.getElementById(id);
@@ -991,14 +921,14 @@
 
     // ── Feature 1: Now button ─────────────────────────────────────
     function setCurrentTime(prefix) {
-        const parts = new Intl.DateTimeFormat('en-GB', {
-            timeZone:'Asia/Kolkata', hour:'2-digit', minute:'2-digit', hour12:false
-        }).formatToParts(new Date());
-        const hour = parts.find(part => part.type === 'hour')?.value || '';
-        const minute = parts.find(part => part.type === 'minute')?.value || '';
-        if (!hour || !minute) return;
-        document.getElementById(prefix+'-h').value = hour;
-        document.getElementById(prefix+'-m').value = minute;
+        const s = new Intl.DateTimeFormat('en-US', {
+            timeZone:'Asia/Kolkata', hour:'numeric', minute:'2-digit', hour12:true
+        }).format(new Date());
+        const m = s.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
+        if (!m) return;
+        document.getElementById(prefix+'-h').value    = parseInt(m[1]).toString().padStart(2,'0');
+        document.getElementById(prefix+'-m').value    = m[2];
+        document.getElementById(prefix+'-ampm').value = m[3].toUpperCase();
     }
 
     // ── Feature 3 & 5: Stats + Overtime ──────────────────────────
@@ -1011,45 +941,6 @@
     function toMins(t) {
         const p = String(t).split(':');
         return parseInt(p[0])*60 + parseInt(p[1]);
-    }
-
-    function parseProfileWorkMinutes(value) {
-        if (value === undefined || value === null || value === '') return 0;
-        if (typeof value === 'number' && Number.isFinite(value)) {
-            return value <= 24 ? Math.round(value * 60) : Math.round(value);
-        }
-        const s = String(value).trim().toLowerCase();
-        const colon = s.match(/^(\d{1,2}):(\d{2})$/);
-        if (colon) return parseInt(colon[1], 10) * 60 + parseInt(colon[2], 10);
-        const hourMatch = s.match(/(\d+(?:\.\d+)?)\s*(h|hr|hrs|hour|hours)\b/);
-        const minMatch = s.match(/(\d+)\s*(m|min|mins|minute|minutes)\b/);
-        if (hourMatch || minMatch) {
-            return Math.round((hourMatch ? parseFloat(hourMatch[1]) * 60 : 0) + (minMatch ? parseInt(minMatch[1], 10) : 0));
-        }
-        const plain = Number(s);
-        return Number.isFinite(plain) ? (plain <= 24 ? Math.round(plain * 60) : Math.round(plain)) : 0;
-    }
-
-    function getProfileWorkMinutes() {
-        const profileHourKeys = [
-            'workingHours',
-            'workHours',
-            'dailyWorkingHours',
-            'standardWorkingHours',
-            'requiredHours',
-            'profileWorkingHours',
-            'workingMins',
-            'workMins',
-            'standardWorkMins'
-        ];
-        for (const key of profileHourKeys) {
-            const mins = parseProfileWorkMinutes(currentUserData[key]);
-            if (mins > 0) return mins;
-        }
-        if (!currentUserData.shiftStart || !currentUserData.shiftEnd) return 0;
-        let mins = toMins(currentUserData.shiftEnd) - toMins(currentUserData.shiftStart);
-        if (mins < 0) mins += 24 * 60;
-        return Math.max(0, mins - (Number(currentUserData.stdBreak) || 0));
     }
 
     function updateStats(records) {
@@ -1069,8 +960,13 @@
             }
         });
 
-        const schedPerDay = getProfileWorkMinutes();
-        const otMins  = schedPerDay > 0 ? Math.max(0, totalMins - daysPresent * schedPerDay) : 0;
+        let schedPerDay = 0;
+        if (currentUserData.shiftStart && currentUserData.shiftEnd) {
+            schedPerDay = toMins(currentUserData.shiftEnd)
+                        - toMins(currentUserData.shiftStart)
+                        - (Number(currentUserData.stdBreak)||0);
+        }
+        const otMins  = Math.max(0, totalMins - daysPresent * schedPerDay);
         const avgMins = daysPresent ? Math.round(totalMins/daysPresent) : 0;
 
         document.getElementById('stat-days').textContent     = daysPresent;
@@ -1083,10 +979,15 @@
     function setPickerFrom24(prefix, t24) {
         if (!t24) return;
         const [hs, ms] = t24.split(':');
+        let h = parseInt(hs,10);
+        const ap = h>=12 ? 'PM' : 'AM';
+        h = h%12 || 12;
         const hEl = document.getElementById(prefix+'-h');
         const mEl = document.getElementById(prefix+'-m');
-        if(hEl) hEl.value = hs.padStart(2,'0');
+        const aEl = document.getElementById(prefix+'-ampm');
+        if(hEl) hEl.value = h.toString().padStart(2,'0');
         if(mEl) mEl.value = ms;
+        if(aEl) aEl.value = ap;
     }
 
     function enterEditMode() {
@@ -1137,17 +1038,16 @@
             document.getElementById('sidebar-empId').innerText = empId;
             fillEmployeeAutoFields();
             updateStats(allTsRecords);
-            renderTs(allTsRecords);
             exitEditMode();
             showToast('Profile updated!');
         } catch(err) { showToast('Error: '+err.message, true); }
     }
 
     function switchTimesheetTab(tabName) {
-        ['login', 'logout', 'weekoff', 'leave'].forEach(tab => {
-            document.getElementById(tab + '-tab').classList.toggle('active', tabName === tab);
-            document.getElementById(tab + '-tab-btn').classList.toggle('active', tabName === tab);
-        });
+        document.getElementById('login-tab').classList.toggle('active', tabName === 'login');
+        document.getElementById('logout-tab').classList.toggle('active', tabName === 'logout');
+        document.getElementById('login-tab-btn').classList.toggle('active', tabName === 'login');
+        document.getElementById('logout-tab-btn').classList.toggle('active', tabName === 'logout');
     }
 
     initializeTimeSelectors();
@@ -1169,7 +1069,8 @@
     }
 
     function switchView(viewName) {
-        const views = ['timesheet', 'work', 'profile', 'settings'];
+        // Added 'weekoffs' and 'leaves' to the managed views array
+        const views = ['timesheet', 'work', 'weekoffs', 'leaves', 'profile', 'settings'];
         views.forEach(v => {
             document.getElementById('view-' + v).classList.add('hidden');
             document.getElementById('nav-' + v).classList.remove('active');
@@ -1200,8 +1101,6 @@
             const istDate = getISTDateString();
             document.getElementById('login-date').value = istDate;
             document.getElementById('logout-date').value = istDate;
-            document.getElementById('weekoff-date').value = istDate;
-            document.getElementById('leave-date').value = istDate;
             document.getElementById('work-date').value = istDate;
 
             let doc;
@@ -1380,16 +1279,11 @@
 
     function loginWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
-        // No prompt:'select_account' so Google remembers the last used account.
-        // Using signInWithPopup on all platforms — works on all modern mobile browsers and
-        // avoids the full-page redirect which can cause blank-screen issues on mobile.
         auth.signInWithPopup(provider).then(result => {
-            // onAuthStateChanged handles the rest
         }).catch(err => {
             if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
                 showToast('Google sign-in was cancelled.', true);
             } else if (err.code === 'auth/popup-blocked') {
-                // Fallback to redirect if popup was blocked by the browser
                 showToast('Popup blocked. Redirecting…', false);
                 auth.signInWithRedirect(provider).catch(e => showToast(e.message, true));
             } else {
@@ -1414,7 +1308,6 @@
         showToast("Logged out successfully");
     }
 
-    // ---- No User Found modal helpers ----
     function goToRegisterFromModal() {
         document.getElementById('no-user-modal').classList.add('hidden');
         document.getElementById('auth-section').classList.remove('hidden');
@@ -1449,11 +1342,13 @@
         return formatTime(logoutMins - loginMins);
     }
 
-    function resetTimePicker(idPrefix) {
+    function resetTimePicker(idPrefix, defaultAmpm) {
         const h = document.getElementById(idPrefix + '-h');
         const m = document.getElementById(idPrefix + '-m');
+        const ampm = document.getElementById(idPrefix + '-ampm');
         if (h) h.selectedIndex = 0;
         if (m) m.selectedIndex = 0;
+        if (ampm) ampm.value = defaultAmpm;
     }
 
     async function saveLogin() {
@@ -1480,7 +1375,7 @@
         try {
             await db.collection('timesheets').add(record);
             showToast("Login saved successfully!");
-            resetTimePicker('login-time');
+            resetTimePicker('login-time', 'AM');
             switchTimesheetTab('logout');
         } catch (err) {
             showToast("Error saving login: " + err.message, true);
@@ -1544,49 +1439,14 @@
             }
 
             showToast("Logout saved successfully!");
-            resetTimePicker('logout-time');
+            resetTimePicker('logout-time', 'PM');
             switchTimesheetTab('login');
         } catch (err) {
             showToast("Error saving logout: " + err.message, true);
         }
     }
 
-    async function saveDayStatus(type) {
-        if (!['Weekoff', 'Leave'].includes(type)) return;
-        const key = type.toLowerCase();
-        const date = document.getElementById(key + '-date').value;
-        const note = document.getElementById(key + '-note').value.trim();
-
-        if (!date) return showToast("Date is required.", true);
-
-        const record = {
-            userId: auth.currentUser.uid,
-            employeeName: currentUserData.name || '',
-            empId: currentUserData.empId || '',
-            date: date,
-            attendanceType: type,
-            status: type,
-            note: note,
-            inTime: '-',
-            outTime: '-',
-            loginTime: '-',
-            logoutTime: '-',
-            workedHrs: '00:00',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        try {
-            await db.collection('timesheets').add(record);
-            document.getElementById(key + '-note').value = '';
-            showToast(type + " saved successfully!");
-        } catch (err) {
-            showToast("Error saving " + type.toLowerCase() + ": " + err.message, true);
-        }
-    }
-
     function addEntry() {
-        // Backward compatibility if any old button still calls addEntry().
         saveLogin();
     }
 
@@ -1619,28 +1479,28 @@
     function renderTs(records) {
         const tbody = document.getElementById('timesheet-body');
         if (!records.length) {
-            tbody.innerHTML = '<tr><td colspan="8" style="color:var(--text-muted);padding:20px;text-align:center;">No records found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text-muted);padding:20px;text-align:center;">No records found.</td></tr>';
             return;
         }
-        const schedPerDay = getProfileWorkMinutes();
+        let schedPerDay = 0;
+        if (currentUserData.shiftStart && currentUserData.shiftEnd) {
+            schedPerDay = toMins(currentUserData.shiftEnd)
+                        - toMins(currentUserData.shiftStart)
+                        - (Number(currentUserData.stdBreak)||0);
+        }
         tbody.innerHTML = records.map(d => {
             const lIn  = d.inTime  || d.loginTime  || '-';
             const lOut = d.outTime || d.logoutTime || '-';
-            const rawType = d.attendanceType || d.status || 'Present';
-            const attendanceType = ['Weekoff', 'Leave'].includes(rawType) ? rawType : 'Present';
-            const statusClass = attendanceType === 'Weekoff' ? 'badge-blue' : attendanceType === 'Leave' ? 'badge-yellow' : 'badge-green';
             const wHrs = (lIn!=='-'&&lOut!=='-') ? calculateWorkedHours(lIn,lOut) : (d.workedHrs||'00:00');
             let otCell = '<span style="color:var(--text-muted)">—</span>';
             if (lIn!=='-' && lOut!=='-' && schedPerDay>0) {
                 const ot = Math.max(0, toMins(wHrs) - schedPerDay);
-                const otColor = ot > 0 ? '#10b981' : 'var(--text-muted)';
-                otCell = `<span style="color:${otColor};font-weight:700;">${fmtMins(ot)}</span>`;
+                if (ot>0) otCell = `<span style="color:#10b981;font-weight:700;">${fmtMins(ot)}</span>`;
             }
             return `<tr>
                 <td data-label="Employee Name"><strong>${d.employeeName||currentUserData.name||'-'}</strong></td>
                 <td data-label="Employee ID">${d.empId||currentUserData.empId||'-'}</td>
                 <td data-label="Date">${d.date||'-'}</td>
-                <td data-label="Status"><span class="badge ${statusClass}">${attendanceType}</span></td>
                 <td data-label="Login Time">${format12hr(lIn)}</td>
                 <td data-label="Logout Time">${format12hr(lOut)}</td>
                 <td data-label="Worked Hrs" style="font-weight:600;">${wHrs}</td>
@@ -1703,72 +1563,29 @@
         </tr>`).join('');
     }
 
-    function loadPdfFallbackScript() {
-        return new Promise(resolve => {
-            if (document.getElementById('html2pdf-fallback-script')) return resolve();
-            const script = document.createElement('script');
-            script.id = 'html2pdf-fallback-script';
-            script.src = 'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js';
-            script.onload = () => resolve();
-            script.onerror = () => resolve();
-            document.head.appendChild(script);
-        });
-    }
-
-    function waitForPdfEngine(timeoutMs = 4000) {
-        if (window.html2pdf) return Promise.resolve(window.html2pdf);
-        return new Promise(resolve => {
-            const started = Date.now();
-            const timer = setInterval(() => {
-                if (window.html2pdf) {
-                    clearInterval(timer);
-                    resolve(window.html2pdf);
-                } else if (Date.now() - started >= timeoutMs) {
-                    clearInterval(timer);
-                    resolve(null);
-                }
-            }, 100);
-        }).then(async pdfEngine => {
-            if (pdfEngine) return pdfEngine;
-            await loadPdfFallbackScript();
-            return window.html2pdf || null;
-        });
-    }
-
-    async function downloadPDF(elementId, filename, buttonEl) {
+    // UPDATED EXPORT FUNCTIONALITY 
+    function downloadPDF(elementId, filename) {
         const element = document.getElementById(elementId);
-        if (!element) return showToast("Report not found.", true);
-
-        const originalText = buttonEl ? buttonEl.textContent : '';
-        if (buttonEl) {
-            buttonEl.disabled = true;
-            buttonEl.textContent = 'Preparing PDF...';
+        if (!element) {
+            console.error("Download element not found!");
+            return;
         }
+        
+        const isDark = document.body.classList.contains('dark-theme');
+        
+        const opt = {
+            margin:       0.4,
+            filename:     `${filename}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { 
+                scale: 2, 
+                useCORS: true, 
+                backgroundColor: isDark ? '#0a0a0a' : '#ffffff' 
+            },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
 
-        try {
-            const pdfEngine = await waitForPdfEngine();
-            if (!pdfEngine) {
-                window.print();
-                showToast("PDF tool is still loading. Print dialog opened instead.");
-                return;
-            }
-
-            const opt = {
-                margin:       0.4,
-                filename:     `${filename}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, scrollY: 0, backgroundColor: document.body.classList.contains('dark-theme') ? '#0a0a0a' : '#ffffff' },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
-            };
-            await pdfEngine().set(opt).from(element).save();
-        } catch (err) {
-            showToast("PDF download failed: " + err.message, true);
-        } finally {
-            if (buttonEl) {
-                buttonEl.disabled = false;
-                buttonEl.textContent = originalText;
-            }
-        }
+        html2pdf().set(opt).from(element).save();
     }
 </script>
 </body>
