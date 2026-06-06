@@ -736,6 +736,20 @@
             background: radial-gradient(circle, rgba(112,92,255,.9), rgba(112,92,255,.22));
         }
 
+        .stat-card:nth-child(1)::before { content: "↗"; }
+        .stat-card:nth-child(2)::before { content: "✓"; }
+        .stat-card:nth-child(3)::before { content: "◷"; }
+        .stat-card:nth-child(4)::before { content: "!"; }
+
+        .stat-card::before {
+            display: flex;
+            color: #fff;
+            font-weight: 900;
+            font-size: 22px;
+            align-items: center;
+            justify-content: center;
+        }
+
         .stat-card.ot::before {
             background: radial-gradient(circle, rgba(67,201,119,.9), rgba(67,201,119,.18));
         }
@@ -1237,6 +1251,259 @@
             background: rgba(255,255,255,.95);
             box-shadow: 0 24px 80px rgba(82,71,147,.22);
         }
+
+        .top-search {
+            position: relative;
+            padding: 0;
+        }
+
+        .top-search input {
+            width: 100%;
+            min-height: 46px;
+            border: none;
+            background: transparent;
+            padding: 0 16px;
+            box-shadow: none;
+        }
+
+        .search-results,
+        .profile-menu,
+        .notification-menu,
+        .new-task-menu,
+        .export-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            z-index: 960;
+            min-width: 240px;
+            padding: 10px;
+            border-radius: 18px;
+            background: rgba(255,255,255,.96);
+            border: 1px solid rgba(127,117,183,.16);
+            box-shadow: 0 18px 56px rgba(82,71,147,.18);
+            backdrop-filter: blur(18px);
+        }
+
+        .search-results {
+            left: 0;
+            right: auto;
+            width: 100%;
+        }
+
+        .search-item,
+        .profile-menu button,
+        .notification-item,
+        .new-task-menu button,
+        .export-menu button {
+            width: 100%;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: var(--ink);
+            padding: 11px 12px;
+            text-align: left;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .search-item:hover,
+        .profile-menu button:hover,
+        .new-task-menu button:hover,
+        .export-menu button:hover {
+            background: rgba(112,92,255,.09);
+            color: var(--primary);
+        }
+
+        .notification-btn,
+        .profile-trigger,
+        .new-task-btn,
+        .export-trigger {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: none;
+            border-radius: 16px;
+            min-height: 48px;
+            padding: 0 14px;
+            background: rgba(255,255,255,.82);
+            color: var(--ink);
+            font-weight: 800;
+            box-shadow: 0 12px 30px rgba(82,71,147,.10);
+            cursor: pointer;
+        }
+
+        .notification-btn {
+            width: 48px;
+            justify-content: center;
+            padding: 0;
+            font-size: 20px;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -7px;
+            right: -5px;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 999px;
+            display: grid;
+            place-items: center;
+            background: #705cff;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 900;
+            border: 2px solid #fff;
+        }
+
+        .profile-wrap,
+        .notification-wrap,
+        .new-task-wrap,
+        .export-wrap {
+            position: relative;
+        }
+
+        .chevron {
+            font-size: 12px;
+            color: var(--muted-ink);
+        }
+
+        .planner-heading-row,
+        .reports-heading-row,
+        .worksheet-heading-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .planner-tools {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .calendar-card {
+            padding: 20px;
+        }
+
+        .calendar-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .calendar-day-name,
+        .calendar-day {
+            min-height: 42px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .calendar-day-name {
+            color: var(--muted-ink);
+            min-height: 24px;
+        }
+
+        .calendar-day {
+            border: 1px solid rgba(127,117,183,.12);
+            background: rgba(255,255,255,.62);
+            color: var(--ink);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .calendar-day.selected {
+            background: linear-gradient(135deg, #5f6fff, #bd58e6);
+            color: #fff;
+            box-shadow: 0 12px 24px rgba(112,92,255,.24);
+        }
+
+        .calendar-day.marked::after {
+            content: "";
+            position: absolute;
+            bottom: 5px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #43c977;
+        }
+
+        .calendar-event-form {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .planner-event-list {
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .planner-event {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 11px 12px;
+            border-radius: 14px;
+            background: rgba(112,92,255,.07);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .modal-card-wide {
+            width: min(540px, 100%);
+        }
+
+        .export-options {
+            display: grid;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .planner-heading-row,
+            .reports-heading-row,
+            .worksheet-heading-row {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .planner-tools,
+            .top-user {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .profile-menu,
+            .notification-menu,
+            .new-task-menu,
+            .export-menu {
+                right: 0;
+                left: auto;
+            }
+
+            .calendar-grid {
+                gap: 6px;
+            }
+
+            .calendar-day {
+                min-height: 40px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1396,7 +1663,6 @@
             <li onclick="switchDashboardSection('planner')" id="nav-planner" data-section="planner"><span class="nav-icon">P</span>Planner</li>
             <li onclick="switchDashboardSection('worksheets')" id="nav-worksheets" data-section="worksheets"><span class="nav-icon">W</span>Worksheets</li>
             <li onclick="switchDashboardSection('reports')" id="nav-reports" data-section="reports"><span class="nav-icon">R</span>Reports</li>
-            <li onclick="switchDashboardSection('profile')" id="nav-profile" data-section="profile"><span class="nav-icon">U</span>Profile</li>
             <li onclick="switchDashboardSection('settings')" id="nav-settings" data-section="settings"><span class="nav-icon">S</span>Settings</li>
         </ul>
         <div class="sidebar-visual">
@@ -1412,13 +1678,29 @@
                 </button>
                 <div class="brand-text" style="font-size: 16px;">Worksheet</div>
             </div>
-            <div class="top-search">Search worksheets, tasks, reports...</div>
+            <div class="top-search">
+                <input type="search" id="global-search" placeholder="Search anything..." oninput="handleGlobalSearch()" onfocus="handleGlobalSearch()">
+                <div id="search-results" class="search-results hidden"></div>
+            </div>
             <div class="top-user">
-                <button class="logout-btn" onclick="logout()">Log Out</button>
-                <img id="top-profile-img" src="https://via.placeholder.com/150" alt="Profile">
-                <div>
-                    <div id="top-user-name">User</div>
-                    <div class="top-role" id="top-user-role">Worksheet Member</div>
+                <div class="notification-wrap">
+                    <button type="button" class="notification-btn" onclick="toggleNotificationMenu()">N<span class="notification-badge hidden" id="notification-badge">0</span></button>
+                    <div id="notification-menu" class="notification-menu hidden"></div>
+                </div>
+                <div class="profile-wrap">
+                    <button type="button" class="profile-trigger" onclick="toggleProfileMenu()">
+                        <img id="top-profile-img" src="https://via.placeholder.com/150" alt="Profile">
+                        <span>
+                            <span id="top-user-name">User</span>
+                            <span class="top-role" id="top-user-role">Worksheet Member</span>
+                        </span>
+                        <span class="chevron">v</span>
+                    </button>
+                    <div id="profile-menu" class="profile-menu hidden">
+                        <button type="button" onclick="switchDashboardSection('profile'); toggleProfileMenu(false);">My Profile</button>
+                        <button type="button" onclick="switchDashboardSection('settings'); toggleProfileMenu(false);">Settings</button>
+                        <button type="button" onclick="logout()">Log Out</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1494,6 +1776,37 @@
             </section>
 
             <section class="planner-stack" id="planner-panel">
+            <div class="planner-heading-row">
+                <div>
+                    <h2 style="margin:0;">Planner</h2>
+                    <p class="subtitle" style="margin:4px 0 0;">Plan your day. Achieve your goals.</p>
+                </div>
+                <div class="planner-tools">
+                    <div class="new-task-wrap">
+                        <button type="button" class="new-task-btn" onclick="toggleNewTaskMenu()">+ New Task <span class="chevron">v</span></button>
+                        <div id="new-task-menu" class="new-task-menu hidden">
+                            <button type="button" onclick="openTaskModal('goal')">Goal</button>
+                            <button type="button" onclick="openTaskModal('worksheet')">Worksheet Task</button>
+                            <button type="button" onclick="openTaskModal('calendar')">Calendar Event</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card calendar-card">
+                <div class="calendar-head">
+                    <button type="button" class="btn-outline" style="width:auto;" onclick="moveCalendarMonth(-1)">&lt;</button>
+                    <h3 id="planner-calendar-title" style="margin:0;">Calendar</h3>
+                    <button type="button" class="btn-outline" style="width:auto;" onclick="moveCalendarMonth(1)">&gt;</button>
+                </div>
+                <div class="calendar-grid" id="planner-calendar-grid"></div>
+                <div class="calendar-event-form">
+                    <input type="text" id="calendar-event-title" placeholder="What is it on this date?">
+                    <button type="button" class="btn" style="width:auto;" onclick="saveCalendarEvent()">Save</button>
+                </div>
+                <div id="planner-event-list" class="planner-event-list"></div>
+            </div>
+
             <div class="card planner-card">
                 <h3 style="font-size: 16px;">Employee Attendance</h3>
                 <p class="subtitle" style="margin-bottom: 14px;">Login, logout, weekoff, and leave can be saved any number of times per day.</p>
@@ -1646,6 +1959,27 @@
 
             </section>
             <section class="reports-stack" id="reports-panel">
+                <div class="reports-heading-row">
+                    <div>
+                        <h2 style="margin:0;">Reports</h2>
+                        <p class="subtitle" style="margin:4px 0 0;">Track worksheet progress, hours, deadlines, and productivity.</p>
+                    </div>
+                    <div class="export-wrap">
+                        <button type="button" class="export-trigger" onclick="toggleExportMenu()">Export <span class="chevron">v</span></button>
+                        <div id="export-menu" class="export-menu hidden">
+                            <div class="export-options">
+                                <button type="button" onclick="prepareReportExport('timesheet','week')">Timesheet - This Week</button>
+                                <button type="button" onclick="prepareReportExport('timesheet','month')">Timesheet - This Month</button>
+                                <button type="button" onclick="prepareReportExport('worksheet','week')">Worksheet - This Week</button>
+                                <button type="button" onclick="prepareReportExport('worksheet','month')">Worksheet - This Month</button>
+                                <label style="margin:8px 0 0;">Choose Date</label>
+                                <input type="date" id="export-date">
+                                <button type="button" onclick="prepareReportExport('timesheet','date')">Timesheet - Selected Date</button>
+                                <button type="button" onclick="prepareReportExport('worksheet','date')">Worksheet - Selected Date</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="card section-card chart-card">
                     <div class="section-head">
                         <h3>Weekly Productivity</h3>
@@ -1698,12 +2032,6 @@
                         <h3 style="margin-bottom:4px;font-size:16px;">Timesheet Report</h3>
                         <p style="margin:0;font-size:12px;color:var(--text-muted);">Non-editable permanent record.</p>
                     </div>
-                    <div class="filter-row">
-                        <div class="fg"><label>From</label><input type="date" id="ts-from"></div>
-                        <div class="fg"><label>To</label><input type="date" id="ts-to"></div>
-                        <button class="fbtn primary" onclick="applyTsFilter()">Filter</button>
-                        <button class="fbtn outline" onclick="clearTsFilter()">Clear</button>
-                    </div>
                     <div class="table-responsive">
                         <table>
                             <thead>
@@ -1722,33 +2050,53 @@
                         </table>
                     </div>
                 </div>
-                <button type="button" class="btn export-btn btn-sm" onclick="downloadPDF('timesheet-report', 'Timesheet', this)">Download PDF</button>
+                <button type="button" class="btn export-btn btn-sm" onclick="prepareReportExport('timesheet','week')">Download PDF</button>
             </div>
             </section>
             </div>
         </div>
 
         <div id="view-work" class="view-panel hidden">
+            <div class="worksheet-heading-row">
+                <div>
+                    <h2 style="margin:0;">Worksheets</h2>
+                    <p class="subtitle" style="margin:4px 0 0;">Organize accounting, reconciliation, and compliance work.</p>
+                </div>
+                <button type="button" class="new-task-btn" onclick="openTaskModal('worksheet')">+ New Worksheet</button>
+            </div>
             <div class="card">
-                <h3 style="font-size: 16px;">Log Work Task</h3>
+                <h3 style="font-size: 16px;">Add Worksheet</h3>
                 <div class="flex-grid">
                     <div>
-                        <label>Date (IST)</label>
+                        <label>Date</label>
                         <input type="date" id="work-date">
                     </div>
                     <div style="flex: 2;">
-                        <label>Work Done Description</label>
-                        <input type="text" id="work-desc" placeholder="What did you accomplish today?">
+                        <label>Worksheet / Work Done</label>
+                        <input type="text" id="work-desc" placeholder="What accounting work did you do?">
                     </div>
                     <div>
-                        <label>Task Status</label>
+                        <label>Type</label>
+                        <select id="work-type">
+                            <option value="Accounting">Accounting</option>
+                            <option value="Reconciliation">Reconciliation</option>
+                            <option value="Compliance">Compliance</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Due Date</label>
+                        <input type="date" id="work-due-date">
+                    </div>
+                    <div>
+                        <label>Status</label>
                         <select id="work-status">
+                            <option value="Not Started">Not Started</option>
                             <option value="In Progress">In Progress</option>
                             <option value="Completed">Completed</option>
                         </select>
                     </div>
                 </div>
-                <button class="btn btn-sm" onclick="addWorkLog()">Save Work Record</button>
+                <button class="btn btn-sm" onclick="addWorkLog()">Save Worksheet</button>
             </div>
 
             <div class="card clearfix">
@@ -1768,7 +2116,9 @@
                             <thead>
                                 <tr>
                                     <th>Date</th>
-                                    <th>Work Done</th>
+                                    <th>Worksheet</th>
+                                    <th>Type</th>
+                                    <th>Due Date</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -1776,7 +2126,7 @@
                         </table>
                     </div>
                 </div>
-                <button type="button" class="btn export-btn btn-sm" onclick="downloadPDF('work-report', 'My_Work_Log', this)">Download PDF</button>
+                <button type="button" class="btn export-btn btn-sm" onclick="prepareReportExport('worksheet','week')">Download PDF</button>
             </div>
         </div>
 
@@ -1915,6 +2265,43 @@
             <button type="button" class="btn" onclick="addGoalFromModal()">Save Goal</button>
         </div>
     </div>
+
+    <div id="task-modal" class="goal-modal hidden">
+        <div class="goal-modal-card modal-card-wide">
+            <div class="section-head">
+                <h3 id="task-modal-title">New Task</h3>
+                <button class="text-link" onclick="closeTaskModal()">Close</button>
+            </div>
+            <input type="hidden" id="task-modal-kind" value="worksheet">
+            <div class="input-group">
+                <label>Title</label>
+                <input type="text" id="task-title" placeholder="Task or event title">
+            </div>
+            <div class="flex-grid">
+                <div>
+                    <label>Date</label>
+                    <input type="date" id="task-date">
+                </div>
+                <div>
+                    <label>Type</label>
+                    <select id="task-type">
+                        <option value="Accounting">Accounting</option>
+                        <option value="Reconciliation">Reconciliation</option>
+                        <option value="Compliance">Compliance</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Status</label>
+                    <select id="task-status">
+                        <option value="Not Started">Not Started</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+            </div>
+            <button type="button" class="btn" onclick="saveNewTask()">Save</button>
+        </div>
+    </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -1939,6 +2326,9 @@
     let allTsRecords       = [];   // all timesheet records (for filter)
     let allWlRecords       = [];   // all work-log records (for filter)
     let allGoalsRecords    = [];   // all goal records (for dashboard)
+    let allCalendarEvents  = [];   // planner calendar marks and reminders
+    let selectedCalendarDate = '';
+    let plannerCalendarMonth = new Date();
 
     function showToast(message, isError = false) {
         const container = document.getElementById('toast-container');
@@ -2160,7 +2550,8 @@
         const list = document.getElementById('goals-list');
         if (!list) return;
         const today = getISTDateString();
-        const goals = allGoalsRecords.filter(g => (g.date || today) === today);
+        const activeDate = selectedCalendarDate || today;
+        const goals = allGoalsRecords.filter(g => (g.date || today) === activeDate);
         const completed = goals.filter(g => g.completed).length;
         const pct = goals.length ? Math.round((completed / goals.length) * 100) : 0;
         const deg = Math.round((pct / 100) * 360);
@@ -2183,16 +2574,20 @@
         const input = document.getElementById('goal-title');
         const title = (input?.value || '').trim();
         if (!title) return showToast('Please enter a goal.', true);
+        await saveGoalRecord(title, getISTDateString());
+        input.value = '';
+    }
+
+    async function saveGoalRecord(title, date) {
         try {
             await db.collection('goals').add({
                 userId: auth.currentUser.uid,
                 title,
-                date: getISTDateString(),
+                date: date || getISTDateString(),
                 completed: false,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-            input.value = '';
             showToast('Goal added!');
         } catch (err) {
             showToast('Error saving goal: ' + err.message, true);
@@ -2322,15 +2717,24 @@
             `).join('') : '<div class="mini-row"><span class="muted" style="margin-left:0;">No completed tasks yet.</span></div>';
         }
 
-        const upcoming = allTsRecords
-            .filter(r => r.date >= today && ['Weekoff','Leave'].includes(r.attendanceType || r.status))
-            .slice(0, 3);
-        setText('stat-overtime', upcoming.length);
+        const allUpcoming = [
+            ...allCalendarEvents
+                .filter(e => e.date >= today)
+                .map(e => ({ date: e.date, title: e.title, type: 'Calendar' })),
+            ...allWlRecords
+                .filter(w => w.dueDate && w.dueDate >= today && w.status !== 'Completed')
+                .map(w => ({ date: w.dueDate, title: w.description, type: w.workType || w.type || 'Worksheet' })),
+            ...allTsRecords
+                .filter(r => r.date >= today && ['Weekoff','Leave'].includes(r.attendanceType || r.status))
+                .map(r => ({ date: r.date, title: r.attendanceType || r.status, type: r.attendanceType || r.status }))
+        ].sort((a,b) => new Date(a.date) - new Date(b.date));
+        const upcoming = allUpcoming.slice(0, 3);
+        setText('stat-overtime', allUpcoming.length);
         const upcomingList = document.getElementById('upcoming-list');
         if (upcomingList) {
             upcomingList.innerHTML = upcoming.length ? upcoming.map(item => `
-                <div class="mini-row"><span class="nav-icon">${(item.attendanceType || item.status || 'O').charAt(0)}</span><span>${escapeHtml(item.attendanceType || item.status)}</span><span class="muted">${escapeHtml(item.date)}</span></div>
-            `).join('') : '<div class="mini-row"><span class="muted" style="margin-left:0;">No upcoming weekoff or leave.</span></div>';
+                <div class="mini-row"><span class="nav-icon">${(item.type || 'U').charAt(0)}</span><span>${escapeHtml(item.title)}</span><span class="muted">${escapeHtml(item.date)}</span></div>
+            `).join('') : '<div class="mini-row"><span class="muted" style="margin-left:0;">No upcoming deadlines.</span></div>';
         }
 
         const focusCounts = {};
@@ -2349,6 +2753,228 @@
         }
 
         setText('welcome-title', `Welcome back, ${(currentUserData.name || 'there').split(' ')[0]}`);
+    }
+
+    function getMonthKey(dateObj) {
+        return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    function renderCalendar() {
+        const grid = document.getElementById('planner-calendar-grid');
+        if (!grid) return;
+        const monthTitle = document.getElementById('planner-calendar-title');
+        const year = plannerCalendarMonth.getFullYear();
+        const month = plannerCalendarMonth.getMonth();
+        const label = plannerCalendarMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+        if (monthTitle) monthTitle.textContent = label;
+        const first = new Date(year, month, 1);
+        const days = new Date(year, month + 1, 0).getDate();
+        const offset = (first.getDay() + 6) % 7;
+        const today = getISTDateString();
+        const marked = new Set([
+            ...allCalendarEvents.map(e => e.date),
+            ...allWlRecords.map(w => w.dueDate).filter(Boolean)
+        ]);
+        const names = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
+        let html = names.map(n => `<div class="calendar-day-name">${n}</div>`).join('');
+        for (let i = 0; i < offset; i++) html += '<div></div>';
+        for (let day = 1; day <= days; day++) {
+            const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const cls = [
+                'calendar-day',
+                date === selectedCalendarDate ? 'selected' : '',
+                marked.has(date) ? 'marked' : '',
+                date === today ? 'today' : ''
+            ].filter(Boolean).join(' ');
+            html += `<button type="button" class="${cls}" onclick="selectCalendarDate('${date}')">${day}</button>`;
+        }
+        grid.innerHTML = html;
+        renderCalendarEventsForDate();
+        updateNotifications();
+    }
+
+    function selectCalendarDate(date) {
+        selectedCalendarDate = date;
+        const input = document.getElementById('task-date');
+        if (input) input.value = date;
+        renderCalendar();
+        renderGoals();
+    }
+
+    function moveCalendarMonth(delta) {
+        plannerCalendarMonth.setMonth(plannerCalendarMonth.getMonth() + delta);
+        renderCalendar();
+    }
+
+    async function saveCalendarEvent(titleOverride, dateOverride) {
+        const titleInput = document.getElementById('calendar-event-title');
+        const title = (titleOverride || titleInput?.value || '').trim();
+        const date = dateOverride || selectedCalendarDate || getISTDateString();
+        if (!title) return showToast('Please enter what is on this date.', true);
+        try {
+            await db.collection('calendarEvents').add({
+                userId: auth.currentUser.uid,
+                title,
+                date,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            if (titleInput && !titleOverride) titleInput.value = '';
+            showToast('Calendar date saved!');
+        } catch (err) {
+            showToast('Error saving calendar date: ' + err.message, true);
+        }
+    }
+
+    function renderCalendarEventsForDate() {
+        const list = document.getElementById('planner-event-list');
+        if (!list) return;
+        const date = selectedCalendarDate || getISTDateString();
+        const events = allCalendarEvents.filter(e => e.date === date);
+        const worksheets = allWlRecords.filter(w => w.dueDate === date);
+        const rows = [
+            ...events.map(e => ({ title: e.title, type: 'Calendar' })),
+            ...worksheets.map(w => ({ title: w.description, type: w.workType || w.type || 'Worksheet' }))
+        ];
+        list.innerHTML = rows.length ? rows.map(row => `
+            <div class="planner-event"><span>${escapeHtml(row.title)}</span><span class="badge badge-purple">${escapeHtml(row.type)}</span></div>
+        `).join('') : `<div class="planner-event"><span>No items for ${escapeHtml(date)}</span><span></span></div>`;
+    }
+
+    function loadCalendarEvents(userId) {
+        db.collection('calendarEvents').where('userId', '==', userId)
+          .onSnapshot(snapshot => {
+            allCalendarEvents = [];
+            snapshot.forEach(doc => allCalendarEvents.push({ id: doc.id, ...doc.data() }));
+            allCalendarEvents.sort((a,b) => new Date(a.date) - new Date(b.date));
+            renderCalendar();
+            updateDashboardInsights();
+        }, err => showToast('DB Error: ' + err.message, true));
+    }
+
+    function buildNotifications() {
+        const today = getISTDateString();
+        const limit = dateOffset(today, 2);
+        const calendarNotes = allCalendarEvents
+            .filter(e => e.date >= today && e.date <= limit)
+            .map(e => ({ date: e.date, title: e.title, type: 'Calendar' }));
+        const worksheetNotes = allWlRecords
+            .filter(w => w.dueDate && w.dueDate >= today && w.dueDate <= limit && w.status !== 'Completed')
+            .map(w => ({ date: w.dueDate, title: w.description, type: w.workType || w.type || 'Worksheet' }));
+        return [...calendarNotes, ...worksheetNotes].sort((a,b) => new Date(a.date) - new Date(b.date));
+    }
+
+    function updateNotifications() {
+        const items = buildNotifications();
+        const badge = document.getElementById('notification-badge');
+        const menu = document.getElementById('notification-menu');
+        if (badge) {
+            badge.textContent = items.length;
+            badge.classList.toggle('hidden', items.length === 0);
+        }
+        if (menu) {
+            menu.innerHTML = items.length ? items.map(item => `
+                <div class="notification-item"><strong>${escapeHtml(item.title)}</strong><br><span class="muted">${escapeHtml(item.type)} due ${escapeHtml(item.date)}</span></div>
+            `).join('') : '<div class="notification-item">No upcoming reminders.</div>';
+        }
+    }
+
+    function toggleNotificationMenu(force) {
+        const menu = document.getElementById('notification-menu');
+        const shouldOpen = typeof force === 'boolean' ? force : menu.classList.contains('hidden');
+        menu.classList.toggle('hidden', !shouldOpen);
+        updateNotifications();
+    }
+
+    function toggleProfileMenu(force) {
+        const menu = document.getElementById('profile-menu');
+        const shouldOpen = typeof force === 'boolean' ? force : menu.classList.contains('hidden');
+        menu.classList.toggle('hidden', !shouldOpen);
+    }
+
+    function toggleNewTaskMenu(force) {
+        const menu = document.getElementById('new-task-menu');
+        const shouldOpen = typeof force === 'boolean' ? force : menu.classList.contains('hidden');
+        menu.classList.toggle('hidden', !shouldOpen);
+    }
+
+    function toggleExportMenu(force) {
+        const menu = document.getElementById('export-menu');
+        const shouldOpen = typeof force === 'boolean' ? force : menu.classList.contains('hidden');
+        menu.classList.toggle('hidden', !shouldOpen);
+    }
+
+    function searchCommands() {
+        return [
+            { label: 'Dashboard', keywords: 'home productivity score stats', run: () => switchDashboardSection('dashboard') },
+            { label: 'Planner', keywords: 'calendar task new task goal upcoming date', run: () => switchDashboardSection('planner') },
+            { label: 'Worksheets', keywords: 'accounting reconciliation compliance worksheet work status', run: () => switchDashboardSection('worksheets') },
+            { label: 'Reports', keywords: 'export timesheet worksheet report productivity hours', run: () => switchDashboardSection('reports') },
+            { label: 'My Profile', keywords: 'profile employee details shift break photo', run: () => switchDashboardSection('profile') },
+            { label: 'Settings', keywords: 'password theme security', run: () => switchDashboardSection('settings') },
+            { label: 'Save Login Time', keywords: 'login now time attendance', run: () => { switchDashboardSection('planner'); switchTimesheetTab('login'); } },
+            { label: 'Save Logout Time', keywords: 'logout time attendance', run: () => { switchDashboardSection('planner'); switchTimesheetTab('logout'); } },
+            { label: 'Add Weekoff', keywords: 'weekoff weekly off holiday', run: () => { switchDashboardSection('planner'); switchTimesheetTab('weekoff'); } },
+            { label: 'Add Leave', keywords: 'leave absent vacation', run: () => { switchDashboardSection('planner'); switchTimesheetTab('leave'); } },
+            { label: 'Add Goal', keywords: 'goal daily goal target', run: () => openGoalModal() },
+            { label: 'Export Timesheet', keywords: 'download pdf timesheet', run: () => { switchDashboardSection('reports'); toggleExportMenu(true); } }
+        ];
+    }
+
+    function handleGlobalSearch() {
+        const input = document.getElementById('global-search');
+        const results = document.getElementById('search-results');
+        const q = (input?.value || '').trim().toLowerCase();
+        if (!q) {
+            results.classList.add('hidden');
+            results.innerHTML = '';
+            return;
+        }
+        const matches = searchCommands().filter(item => (item.label + ' ' + item.keywords).toLowerCase().includes(q)).slice(0, 8);
+        results.innerHTML = matches.length ? matches.map((item, index) => `
+            <button type="button" class="search-item" onclick="runSearchCommand(${index})">${escapeHtml(item.label)}</button>
+        `).join('') : '<div class="search-item">No matching feature found.</div>';
+        window.currentSearchMatches = matches;
+        results.classList.remove('hidden');
+    }
+
+    function runSearchCommand(index) {
+        const matches = window.currentSearchMatches || [];
+        if (matches[index]) matches[index].run();
+        document.getElementById('search-results').classList.add('hidden');
+        document.getElementById('global-search').value = '';
+    }
+
+    function openTaskModal(kind) {
+        toggleNewTaskMenu(false);
+        const modal = document.getElementById('task-modal');
+        document.getElementById('task-modal-kind').value = kind;
+        document.getElementById('task-modal-title').textContent = kind === 'goal' ? 'New Goal' : kind === 'calendar' ? 'New Calendar Event' : 'New Worksheet Task';
+        document.getElementById('task-date').value = selectedCalendarDate || getISTDateString();
+        document.getElementById('task-title').value = '';
+        modal.classList.remove('hidden');
+        setTimeout(() => document.getElementById('task-title')?.focus(), 40);
+    }
+
+    function closeTaskModal() {
+        document.getElementById('task-modal').classList.add('hidden');
+    }
+
+    async function saveNewTask() {
+        const kind = document.getElementById('task-modal-kind').value;
+        const title = document.getElementById('task-title').value.trim();
+        const date = document.getElementById('task-date').value || getISTDateString();
+        const type = document.getElementById('task-type').value;
+        const status = document.getElementById('task-status').value;
+        if (!title) return showToast('Please enter a title.', true);
+        if (kind === 'goal') {
+            await saveGoalRecord(title, date);
+        } else if (kind === 'calendar') {
+            await saveCalendarEvent(title, date);
+        } else {
+            await saveWorksheetRecord({ date, description: title, workType: type, dueDate: date, status });
+        }
+        closeTaskModal();
     }
 
     // ── Feature 4: Profile edit helpers ──────────────────────────
@@ -2531,6 +3157,11 @@
             document.getElementById('weekoff-date').value = istDate;
             document.getElementById('leave-date').value = istDate;
             document.getElementById('work-date').value = istDate;
+            document.getElementById('work-due-date').value = istDate;
+            document.getElementById('export-date').value = istDate;
+            selectedCalendarDate = istDate;
+            plannerCalendarMonth = new Date(istDate + 'T00:00:00');
+            renderCalendar();
 
             let doc;
             try {
@@ -2569,6 +3200,7 @@
                 loadTimesheets(user.uid);
                 loadWorkLogs(user.uid);
                 loadGoals(user.uid);
+                loadCalendarEvents(user.uid);
                 setActiveSection('dashboard');
             } else {
                 // Google-authenticated but no Firestore profile exists — show No User Found modal
@@ -2941,13 +3573,13 @@
     }
 
     function applyTsFilter() {
-        const f = document.getElementById('ts-from').value;
-        const t = document.getElementById('ts-to').value;
+        const f = document.getElementById('ts-from')?.value || '';
+        const t = document.getElementById('ts-to')?.value || '';
         renderTs(allTsRecords.filter(r => (!f||r.date>=f) && (!t||r.date<=t)));
     }
     function clearTsFilter() {
-        document.getElementById('ts-from').value = '';
-        document.getElementById('ts-to').value   = '';
+        if (document.getElementById('ts-from')) document.getElementById('ts-from').value = '';
+        if (document.getElementById('ts-to')) document.getElementById('ts-to').value   = '';
         renderTs(allTsRecords);
     }
 
@@ -2987,20 +3619,30 @@
     function addWorkLog() {
         const date = document.getElementById('work-date').value;
         const desc = document.getElementById('work-desc').value;
+        const workType = document.getElementById('work-type').value;
+        const dueDate = document.getElementById('work-due-date').value;
         const status = document.getElementById('work-status').value;
 
-        if (status !== 'Completed') return showToast("please click completed to save it", true);
         if (!desc.trim()) return showToast("Please enter a description of work done.", true);
+        saveWorksheetRecord({ date, description: desc, workType, dueDate, status });
+    }
 
+    function saveWorksheetRecord({ date, description, workType, dueDate, status }) {
         db.collection('workLogs').add({
             userId: auth.currentUser.uid,
-            date: date,
-            description: desc,
-            status: status
+            date: date || getISTDateString(),
+            description,
+            workType: workType || 'Accounting',
+            type: workType || 'Accounting',
+            dueDate: dueDate || date || getISTDateString(),
+            status: status || 'Not Started',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => {
-            showToast("Work task logged securely!");
+            showToast("Worksheet saved!");
             loadWorkLogs(auth.currentUser.uid);
-            document.getElementById('work-desc').value = ''; 
+            const descEl = document.getElementById('work-desc');
+            if (descEl) descEl.value = '';
         }).catch(err => showToast("Error: " + err.message, true));
     }
 
@@ -3011,6 +3653,7 @@
             snapshot.forEach(doc => allWlRecords.push(doc.data()));
             allWlRecords.sort((a,b) => new Date(a.date)-new Date(b.date));
             renderWl(allWlRecords);
+            renderCalendar();
             updateDashboardInsights();
         }, err => showToast("DB Error: "+err.message, true));
     }
@@ -3029,14 +3672,99 @@
     function renderWl(records) {
         const tbody = document.getElementById('work-body');
         if (!records.length) {
-            tbody.innerHTML = '<tr><td colspan="3" style="color:var(--text-muted);padding:20px;text-align:center;">No records found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="color:var(--text-muted);padding:20px;text-align:center;">No records found.</td></tr>';
             return;
         }
         tbody.innerHTML = records.map(d => `<tr>
             <td data-label="Date" style="width:15%;"><strong>${d.date}</strong></td>
-            <td data-label="Work Done">${d.description}</td>
-            <td data-label="Status" style="width:15%;"><span class="badge badge-green">${d.status}</span></td>
+            <td data-label="Worksheet">${d.description}</td>
+            <td data-label="Type">${d.workType || d.type || 'Accounting'}</td>
+            <td data-label="Due Date">${d.dueDate || d.date || '-'}</td>
+            <td data-label="Status" style="width:15%;"><span class="badge ${d.status === 'Completed' ? 'badge-green' : d.status === 'In Progress' ? 'badge-blue' : 'badge-slate'}">${d.status || 'Not Started'}</span></td>
         </tr>`).join('');
+    }
+
+    function getReportRange(period) {
+        const today = getISTDateString();
+        if (period === 'date') {
+            const selected = document.getElementById('export-date').value || today;
+            return { from: selected, to: selected, label: selected };
+        }
+        if (period === 'month') {
+            const month = today.slice(0, 7);
+            const last = new Date(Number(month.slice(0,4)), Number(month.slice(5,7)), 0).getDate();
+            return { from: `${month}-01`, to: `${month}-${String(last).padStart(2,'0')}`, label: 'This Month' };
+        }
+        const d = new Date(today + 'T00:00:00');
+        const day = (d.getDay() + 6) % 7;
+        d.setDate(d.getDate() - day);
+        const from = d.toISOString().slice(0, 10);
+        d.setDate(d.getDate() + 6);
+        return { from, to: d.toISOString().slice(0, 10), label: 'This Week' };
+    }
+
+    function recordsInRange(records, range, dateKey = 'date') {
+        return records.filter(r => {
+            const date = r[dateKey] || r.date || '';
+            return date >= range.from && date <= range.to;
+        });
+    }
+
+    function buildEmployeeDetailsHtml() {
+        const shift = currentUserData.shiftStart && currentUserData.shiftEnd
+            ? `${format12hr(currentUserData.shiftStart)} to ${format12hr(currentUserData.shiftEnd)}`
+            : '-';
+        return `
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0 18px;padding:12px;border:1px solid #e5e7eb;border-radius:12px;">
+                <div><strong>Employee</strong><br>${escapeHtml(currentUserData.name || '-')}</div>
+                <div><strong>Employee ID</strong><br>${escapeHtml(currentUserData.empId || '-')}</div>
+                <div><strong>Email</strong><br>${escapeHtml(currentUserData.email || '-')}</div>
+                <div><strong>Shift</strong><br>${escapeHtml(shift)}</div>
+            </div>
+        `;
+    }
+
+    function createExportElement(type, period) {
+        const range = getReportRange(period);
+        const isTimesheet = type === 'timesheet';
+        const records = isTimesheet
+            ? recordsInRange(allTsRecords, range)
+            : recordsInRange(allWlRecords, range, period === 'date' ? 'dueDate' : 'date');
+        const title = isTimesheet ? 'Timesheet Report' : 'Worksheet Report';
+        const rows = isTimesheet
+            ? records.map(d => {
+                const lIn = d.inTime || d.loginTime || '-';
+                const lOut = d.outTime || d.logoutTime || '-';
+                const wHrs = (lIn !== '-' && lOut !== '-') ? calculateWorkedHours(lIn, lOut) : (d.workedHrs || '00:00');
+                return `<tr><td>${escapeHtml(d.date || '-')}</td><td>${escapeHtml(d.attendanceType || d.status || 'Present')}</td><td>${format12hr(lIn)}</td><td>${format12hr(lOut)}</td><td>${wHrs}</td></tr>`;
+            }).join('')
+            : records.map(d => `<tr><td>${escapeHtml(d.date || '-')}</td><td>${escapeHtml(d.description || '-')}</td><td>${escapeHtml(d.workType || d.type || 'Accounting')}</td><td>${escapeHtml(d.dueDate || '-')}</td><td>${escapeHtml(d.status || 'Not Started')}</td></tr>`).join('');
+        const headers = isTimesheet
+            ? '<tr><th>Date</th><th>Status</th><th>Login</th><th>Logout</th><th>Worked Hrs</th></tr>'
+            : '<tr><th>Date</th><th>Worksheet</th><th>Type</th><th>Due Date</th><th>Status</th></tr>';
+        const body = records.length ? rows : `<tr><td colspan="5" style="text-align:center;padding:18px;">There is no data recorded.</td></tr>`;
+        const wrapper = document.createElement('div');
+        wrapper.id = 'export-report-temp';
+        wrapper.style.cssText = 'position:fixed;left:-10000px;top:0;width:1000px;background:#fff;color:#111827;padding:24px;font-family:Inter,Segoe UI,sans-serif;';
+        wrapper.innerHTML = `
+            <h2 style="margin:0 0 4px;">${title}</h2>
+            <p style="margin:0 0 10px;color:#6b7280;">${range.label}: ${range.from} to ${range.to}</p>
+            ${buildEmployeeDetailsHtml()}
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                <thead>${headers}</thead>
+                <tbody>${body}</tbody>
+            </table>
+        `;
+        document.body.appendChild(wrapper);
+        return { element: wrapper, filename: `${title.replace(/\s+/g, '_')}_${range.label.replace(/\s+/g, '_')}` };
+    }
+
+    async function prepareReportExport(type, period) {
+        toggleExportMenu(false);
+        const { element, filename } = createExportElement(type, period);
+        if (element.textContent.includes('There is no data recorded.')) showToast('There is no data recorded for this selection.', true);
+        await downloadPDF(element.id, filename);
+        setTimeout(() => element.remove(), 1500);
     }
 
     function loadPdfFallbackScript() {
