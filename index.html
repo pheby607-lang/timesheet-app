@@ -3,487 +3,3109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dashboard & Worksheet Portal</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Worksheet Portal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
         :root {
+            /* Pure White Light Theme */
             --primary: #5a57ea; 
             --primary-hover: #4845d1;
-            --bg-color: #f4f6f8; 
+            --bg-color: #f9fafb; 
             --card-bg: #ffffff;
             --text-main: #111827;
             --text-muted: #6b7280;
             --border-color: #e5e7eb;
             --sidebar-bg: #ffffff;
-            --google-red: #DB4437;
-            --phone-green: #25D366;
-            --danger: #ef4444;
-            --success: #10b981;
-            --warning: #f59e0b;
+            --sidebar-text: #111827;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
+        /* Black & Purple Dark Theme */
+        body.dark-theme {
+            --bg-color: #000000; 
+            --card-bg: #0a0a0a; 
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --border-color: #27272a;
+            --sidebar-bg: #0a0a0a;
+            --sidebar-text: #ffffff;
+            --primary: #a855f7; 
+            --primary-hover: #9333ea;
+        }
+
+        body { 
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg-color); 
+            margin: 0; 
+            padding: 0; 
+            color: var(--text-main); 
+            overscroll-behavior: none;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* --- AUTHENTICATION CARDS --- */
+        .auth-container { max-width: 440px; margin: 60px auto; padding: 20px; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 30px; border: 1px solid var(--border-color); margin-bottom: 24px; transition: background 0.3s, border 0.3s; }
+        .brand-header { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
+        .brand-icon { width: 36px; height: 36px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; }
+        .brand-text { font-size: 16px; font-weight: 700; color: var(--text-main); }
+        h2 { margin: 0 0 8px 0; font-size: 24px; font-weight: 700; color: var(--text-main); }
+        h3 { color: var(--text-main); margin-top: 0; }
+        p.subtitle { color: var(--text-muted); font-size: 14px; margin-top: 0; margin-bottom: 24px; }
+
+        /* Forms & Inputs */
+        .input-group { margin-bottom: 16px; }
+        label { display: block; font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
+        input, select { width: 100%; padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border-color); box-sizing: border-box; font-size: 14px; background: var(--bg-color); color: var(--text-main); transition: all 0.2s; }
+        input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2); }
+        input[readonly] { opacity: 0.6; cursor: not-allowed; }
+
+        /* Custom Guaranteed Time Picker */
+        .time-group { display: flex; align-items: center; gap: 4px; }
+        .time-group select { padding: 12px 8px; text-align: center; flex: 1; }
+        .time-group span { font-weight: bold; color: var(--text-main); }
+        .time-row { display: flex; gap: 8px; align-items: center; }
+        .time-row .time-group { flex: 1; }
+
+        .btn { width: 100%; background: var(--primary); color: white; border: none; border-radius: 6px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn:hover { background: var(--primary-hover); }
+        .btn-sm { width: auto; padding: 6px 12px; font-size: 12px; }
+        .btn-danger { background: #dc2626; }
+        .btn-danger:hover { background: #b91c1c; }
+        
+        .divider-text { text-align: center; margin: 24px 0; color: var(--text-muted); font-size: 12px; position: relative; }
+        .divider-text::before, .divider-text::after { content: ""; position: absolute; top: 50%; width: 40%; height: 1px; background: var(--border-color); }
+        .divider-text::before { left: 0; }
+        .divider-text::after { right: 0; }
+
+        .oauth-grid { display: flex; gap: 12px; margin-bottom: 24px; }
+        .btn-outline { flex: 1; background: transparent; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn-outline:hover { background: rgba(168, 85, 247, 0.05); border-color: var(--primary); }
+
+        .toggle-text { text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 24px; }
+        .toggle-text a { color: var(--primary); text-decoration: none; font-weight: 600; cursor: pointer; }
+
+        .hidden { display: none !important; }
+        #no-user-modal.hidden { display: none !important; }
+
+        /* --- DASHBOARD & SIDEBAR --- */
+        #app-section { display: flex; min-height: 100vh; overflow-x: hidden; }
+        
+        .sidebar { width: 250px; background: var(--sidebar-bg); color: var(--sidebar-text); position: fixed; top: 0; left: -250px; height: 100vh; transition: left 0.3s ease; z-index: 1000; padding-top: 20px; border-right: 1px solid var(--border-color); }
+        .sidebar.open { left: 0; }
+        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px;}
+        .sidebar-menu { list-style: none; padding: 0; margin: 20px 0; }
+        .sidebar-menu li { padding: 15px 20px; cursor: pointer; transition: background 0.2s; font-size: 14px; border-left: 3px solid transparent; }
+        .sidebar-menu li:hover, .sidebar-menu li.active { background: rgba(168, 85, 247, 0.1); border-left: 3px solid var(--primary); color: var(--primary); }
+        
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
+        .overlay.open { display: block; }
+
+        .main-content { flex: 1; padding: 20px; width: 100%; transition: margin-left 0.3s; max-width: 1000px; margin: 0 auto; }
+        
+        /* Slim Top Nav & Text Logout */
+        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; background: var(--card-bg); padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .menu-btn { cursor: pointer; background: none; border: none; color: var(--text-main); padding: 0; display: flex; align-items: center; }
+        .logout-btn { background: transparent; border: none; color: var(--text-main); font-weight: 600; font-size: 14px; cursor: pointer; padding: 0; transition: color 0.2s; }
+        .logout-btn:hover { color: var(--primary); }
+        
+        /* Profile Image Styles */
+        .profile-pic-wrapper { position: relative; width: 100px; height: 100px; margin: 0 auto 20px auto; }
+        .profile-pic { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); background: #e5e7eb; }
+        .upload-btn { position: absolute; bottom: 0; right: 0; background: var(--primary); color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; border: 2px solid var(--card-bg); }
+        .upload-btn input { display: none; }
+        .delete-pic-btn { position: absolute; bottom: 0; left: 0; background: #dc2626; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 12px; border: 2px solid var(--card-bg); }
+        .sidebar-pic { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+
+        .flex-grid { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 16px; }
+        .flex-grid > div { flex: 1; min-width: 150px; }
+
+        /* Login / Logout Tabs */
+        .tab-row { display: flex; gap: 10px; margin-bottom: 18px; border-bottom: 1px solid var(--border-color); }
+        .tab-btn { background: transparent; border: none; color: var(--text-muted); font-size: 14px; font-weight: 700; padding: 12px 16px; cursor: pointer; border-bottom: 3px solid transparent; }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Tables */
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; font-size: 13px; text-align: left; border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
+        th, td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
+        th { background-color: rgba(168, 85, 247, 0.05); color: var(--primary); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+        td:last-child, th:last-child { border-right: none; }
+        tr:last-child td { border-bottom: none; }
+        
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .badge-green { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .badge-red { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .badge-blue { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+        .badge-yellow { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        .badge-purple { color: var(--primary); background: rgba(90, 87, 234, 0.1); }
+        .badge-slate { color: var(--text-muted); background: rgba(107, 114, 128, 0.12); }
+
+        .day-status-panel { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr); gap: 15px; align-items: stretch; }
+        .status-action-card { border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; background: linear-gradient(135deg, rgba(90, 87, 234, 0.08), rgba(16, 185, 129, 0.06)); display: flex; gap: 12px; align-items: center; min-height: 100%; box-sizing: border-box; }
+        .status-icon { width: 38px; height: 38px; border-radius: 12px; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; flex: 0 0 38px; }
+        .status-copy strong { display: block; font-size: 14px; margin-bottom: 4px; }
+        .status-copy span { display: block; color: var(--text-muted); font-size: 12px; line-height: 1.4; }
+
+        .export-btn { background: #10b981; margin-top: 24px; width: auto; float: right; }
+        .export-btn:hover { background: #059669; }
+        .clearfix::after { content: ""; clear: both; display: table; }
+        .icon { width: 18px; height: 18px; fill: currentColor; }
+
+        /* --- TOAST NOTIFICATIONS (FIXED TO TOP OF SCREEN) --- */
+        .toast-container {
+            position: fixed;
+            top: 20px; /* Moved to Top to prevent Safari hiding it */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast.error { background: #dc2626; }
+
+
+        /* --- MOBILE WEB APP FRIENDLY LAYOUT --- */
+        html { -webkit-text-size-adjust: 100%; }
+        button, input, select { font: inherit; }
+
+        @media (max-width: 768px) {
+            body { background: var(--bg-color); }
+            .auth-container { margin: 0 auto; padding: 14px; max-width: 100%; }
+            .card { padding: 18px; border-radius: 16px; margin-bottom: 14px; }
+            h2 { font-size: 22px; }
+            h3 { font-size: 17px !important; }
+            p.subtitle { font-size: 13px; line-height: 1.5; }
+
+            .main-content { padding: 12px; max-width: 100%; }
+            .top-nav {
+                position: sticky;
+                top: 0;
+                z-index: 800;
+                padding: 12px 14px;
+                border-radius: 14px;
+                margin-bottom: 14px;
+                box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+            }
+            .brand-text { font-size: 15px !important; }
+            .logout-btn { font-size: 13px; }
+
+            .sidebar { width: 82vw; max-width: 310px; left: -82vw; }
+            .sidebar.open { left: 0; }
+            .sidebar-menu li { padding: 18px 20px; font-size: 15px; }
+
+            .flex-grid { display: block; margin-bottom: 0; }
+            .flex-grid > div { min-width: 100%; margin-bottom: 14px; }
+            label { font-size: 13px; }
+            input, select {
+                min-height: 48px;
+                font-size: 16px; /* prevents iPhone zoom */
+                border-radius: 10px;
+            }
+            input[readonly] { opacity: 1; background: rgba(168, 85, 247, 0.06); }
+
+            .time-group { gap: 7px; }
+            .time-group select { min-width: 0; padding: 12px 6px; }
+            .time-row { align-items: stretch; }
+            .now-btn { min-height: 48px; }
+
+            .tab-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                border-bottom: none;
+                background: rgba(168, 85, 247, 0.08);
+                padding: 6px;
+                border-radius: 14px;
+            }
+            .tab-btn {
+                padding: 14px 8px;
+                border-radius: 11px;
+                border-bottom: none;
+                background: transparent;
+                font-size: 15px;
+            }
+            .tab-btn.active {
+                background: var(--primary);
+                color: #ffffff;
+                border-bottom-color: transparent;
+                box-shadow: 0 6px 14px rgba(90, 87, 234, 0.24);
+            }
+
+            .btn, .btn-sm, .export-btn {
+                width: 100%;
+                min-height: 48px;
+                padding: 13px 14px;
+                border-radius: 12px;
+                font-size: 15px;
+            }
+            .export-btn { float: none; margin-top: 14px; }
+            .oauth-grid { flex-direction: column; }
+            .btn-outline { min-height: 46px; }
+            .day-status-panel { grid-template-columns: 1fr; }
+            .status-action-card { border-radius: 14px; }
+
+            .toast-container { top: 12px; width: calc(100% - 24px); }
+            .toast { width: 100%; box-sizing: border-box; text-align: center; border-radius: 14px; }
+
+            /* Report becomes clean mobile cards instead of tiny horizontal table */
+            .table-responsive { overflow: visible; }
+            #timesheet-report table, #work-report table,
+            #timesheet-report thead, #work-report thead,
+            #timesheet-report tbody, #work-report tbody,
+            #timesheet-report tr, #work-report tr,
+            #timesheet-report td, #work-report td {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            #timesheet-report thead, #work-report thead { display: none; }
+            #timesheet-report table, #work-report table { border: none; margin-top: 4px; }
+            #timesheet-report tr, #work-report tr {
+                border: 1px solid var(--border-color);
+                border-radius: 14px;
+                background: var(--card-bg);
+                margin-bottom: 12px;
+                overflow: hidden;
+            }
+            #timesheet-report td, #work-report td {
+                display: flex;
+                justify-content: space-between;
+                gap: 14px;
+                padding: 11px 13px;
+                border-bottom: 1px solid var(--border-color);
+                text-align: right;
+                word-break: break-word;
+            }
+            #timesheet-report td:last-child, #work-report td:last-child { border-bottom: none; }
+            #timesheet-report td::before, #work-report td::before {
+                content: attr(data-label);
+                color: var(--text-muted);
+                font-weight: 700;
+                text-transform: uppercase;
+                font-size: 11px;
+                letter-spacing: 0.4px;
+                text-align: left;
+                flex: 0 0 42%;
+            }
+            #timesheet-report td[colspan]::before, #work-report td[colspan]::before { content: ''; display: none; }
+            #timesheet-report td[colspan], #work-report td[colspan] { display: block; text-align: center; }
+
+            .profile-pic-wrapper { width: 92px; height: 92px; }
+            .profile-pic { width: 92px; height: 92px; }
+        }
+
+        @media (max-width: 380px) {
+            .card { padding: 14px; }
+            .time-row { gap: 6px; }
+            #timesheet-report td, #work-report td { font-size: 12px; }
+        }
+
+        /* ══════ QUICK-WIN FEATURES ══════ */
+        /* Stats cards */
+        .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+        .stat-card   { background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:16px 10px; text-align:center; transition:background .3s,border .3s; }
+        .stat-number { font-size:24px; font-weight:800; color:var(--primary); line-height:1.15; margin-bottom:4px; }
+        .stat-label  { font-size:10px; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+        .stat-card.ot .stat-number { color:#10b981; }
+        /* Filter row */
+        .filter-row { display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid var(--border-color); }
+        .filter-row .fg { display:flex; flex-direction:column; gap:4px; flex:1; min-width:110px; }
+        .filter-row label { font-size:11px; font-weight:600; color:var(--text-muted); }
+        .filter-row input[type=date] { padding:8px 10px; font-size:13px; border:1px solid var(--border-color); border-radius:8px; background:var(--input-bg); color:var(--text-main); }
+        .filter-row .fbtn { padding:9px 14px; font-size:13px; font-weight:700; border-radius:8px; cursor:pointer; min-height:38px; border:none; white-space:nowrap; }
+        .filter-row .fbtn.primary { background:var(--primary); color:#fff; }
+        .filter-row .fbtn.outline { background:transparent; border:1px solid var(--border-color); color:var(--text-main); }
+        /* Now button */
+        .now-btn { background:var(--primary); color:#fff; border:none; border-radius:8px; padding:10px 11px; font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap; flex-shrink:0; min-height:44px; letter-spacing:.3px; }
+        @media(max-width:768px){
+            .stats-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
+            .stat-number { font-size:20px; }
+        }
+
+        /* ===== WorkSheet 2026 UI refresh ===== */
+        :root {
+            --primary: #705cff;
+            --primary-hover: #5b46ef;
+            --violet-soft: #f4efff;
+            --blue-soft: #edf5ff;
+            --mint: #43c977;
+            --amber: #ff9d42;
+            --ink: #060b2b;
+            --muted-ink: #69708f;
+            --glass: rgba(255,255,255,0.78);
+            --glass-strong: rgba(255,255,255,0.92);
+            --shadow-soft: 0 22px 70px rgba(88, 72, 167, 0.15);
+            --wallpaper: url('worksheet-mountain-wallpaper.png');
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            overflow-x: hidden;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 0% 20%, rgba(181,204,255,.46), transparent 26%),
+                radial-gradient(circle at 100% 12%, rgba(220,151,255,.42), transparent 28%),
+                linear-gradient(135deg, #f8fbff 0%, #fff7ff 48%, #eff7ff 100%);
+            color: var(--ink);
         }
 
-        /* --- Auth Screen (Mountain Background) --- */
-        #auth-screen {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-            align-items: center;
-            justify-content: center;
-            /* Mountain placeholder - replace URL with your uploaded mountain image path if hosted locally */
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070') center/cover no-repeat;
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 2% 18%, rgba(255,255,255,.72) 0 5%, transparent 6%),
+                radial-gradient(ellipse at 96% 33%, rgba(194,143,255,.28) 0 12%, transparent 13%),
+                radial-gradient(ellipse at 0% 88%, rgba(145,129,255,.24) 0 16%, transparent 17%);
+            pointer-events: none;
+            z-index: -2;
         }
 
-        .auth-card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 40px;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            backdrop-filter: blur(10px);
+        body::after {
+            content: "";
+            position: fixed;
+            inset: auto 0 0 0;
+            height: 42vh;
+            background: var(--wallpaper) center bottom / cover no-repeat;
+            opacity: .22;
+            filter: saturate(1.05);
+            pointer-events: none;
+            z-index: -1;
         }
 
-        .auth-card h2 { margin-bottom: 24px; color: var(--text-main); }
-
-        .auth-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            color: #fff;
-            transition: opacity 0.3s ease;
-        }
-
-        .auth-btn:hover { opacity: 0.9; }
-        .btn-google { background-color: var(--google-red); }
-        .btn-phone { background-color: var(--phone-green); }
-
-        /* --- Dashboard Layout --- */
-        #app-screen {
-            display: none;
-            height: 100vh;
-            display: flex;
-        }
-
-        /* Sidebar (Desktop) */
+        .card,
+        .top-nav,
+        .stat-card,
         .sidebar {
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.78);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+        }
+
+        .card,
+        .stat-card {
+            border-radius: 22px;
+        }
+
+        input,
+        select {
+            border: 1px solid rgba(142, 135, 196, 0.22);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.78);
+            color: var(--ink);
+            min-height: 46px;
+        }
+
+        input[readonly] {
+            opacity: 1;
+            background: rgba(246, 243, 255, 0.82);
+        }
+
+        .btn,
+        .now-btn,
+        .filter-row .fbtn.primary {
+            border-radius: 14px;
+            background: linear-gradient(135deg, #5f6fff, #bb5ee8);
+            box-shadow: 0 12px 24px rgba(111, 91, 255, 0.24);
+        }
+
+        .btn:hover,
+        .now-btn:hover,
+        .filter-row .fbtn.primary:hover {
+            background: linear-gradient(135deg, #5160ec, #a94ad9);
+        }
+
+        .btn-outline,
+        .filter-row .fbtn.outline {
+            border-radius: 14px;
+            background: rgba(255,255,255,0.74);
+            border: 1px solid rgba(127, 117, 183, .18);
+            box-shadow: 0 8px 22px rgba(82, 71, 147, 0.08);
+        }
+
+        .brand-icon,
+        .status-icon,
+        .app-logo {
+            background: linear-gradient(135deg, #5d77ff, #bd58e6);
+            box-shadow: 0 12px 24px rgba(104, 87, 238, 0.28);
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            font-size: 0;
+        }
+
+        .brand-icon::before {
+            content: "W";
+            font-size: 24px;
+            color: #fff;
+            font-weight: 900;
+        }
+
+        .auth-container {
+            max-width: none;
+            min-height: 100vh;
+            margin: 0;
+            padding: 32px;
+            display: grid;
+            place-items: center;
+            background:
+                radial-gradient(circle at 13% 14%, rgba(150,177,255,.34), transparent 18%),
+                radial-gradient(circle at 87% 28%, rgba(200,113,255,.28), transparent 22%),
+                linear-gradient(140deg, #f7fbff, #fff8ff 54%, #eef6ff);
+        }
+
+        .auth-container::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: var(--wallpaper) center bottom / cover no-repeat;
+            opacity: .18;
+            pointer-events: none;
+        }
+
+        #login-form,
+        #register-form {
+            width: min(420px, calc(100vw - 34px));
+            margin: 0;
+            padding: 24px;
+            border-radius: 34px;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,255,255,.72));
+        }
+
+        #login-form::before,
+        #register-form::before {
+            content: "";
+            display: block;
+            height: 170px;
+            margin: -24px -24px 22px;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.84)),
+                var(--wallpaper) center / cover no-repeat;
+        }
+
+        #login-form .brand-header,
+        #register-form .brand-header {
+            justify-content: center;
+            margin: -4px 0 18px;
+        }
+
+        #login-form h2,
+        #register-form h2,
+        #login-form .subtitle,
+        #register-form .subtitle {
+            text-align: center;
+        }
+
+        #login-form h2,
+        #register-form h2 {
+            font-size: 26px;
+            letter-spacing: 0;
+        }
+
+        .google-btn {
+            color: #1f2937;
+            background: #fff;
+        }
+
+        .google-btn .icon {
+            fill: #4285f4;
+        }
+
+        .phone-btn {
+            color: #0f8f5f;
+            background: #ecfdf5;
+            border-color: rgba(34,197,94,.28);
+        }
+
+        .phone-btn .icon {
+            fill: #16a34a;
+        }
+
+        #app-section {
+            width: min(1880px, calc(100vw - 48px));
+            min-height: calc(100vh - 48px);
+            margin: 24px auto;
+            overflow: hidden;
+            border-radius: 28px;
+            background: rgba(255,255,255,0.54);
+            box-shadow: 0 30px 110px rgba(82, 71, 147, .18);
+            border: 1px solid rgba(255,255,255,.7);
+        }
+
+        .sidebar {
+            position: static;
             width: 260px;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--border-color);
+            height: auto;
+            min-height: calc(100vh - 48px);
+            padding: 24px 18px;
+            border-right: 1px solid rgba(127,117,183,.14);
+            box-sizing: border-box;
+            box-shadow: none;
+            background: rgba(255,255,255,.62);
+        }
+
+        .sidebar-header {
+            border-bottom: none;
+            padding: 0 8px 28px;
+        }
+
+        .sidebar-pic {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #fff;
+        }
+
+        .sidebar-menu {
             display: flex;
             flex-direction: column;
-            padding: 20px 0;
+            gap: 10px;
+            margin: 0;
         }
 
-        .sidebar-brand {
-            font-size: 20px;
-            font-weight: 700;
-            padding: 0 20px 20px;
-            color: var(--primary);
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 20px;
-        }
-
-        .nav-item {
-            padding: 12px 20px;
+        .sidebar-menu li,
+        .mobile-tabbar button,
+        .quick-sheet button {
             display: flex;
             align-items: center;
-            gap: 15px;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
+            gap: 12px;
+            border-radius: 16px;
+            border-left: none;
+            color: #4d5579;
+            font-weight: 700;
         }
 
-        .nav-item:hover, .nav-item.active {
-            background-color: #f0f4ff;
+        .sidebar-menu li:hover,
+        .sidebar-menu li.active {
+            border-left: none;
+            background: rgba(255,255,255,.82);
             color: var(--primary);
-            border-right: 4px solid var(--primary);
+            box-shadow: 0 12px 30px rgba(92, 82, 175, .14);
         }
 
-        /* Main Content */
+        .nav-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(112, 92, 255, .09);
+            color: var(--primary);
+            font-weight: 900;
+            flex: 0 0 34px;
+        }
+
+        .sidebar-visual {
+            margin-top: 32px;
+            border-radius: 18px;
+            min-height: 150px;
+            padding: 18px;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.9)),
+                var(--wallpaper) center / cover no-repeat;
+            box-shadow: inset 0 1px rgba(255,255,255,.84), 0 16px 40px rgba(112,92,255,.12);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
         .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+            max-width: none;
+            padding: 28px;
             overflow-y: auto;
         }
 
-        .top-header {
-            background: var(--card-bg);
-            padding: 20px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
+        .top-nav {
+            border-radius: 24px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            background: rgba(255,255,255,.58);
         }
 
-        .dashboard-body {
-            padding: 30px;
+        .top-search {
+            width: min(560px, 38vw);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 46px;
+            padding: 0 16px;
+            border-radius: 18px;
+            background: rgba(255,255,255,.8);
+            border: 1px solid rgba(127,117,183,.16);
+            color: var(--muted-ink);
+            font-size: 13px;
+        }
+
+        .top-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+        }
+
+        .top-user img {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #fff;
+            box-shadow: 0 10px 25px rgba(82,71,147,.14);
+        }
+
+        .hero-band {
+            min-height: 118px;
+            border-radius: 24px;
+            padding: 28px;
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            justify-content: center;
+            background:
+                linear-gradient(90deg, rgba(255,255,255,.92), rgba(255,255,255,.72) 50%, rgba(255,255,255,.34)),
+                var(--wallpaper) right center / auto 170% no-repeat;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(255,255,255,.78);
         }
 
-        /* Stats Cards */
+        .hero-band h2 {
+            margin: 0 0 8px;
+            font-size: clamp(28px, 3vw, 42px);
+            letter-spacing: 0;
+        }
+
+        .hero-band p {
+            margin: 0;
+            color: var(--muted-ink);
+            font-size: 16px;
+        }
+
+        .dashboard-top {
+            display: grid;
+            grid-template-columns: minmax(360px, 1.3fr) 1.7fr;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(4, minmax(130px, 1fr));
+            gap: 16px;
+            margin: 0;
         }
 
         .stat-card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-            border: 1px solid var(--border-color);
+            text-align: left;
+            padding: 22px;
+            min-height: 118px;
+            box-sizing: border-box;
         }
 
-        .stat-card h3 { font-size: 14px; color: var(--text-muted); margin-bottom: 8px;}
-        .stat-card .value { font-size: 24px; font-weight: 700; color: var(--text-main); }
+        .stat-card::before {
+            content: "";
+            display: block;
+            width: 48px;
+            height: 48px;
+            border-radius: 18px;
+            margin-bottom: 10px;
+            background: radial-gradient(circle, rgba(112,92,255,.9), rgba(112,92,255,.22));
+        }
 
-        /* Charts & Reports Area */
-        .content-grid {
+        .stat-card.ot::before {
+            background: radial-gradient(circle, rgba(67,201,119,.9), rgba(67,201,119,.18));
+        }
+
+        .stat-number {
+            font-size: 28px;
+            color: var(--ink);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--muted-ink);
+        }
+
+        .dashboard-layout {
             display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 24px;
+            grid-template-columns: minmax(250px, .82fr) minmax(430px, 1.35fr) minmax(320px, 1fr);
+            gap: 20px;
+            align-items: start;
         }
 
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        .overview-stack,
+        .planner-stack,
+        .reports-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
-        .card-header {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 15px;
+        .section-card,
+        .planner-card,
+        .report-table-card {
+            padding: 22px;
+        }
+
+        .section-head {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
-        /* Worksheet Table Integration */
-        .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 14px;
+        .section-head h3 {
+            margin: 0;
+            font-size: 18px;
         }
-        th { background: #f9fafb; color: var(--text-muted); font-weight: 600; }
-        .badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        .badge-green { background: #d1fae5; color: #065f46; }
-        .badge-yellow { background: #fef3c7; color: #92400e; }
-        .badge-red { background: #fee2e2; color: #991b1b; }
 
-        /* --- Mobile Specific UI --- */
-        .mobile-fab {
-            display: none;
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background-color: var(--primary);
-            color: white;
+        .text-link {
             border: none;
-            font-size: 24px;
-            box-shadow: 0 4px 12px rgba(90, 87, 234, 0.4);
+            background: transparent;
+            color: var(--primary);
+            font-weight: 800;
             cursor: pointer;
-            z-index: 1000;
+            font-size: 12px;
         }
 
-        .fab-menu {
-            display: none;
-            position: fixed;
-            bottom: 100px;
-            right: 30px;
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border: 1px solid var(--border-color);
+        .mountain-card {
+            min-height: 168px;
+            display: flex;
+            align-items: flex-end;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.86)),
+                var(--wallpaper) center / cover no-repeat;
+        }
+
+        .mini-list {
+            display: flex;
             flex-direction: column;
-            overflow: hidden;
-            z-index: 999;
+            gap: 10px;
         }
 
-        .fab-menu.active { display: flex; }
-        .fab-item {
-            padding: 12px 20px;
-            border-bottom: 1px solid var(--border-color);
-            cursor: pointer;
-            font-weight: 500;
+        .mini-row,
+        .goal-row,
+        .focus-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 34px;
+            font-size: 13px;
+            color: var(--ink);
         }
-        .fab-item:hover { background: #f3f4f6; }
+
+        .mini-row .muted,
+        .goal-row .muted {
+            margin-left: auto;
+            color: var(--muted-ink);
+            font-size: 12px;
+        }
+
+        .goal-check {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 1px solid rgba(112,92,255,.28);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--mint);
+            cursor: pointer;
+            flex: 0 0 22px;
+            background: #fff;
+        }
+
+        .goal-check.done {
+            background: var(--mint);
+            color: #fff;
+            border-color: var(--mint);
+        }
+
+        .goal-input-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .goal-input-row input {
+            min-width: 0;
+        }
+
+        .goal-input-row button {
+            width: 48px;
+            flex: 0 0 48px;
+            padding: 0;
+        }
+
+        .goal-progress-wrap {
+            display: grid;
+            grid-template-columns: 92px 1fr;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .donut {
+            width: 92px;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: conic-gradient(var(--primary) 0deg, #e8e4fb 0deg);
+            position: relative;
+        }
+
+        .donut::after {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.96);
+        }
+
+        .donut span {
+            position: relative;
+            z-index: 1;
+            font-weight: 900;
+            font-size: 20px;
+        }
+
+        .planner-card .tab-row {
+            border: none;
+            background: rgba(112,92,255,.07);
+            padding: 6px;
+            border-radius: 18px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .planner-card .tab-btn {
+            border: none;
+            border-radius: 14px;
+            padding: 12px 8px;
+            font-size: 13px;
+        }
+
+        .planner-card .tab-btn.active {
+            color: #fff;
+            background: linear-gradient(135deg, #5f6fff, #9c5fff);
+            box-shadow: 0 12px 24px rgba(112,92,255,.24);
+        }
+
+        .chart-card {
+            padding: 18px;
+        }
+
+        .chart-value {
+            font-size: 32px;
+            font-weight: 900;
+            margin: 4px 0;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: 150px;
+            overflow: visible;
+        }
+
+        .chart-grid-line {
+            stroke: rgba(105,112,143,.18);
+            stroke-width: 1;
+        }
+
+        .chart-line {
+            fill: none;
+            stroke: #705cff;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .chart-fill {
+            fill: rgba(112,92,255,.12);
+        }
+
+        .report-mini-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .legend-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .focus-bar {
+            flex: 1;
+            height: 8px;
+            border-radius: 999px;
+            background: #ece9f7;
+            overflow: hidden;
+        }
+
+        .focus-bar span {
+            display: block;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #705cff, #c069ea);
+        }
+
+        .report-table-card table {
+            border-radius: 18px;
+            background: rgba(255,255,255,.68);
+        }
+
+        .mobile-tabbar,
+        .mobile-fab,
+        .quick-sheet,
+        .quick-sheet-backdrop,
+        .goal-modal {
+            display: none;
+        }
+
+        @media (max-width: 1180px) {
+            #app-section {
+                width: min(100vw - 24px, 100%);
+            }
+            .dashboard-top,
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+            .reports-stack {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0,1fr));
+            }
+            .report-table-card {
+                grid-column: 1 / -1;
+            }
+        }
 
         @media (max-width: 768px) {
-            .sidebar { display: none; } /* Hide sidebar on mobile */
-            .content-grid { grid-template-columns: 1fr; }
-            .mobile-fab { display: flex; align-items: center; justify-content: center; }
-            .top-header { border-bottom: none; background: transparent; }
-            .dashboard-body { padding: 15px; }
-            #app-screen { display: block; } /* Override flex for mobile */
+            body {
+                background: linear-gradient(145deg, #f6f9ff, #fff8ff 56%, #eff6ff);
+            }
+
+            #auth-section {
+                padding: 24px 14px;
+            }
+
+            #login-form,
+            #register-form {
+                border-radius: 32px;
+                box-shadow: 0 28px 70px rgba(82,71,147,.16);
+            }
+
+            #app-section {
+                width: 100%;
+                min-height: 100vh;
+                margin: 0;
+                border-radius: 0;
+                border: none;
+                background: transparent;
+                box-shadow: none;
+                display: block;
+                padding-bottom: 94px;
+            }
+
+            .sidebar,
+            .top-search,
+            .top-user .top-role,
+            .logout-btn {
+                display: none;
+            }
+
+            .main-content {
+                padding: 16px;
+                overflow: visible;
+            }
+
+            .top-nav {
+                border-radius: 24px;
+                position: sticky;
+                top: 12px;
+            }
+
+            .menu-btn {
+                display: none;
+            }
+
+            .hero-band {
+                min-height: 180px;
+                padding: 22px;
+                background:
+                    linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.92)),
+                    var(--wallpaper) center / cover no-repeat;
+            }
+
+            .hero-band h2 {
+                font-size: 25px;
+                margin-top: 76px;
+            }
+
+            .stats-grid,
+            .report-mini-grid,
+            .reports-stack {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .stat-card {
+                min-height: 112px;
+                padding: 16px;
+            }
+
+            .dashboard-layout,
+            .dashboard-top {
+                gap: 14px;
+            }
+
+            .overview-stack,
+            .planner-stack,
+            .reports-stack {
+                gap: 14px;
+            }
+
+            .section-card,
+            .planner-card,
+            .report-table-card {
+                padding: 18px;
+                border-radius: 22px;
+            }
+
+            .planner-card .tab-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .goal-progress-wrap {
+                grid-template-columns: 82px 1fr;
+            }
+
+            .donut {
+                width: 82px;
+            }
+
+            .mobile-tabbar {
+                position: fixed;
+                left: 14px;
+                right: 14px;
+                bottom: 14px;
+                z-index: 900;
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                min-height: 68px;
+                padding: 8px;
+                border-radius: 24px;
+                background: rgba(255,255,255,.84);
+                border: 1px solid rgba(255,255,255,.82);
+                box-shadow: 0 16px 50px rgba(82,71,147,.18);
+                backdrop-filter: blur(18px);
+            }
+
+            .mobile-tabbar button {
+                border: none;
+                background: transparent;
+                justify-content: center;
+                flex-direction: column;
+                gap: 3px;
+                font-size: 10px;
+                color: var(--muted-ink);
+                padding: 4px 0;
+            }
+
+            .mobile-tabbar button.active {
+                color: var(--primary);
+            }
+
+            .mobile-tabbar .mobile-plus-slot {
+                visibility: hidden;
+            }
+
+            .mobile-fab {
+                position: fixed;
+                left: 50%;
+                bottom: 48px;
+                transform: translateX(-50%);
+                z-index: 930;
+                display: grid;
+                place-items: center;
+                width: 58px;
+                height: 58px;
+                border-radius: 50%;
+                border: none;
+                color: #fff;
+                font-size: 34px;
+                line-height: 1;
+                background: linear-gradient(135deg, #5f6fff, #bd58e6);
+                box-shadow: 0 18px 40px rgba(112,92,255,.35);
+            }
+
+            .quick-sheet-backdrop {
+                position: fixed;
+                inset: 0;
+                z-index: 910;
+                background: rgba(8, 10, 30, .18);
+            }
+
+            .quick-sheet {
+                position: fixed;
+                left: 16px;
+                right: 16px;
+                bottom: 118px;
+                z-index: 920;
+                padding: 14px;
+                border-radius: 24px;
+                background: rgba(255,255,255,.92);
+                box-shadow: 0 20px 70px rgba(82,71,147,.22);
+                border: 1px solid rgba(255,255,255,.8);
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .quick-sheet:not(.hidden),
+            .quick-sheet-backdrop:not(.hidden) {
+                display: grid;
+            }
+
+            .quick-sheet-backdrop:not(.hidden) {
+                display: block;
+            }
+
+            .quick-sheet button {
+                min-height: 54px;
+                border: none;
+                background: rgba(112,92,255,.08);
+                color: var(--primary);
+                justify-content: center;
+                font-weight: 800;
+            }
+        }
+
+        .goal-modal:not(.hidden) {
+            position: fixed;
+            inset: 0;
+            z-index: 950;
+            display: grid;
+            place-items: center;
+            padding: 18px;
+            background: rgba(8, 10, 30, .22);
+        }
+
+        .goal-modal-card {
+            width: min(420px, 100%);
+            padding: 22px;
+            border-radius: 24px;
+            background: rgba(255,255,255,.95);
+            box-shadow: 0 24px 80px rgba(82,71,147,.22);
         }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen">
-        <div class="auth-card">
-            <h2>Welcome Back</h2>
-            <p style="color: var(--text-muted); margin-bottom: 24px;">Sign in to access your dashboard</p>
-            
-            <button class="auth-btn btn-google" onclick="login()">
-                <i class="fab fa-google"></i> Continue with Google
-            </button>
-            <button class="auth-btn btn-phone" onclick="login()">
-                <i class="fas fa-phone"></i> Continue with Phone
-            </button>
-        </div>
-    </div>
+<div id="toast-container" class="toast-container"></div>
 
-    <div id="app-screen" style="display: none;">
+<div id="auth-section" class="auth-container">
+    <div id="login-form" class="card">
+        <div class="brand-header">
+            <div class="brand-icon">✓</div>
+            <div class="brand-text">Worksheet</div>
+        </div>
         
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <i class="fas fa-layer-group"></i> Portal
-            </div>
-            <nav>
-                <a class="nav-item active" onclick="switchTab('dashboard')">
-                    <i class="fas fa-chart-pie"></i> Dashboard
-                </a>
-                <a class="nav-item" onclick="switchTab('reports')">
-                    <i class="fas fa-file-alt"></i> Reports
-                </a>
-                <a class="nav-item" onclick="switchTab('logs')">
-                    <i class="fas fa-list"></i> Work Logs
-                </a>
-            </nav>
-        </aside>
+        <h2>Welcome back!</h2>
+        <p class="subtitle">Login to your account to continue</p>
+        
+        <div class="input-group">
+            <label>Email address</label>
+            <input type="email" id="login-email" placeholder="you@example.com">
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="login-password" placeholder="Enter your password">
+        </div>
+        <button class="btn" onclick="login()">Log in</button>
+        
+        <div class="divider-text">or continue with</div>
+        
+        <div class="oauth-grid">
+            <button class="btn-outline google-btn" onclick="loginWithGoogle()">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"/></svg>
+                Google
+            </button>
+            <button class="btn-outline phone-btn" onclick="loginWithPhone()">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                Phone
+            </button>
+        </div>
 
-        <main class="main-content">
-            <header class="top-header">
-                <h2 id="page-title">Dashboard Overview</h2>
-                <div class="user-profile">
-                    <i class="fas fa-user-circle" style="font-size: 28px; color: var(--text-muted);"></i>
-                </div>
-            </header>
-
-            <div class="dashboard-body">
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>Total Tasks</h3>
-                        <div class="value" id="stat-total">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Completed</h3>
-                        <div class="value" style="color: var(--success);" id="stat-completed">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>In Progress</h3>
-                        <div class="value" style="color: var(--warning);" id="stat-pending">0</div>
-                    </div>
-                </div>
-
-                <div class="content-grid">
-                    <div class="card">
-                        <div class="card-header">Task Status Analytics</div>
-                        <canvas id="statusChart" width="100" height="100"></canvas>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            Recent Work Reports
-                            <button style="border:none; background:var(--primary); color:white; padding:6px 12px; border-radius:6px; cursor:pointer;" onclick="renderWl(allWlRecords)">Refresh</button>
-                        </div>
-                        <div class="table-responsive">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Work Description</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="work-body">
-                                    </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <button class="mobile-fab" onclick="toggleFabMenu()">
-            <i class="fas fa-plus"></i>
-        </button>
-
-        <div class="fab-menu" id="fab-options">
-            <div class="fab-item" onclick="alert('Add Goal feature triggered')">Add Goals</div>
-            <div class="fab-item" onclick="alert('Add Leave feature triggered')">Add Leaves</div>
-            <div class="fab-item" onclick="alert('Add Weekoff feature triggered')">Add Weekoff</div>
-            <div class="fab-item" onclick="alert('Log Time feature triggered')">Log Time</div>
+        <div class="toggle-text">
+            Don't have an account? <a onclick="toggleAuth('register')">Sign up</a>
         </div>
     </div>
 
-    <script>
-        // --- 1. Mock Data Integration (Derived from your worksheet portal needs) ---
-        const allWlRecords = [
-            { date: '2026-06-01', description: 'Internal Audit Report Prep', status: 'Completed' },
-            { date: '2026-06-02', description: 'Tax Compliance Review', status: 'In Progress' },
-            { date: '2026-06-03', description: 'MIS Data Reconciliation', status: 'Completed' },
-            { date: '2026-06-04', description: 'Stock Auditing Draft', status: 'Pending' },
-            { date: '2026-06-05', description: 'CMA USA Chapter 4 Study', status: 'Completed' }
+    <div id="register-form" class="card hidden">
+        <div class="brand-header">
+            <div class="brand-icon">✓</div>
+            <div class="brand-text">Worksheet</div>
+        </div>
+        <h2>Create your account</h2>
+        <p class="subtitle">Sign up to get started with Worksheet</p>
+        
+        <div class="input-group">
+            <label>Full name</label>
+            <input type="text" id="reg-name" placeholder="Enter your full name">
+        </div>
+        <div class="input-group">
+            <label>Employee ID</label>
+            <input type="text" id="reg-empId" placeholder="e.g., I210062">
+        </div>
+        
+        <div class="flex-grid" style="margin-bottom: 0;">
+            <div class="input-group">
+                <label>Shift Start</label>
+                <div class="time-group">
+                    <select id="reg-start-h">
+                        <option value="" disabled selected>Hr</option>
+                        <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09" selected>09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                    </select>
+                    <span>:</span>
+                    <select id="reg-start-m">
+                        <option value="" disabled selected>Min</option>
+                        <option value="00" selected>00</option><option value="05">05</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Shift End</label>
+                <div class="time-group">
+                    <select id="reg-end-h">
+                        <option value="" disabled selected>Hr</option>
+                        <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06" selected>06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                    </select>
+                    <span>:</span>
+                    <select id="reg-end-m">
+                        <option value="" disabled selected>Min</option>
+                        <option value="00" selected>00</option><option value="05">05</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label>Standard Break (Minutes)</label>
+            <input type="number" id="reg-std-break" placeholder="e.g., 60" value="60">
+        </div>
+
+        <div class="input-group">
+            <label>Email address</label>
+            <input type="email" id="reg-email" placeholder="you@example.com">
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="reg-password" placeholder="Create a password">
+        </div>
+        <div class="divider-text">or sign up with</div>
+        <div class="oauth-grid">
+            <button class="btn-outline google-btn" onclick="loginWithGoogle()">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"/></svg>
+                Google
+            </button>
+            <button class="btn-outline phone-btn" onclick="loginWithPhone()">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                Phone
+            </button>
+        </div>
+        <button class="btn" onclick="register()">Sign up</button>
+        <div class="toggle-text">
+            Already have an account? <a onclick="toggleAuth('login')">Log in</a>
+        </div>
+    </div>
+    <div id="recaptcha-container"></div>
+
+</div>
+
+<!-- ===== NO USER FOUND MODAL — must be outside auth-section so it is never hidden by parent display:none ===== -->
+<div id="no-user-modal" class="hidden" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">
+    <div class="card" style="max-width:420px;width:100%;margin:0;text-align:center;padding:36px 24px;">
+        <div style="font-size:48px;margin-bottom:12px;">🔍</div>
+        <h2 style="font-size:22px;margin-bottom:8px;">No Account Found</h2>
+        <p style="color:var(--text-muted);font-size:14px;line-height:1.6;margin-bottom:28px;">
+            Your Google account is <strong>not registered</strong> in this system.<br>
+            Please sign up first to create your Worksheet profile.
+        </p>
+        <button class="btn" style="margin-bottom:12px;" onclick="goToRegisterFromModal()">
+            📝 Register Now
+        </button>
+        <button class="btn-outline" style="width:100%;min-height:44px;margin-top:4px;" onclick="cancelGoogleLogin()">
+            Cancel &amp; Go Back
+        </button>
+    </div>
+</div>
+
+<div id="app-section" class="hidden">
+    
+    <div class="overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img id="sidebar-profile-img" src="https://via.placeholder.com/150" class="sidebar-pic" alt="Profile">
+            <div>
+                <div style="font-weight: bold; font-size: 13px;" id="sidebar-name">User</div>
+                <div style="font-size: 11px; color: var(--text-muted);" id="sidebar-empId">ID</div>
+            </div>
+        </div>
+        <ul class="sidebar-menu">
+            <li onclick="switchDashboardSection('dashboard')" id="nav-dashboard" data-section="dashboard" class="active"><span class="nav-icon">H</span>Dashboard</li>
+            <li onclick="switchDashboardSection('planner')" id="nav-planner" data-section="planner"><span class="nav-icon">P</span>Planner</li>
+            <li onclick="switchDashboardSection('worksheets')" id="nav-worksheets" data-section="worksheets"><span class="nav-icon">W</span>Worksheets</li>
+            <li onclick="switchDashboardSection('reports')" id="nav-reports" data-section="reports"><span class="nav-icon">R</span>Reports</li>
+            <li onclick="switchDashboardSection('profile')" id="nav-profile" data-section="profile"><span class="nav-icon">U</span>Profile</li>
+            <li onclick="switchDashboardSection('settings')" id="nav-settings" data-section="settings"><span class="nav-icon">S</span>Settings</li>
+        </ul>
+        <div class="sidebar-visual">
+            Small progress every day leads to big results.
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-nav">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button class="menu-btn" onclick="toggleSidebar()">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                </button>
+                <div class="brand-text" style="font-size: 16px;">Worksheet</div>
+            </div>
+            <div class="top-search">Search worksheets, tasks, reports...</div>
+            <div class="top-user">
+                <button class="logout-btn" onclick="logout()">Log Out</button>
+                <img id="top-profile-img" src="https://via.placeholder.com/150" alt="Profile">
+                <div>
+                    <div id="top-user-name">User</div>
+                    <div class="top-role" id="top-user-role">Worksheet Member</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-timesheet" class="view-panel">
+            <div class="dashboard-top" id="dashboard-panel">
+                <section class="hero-band">
+                    <h2 id="welcome-title">Welcome back</h2>
+                    <p>Plan. Focus. Achieve.</p>
+                </section>
+                <section>
+            <!-- ── Monthly stats ── -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="stat-days">—</div>
+                    <div class="stat-label">Productivity Score</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat-hours">—</div>
+                    <div class="stat-label">Tasks Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat-avg">—</div>
+                    <div class="stat-label">Time Spent</div>
+                </div>
+                <div class="stat-card ot">
+                    <div class="stat-number" id="stat-overtime">—</div>
+                    <div class="stat-label">Upcoming</div>
+                </div>
+            </div>
+                </section>
+            </div>
+
+            <div class="dashboard-layout">
+            <section class="overview-stack">
+                <div class="card section-card mountain-card">
+                    <div>
+                        <strong>Small progress</strong>
+                        <p class="subtitle" style="margin:6px 0 0;">Every saved entry turns into better weekly insight.</p>
+                    </div>
+                </div>
+
+                <div class="card section-card">
+                    <div class="section-head">
+                        <h3>Daily Goals</h3>
+                        <button class="text-link" onclick="openGoalModal()">Add</button>
+                    </div>
+                    <div class="goal-progress-wrap">
+                        <div class="donut" id="goal-donut"><span id="goal-percent">0%</span></div>
+                        <div class="mini-list" id="goals-list"></div>
+                    </div>
+                    <div class="goal-input-row">
+                        <input type="text" id="goal-title" placeholder="Add today's goal">
+                        <button type="button" class="btn" onclick="addGoal()">+</button>
+                    </div>
+                </div>
+
+                <div class="card section-card">
+                    <div class="section-head">
+                        <h3>Completed Tasks</h3>
+                        <button class="text-link" onclick="switchDashboardSection('worksheets')">See all</button>
+                    </div>
+                    <div class="mini-list" id="completed-tasks-list"></div>
+                </div>
+
+                <div class="card section-card">
+                    <div class="section-head">
+                        <h3>Upcoming</h3>
+                        <button class="text-link" onclick="switchDashboardSection('planner')">See all</button>
+                    </div>
+                    <div class="mini-list" id="upcoming-list"></div>
+                </div>
+            </section>
+
+            <section class="planner-stack" id="planner-panel">
+            <div class="card planner-card">
+                <h3 style="font-size: 16px;">Employee Attendance</h3>
+                <p class="subtitle" style="margin-bottom: 14px;">Login, logout, weekoff, and leave can be saved any number of times per day.</p>
+
+                <div class="tab-row">
+                    <button class="tab-btn active" id="login-tab-btn" onclick="switchTimesheetTab('login')">Login-In</button>
+                    <button class="tab-btn" id="logout-tab-btn" onclick="switchTimesheetTab('logout')">Log-Out</button>
+                    <button class="tab-btn" id="weekoff-tab-btn" onclick="switchTimesheetTab('weekoff')">Weekoff</button>
+                    <button class="tab-btn" id="leave-tab-btn" onclick="switchTimesheetTab('leave')">Leave</button>
+                </div>
+
+                <div id="login-tab" class="tab-panel active">
+                    <div class="flex-grid">
+                        <div>
+                            <label>Employee Name</label>
+                            <input type="text" id="login-emp-name" readonly>
+                        </div>
+                        <div>
+                            <label>Employee ID</label>
+                            <input type="text" id="login-emp-id" readonly>
+                        </div>
+                    </div>
+                    <div class="flex-grid">
+                        <div>
+                            <label>Date</label>
+                            <input type="date" id="login-date">
+                        </div>
+                        <div>
+                            <label>Login Time</label>
+                            <div class="time-row">
+                                <div class="time-group">
+                                    <select id="login-time-h">
+                                        <option value="" disabled selected>Hr</option>
+                                        <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                    </select>
+                                    <span>:</span>
+                                    <select id="login-time-m"><option value="" disabled selected>Min</option></select>
+                                </div>
+                                <button type="button" class="now-btn" onclick="setCurrentTime('login-time')">⏱ Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm" style="margin-top: 15px;" onclick="saveLogin()">Save Login</button>
+                </div>
+
+                <div id="logout-tab" class="tab-panel">
+                    <div class="flex-grid">
+                        <div>
+                            <label>Employee Name</label>
+                            <input type="text" id="logout-emp-name" readonly>
+                        </div>
+                        <div>
+                            <label>Employee ID</label>
+                            <input type="text" id="logout-emp-id" readonly>
+                        </div>
+                    </div>
+                    <div class="flex-grid">
+                        <div>
+                            <label>Date</label>
+                            <input type="date" id="logout-date">
+                        </div>
+                        <div>
+                            <label>Logout Time</label>
+                            <div class="time-row">
+                                <div class="time-group">
+                                    <select id="logout-time-h">
+                                        <option value="" disabled selected>Hr</option>
+                                        <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                    </select>
+                                    <span>:</span>
+                                    <select id="logout-time-m"><option value="" disabled selected>Min</option></select>
+                                </div>
+                                <button type="button" class="now-btn" onclick="setCurrentTime('logout-time')">⏱ Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm" style="margin-top: 15px;" onclick="saveLogout()">Save Logout</button>
+                </div>
+
+                <div id="weekoff-tab" class="tab-panel">
+                    <div class="day-status-panel">
+                        <div class="status-action-card">
+                            <div class="status-icon">W</div>
+                            <div class="status-copy">
+                                <strong>Weekoff</strong>
+                                <span>Save a weekly off day for the selected date.</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex-grid">
+                                <div>
+                                    <label>Employee Name</label>
+                                    <input type="text" id="weekoff-emp-name" readonly>
+                                </div>
+                                <div>
+                                    <label>Employee ID</label>
+                                    <input type="text" id="weekoff-emp-id" readonly>
+                                </div>
+                            </div>
+                            <div class="flex-grid">
+                                <div>
+                                    <label>Date</label>
+                                    <input type="date" id="weekoff-date">
+                                </div>
+                                <div>
+                                    <label>Note</label>
+                                    <input type="text" id="weekoff-note" placeholder="Optional note">
+                                </div>
+                            </div>
+                            <button class="btn btn-sm" style="margin-top: 15px;" onclick="saveDayStatus('Weekoff')">Save Weekoff</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="leave-tab" class="tab-panel">
+                    <div class="day-status-panel">
+                        <div class="status-action-card">
+                            <div class="status-icon">L</div>
+                            <div class="status-copy">
+                                <strong>Leave</strong>
+                                <span>Save a leave day for the selected date.</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex-grid">
+                                <div>
+                                    <label>Employee Name</label>
+                                    <input type="text" id="leave-emp-name" readonly>
+                                </div>
+                                <div>
+                                    <label>Employee ID</label>
+                                    <input type="text" id="leave-emp-id" readonly>
+                                </div>
+                            </div>
+                            <div class="flex-grid">
+                                <div>
+                                    <label>Date</label>
+                                    <input type="date" id="leave-date">
+                                </div>
+                                <div>
+                                    <label>Note</label>
+                                    <input type="text" id="leave-note" placeholder="Optional note">
+                                </div>
+                            </div>
+                            <button class="btn btn-sm" style="margin-top: 15px;" onclick="saveDayStatus('Leave')">Save Leave</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            </section>
+            <section class="reports-stack" id="reports-panel">
+                <div class="card section-card chart-card">
+                    <div class="section-head">
+                        <h3>Weekly Productivity</h3>
+                        <span class="badge badge-purple" id="weekly-delta">0%</span>
+                    </div>
+                    <div class="chart-value" id="weekly-score">0%</div>
+                    <p class="subtitle" style="margin-bottom:8px;">Productivity Score</p>
+                    <svg class="chart-svg" viewBox="0 0 360 150" preserveAspectRatio="none">
+                        <line class="chart-grid-line" x1="0" y1="25" x2="360" y2="25"></line>
+                        <line class="chart-grid-line" x1="0" y1="65" x2="360" y2="65"></line>
+                        <line class="chart-grid-line" x1="0" y1="105" x2="360" y2="105"></line>
+                        <polygon class="chart-fill" id="weekly-chart-fill" points="0,140 360,140"></polygon>
+                        <polyline class="chart-line" id="weekly-chart-line" points=""></polyline>
+                    </svg>
+                </div>
+
+                <div class="report-mini-grid">
+                    <div class="card section-card">
+                        <div class="section-head">
+                            <h3>Tasks Overview</h3>
+                        </div>
+                        <div style="display:flex;gap:16px;align-items:center;">
+                            <div class="donut" id="task-donut"><span id="task-total">0</span></div>
+                            <div class="legend" id="task-legend"></div>
+                        </div>
+                    </div>
+
+                    <div class="card section-card">
+                        <div class="section-head">
+                            <h3>Time Allocation</h3>
+                        </div>
+                        <div style="display:flex;gap:16px;align-items:center;">
+                            <div class="donut" id="time-donut"><span id="time-total">0h</span></div>
+                            <div class="legend" id="time-legend"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card section-card">
+                    <div class="section-head">
+                        <h3>Top Focus Areas</h3>
+                        <button class="text-link" onclick="switchDashboardSection('worksheets')">See all</button>
+                    </div>
+                    <div class="mini-list" id="focus-list"></div>
+                </div>
+
+            <div class="card clearfix report-table-card">
+                <div id="timesheet-report">
+                    <div style="margin-bottom:12px;">
+                        <h3 style="margin-bottom:4px;font-size:16px;">Timesheet Report</h3>
+                        <p style="margin:0;font-size:12px;color:var(--text-muted);">Non-editable permanent record.</p>
+                    </div>
+                    <div class="filter-row">
+                        <div class="fg"><label>From</label><input type="date" id="ts-from"></div>
+                        <div class="fg"><label>To</label><input type="date" id="ts-to"></div>
+                        <button class="fbtn primary" onclick="applyTsFilter()">Filter</button>
+                        <button class="fbtn outline" onclick="clearTsFilter()">Clear</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Employee Name</th>
+                                    <th>Employee ID</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Login Time</th>
+                                    <th>Logout Time</th>
+                                    <th>Worked Hrs</th>
+                                    <th>Overtime</th>
+                                </tr>
+                            </thead>
+                            <tbody id="timesheet-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <button type="button" class="btn export-btn btn-sm" onclick="downloadPDF('timesheet-report', 'Timesheet', this)">Download PDF</button>
+            </div>
+            </section>
+            </div>
+        </div>
+
+        <div id="view-work" class="view-panel hidden">
+            <div class="card">
+                <h3 style="font-size: 16px;">Log Work Task</h3>
+                <div class="flex-grid">
+                    <div>
+                        <label>Date (IST)</label>
+                        <input type="date" id="work-date">
+                    </div>
+                    <div style="flex: 2;">
+                        <label>Work Done Description</label>
+                        <input type="text" id="work-desc" placeholder="What did you accomplish today?">
+                    </div>
+                    <div>
+                        <label>Task Status</label>
+                        <select id="work-status">
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-sm" onclick="addWorkLog()">Save Work Record</button>
+            </div>
+
+            <div class="card clearfix">
+                <div id="work-report">
+                    <div style="margin-bottom:12px;">
+                        <h3 style="margin-bottom:4px;font-size:16px;">My Work Report</h3>
+                        <p style="margin:0;font-size:12px;color:var(--text-muted);">Non-editable permanent record.</p>
+                    </div>
+                    <div class="filter-row">
+                        <div class="fg"><label>From</label><input type="date" id="wl-from"></div>
+                        <div class="fg"><label>To</label><input type="date" id="wl-to"></div>
+                        <button class="fbtn primary" onclick="applyWlFilter()">Filter</button>
+                        <button class="fbtn outline" onclick="clearWlFilter()">Clear</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Work Done</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="work-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <button type="button" class="btn export-btn btn-sm" onclick="downloadPDF('work-report', 'My_Work_Log', this)">Download PDF</button>
+            </div>
+        </div>
+
+        <div id="view-profile" class="view-panel hidden">
+            <div class="card" style="max-width: 500px; margin: 0 auto;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+                    <h3 style="margin:0;font-size:18px;">My Profile</h3>
+                    <button id="edit-prof-btn" class="btn btn-sm" style="width:auto;padding:8px 18px;" onclick="enterEditMode()">✏️ Edit</button>
+                </div>
+                
+                <div class="profile-pic-wrapper">
+                    <img id="profile-img" src="https://via.placeholder.com/150" class="profile-pic" alt="Profile">
+                    <label class="upload-btn">
+                        +
+                        <input type="file" accept="image/png, image/jpeg" onchange="uploadProfilePic(event)">
+                    </label>
+                    <div id="delete-pic-btn" class="delete-pic-btn hidden" onclick="deleteProfilePic()">✖</div>
+                </div>
+                <p style="text-align: center; font-size: 11px; color: var(--text-muted); margin-bottom: 30px;">Max size 5MB. Tap + to upload image.</p>
+
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="prof-name" readonly>
+                </div>
+                <div class="input-group">
+                    <label>Employee ID</label>
+                    <input type="text" id="prof-id" readonly>
+                </div>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="prof-email" readonly>
+                </div>
+                <div class="input-group" id="prof-hours-grp">
+                    <label>Standard Shift Settings</label>
+                    <input type="text" id="prof-hours" readonly>
+                </div>
+
+                <!-- Edit-mode shift pickers (hidden until Edit clicked) -->
+                <div id="prof-edit-shifts" class="hidden">
+                    <div class="flex-grid" style="margin-bottom:0;">
+                        <div class="input-group">
+                            <label>Shift Start</label>
+                            <div class="time-group">
+                                <select id="pe-start-h"><option value="" disabled selected>Hr</option>
+                                    <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                </select>
+                                <span>:</span>
+                                <select id="pe-start-m"><option value="" disabled selected>Min</option></select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Shift End</label>
+                            <div class="time-group">
+                                <select id="pe-end-h"><option value="" disabled selected>Hr</option>
+                                    <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                </select>
+                                <span>:</span>
+                                <select id="pe-end-m"><option value="" disabled selected>Min</option></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Break Duration (minutes)</label>
+                        <input type="number" id="pe-break" placeholder="e.g. 60" min="0" max="480">
+                    </div>
+                </div>
+
+                <!-- Save / Cancel row -->
+                <div id="prof-save-row" class="hidden" style="display:flex;gap:10px;margin-top:8px;">
+                    <button class="btn" style="flex:1;" onclick="saveProfile()">💾 Save Changes</button>
+                    <button class="btn-outline" style="flex:1;min-height:44px;" onclick="exitEditMode()">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-settings" class="view-panel hidden">
+            <div class="card" style="max-width: 500px; margin: 0 auto; margin-bottom: 20px;">
+                <h3 style="font-size: 16px;">Preferences</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                    <span style="font-weight: 600; font-size: 14px;">Dark Theme (Black & Purple)</span>
+                    <label style="position: relative; display: inline-block; width: 44px; height: 22px;">
+                        <input type="checkbox" id="theme-toggle" onchange="toggleTheme()" style="opacity: 0; width: 0; height: 0;">
+                        <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); transition: .4s; border-radius: 24px;">
+                            <span id="theme-slider" style="position: absolute; content: ''; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="card" style="max-width: 500px; margin: 0 auto;">
+                <h3 style="font-size: 16px;">Change Password</h3>
+                <div class="input-group">
+                    <label>Present Password</label>
+                    <input type="password" id="old-pass" placeholder="Enter current password">
+                </div>
+                <div class="input-group">
+                    <label>New Password</label>
+                    <input type="password" id="new-pass" placeholder="Enter new password">
+                </div>
+                <div class="input-group">
+                    <label>Confirm New Password</label>
+                    <input type="password" id="confirm-pass" placeholder="Confirm new password">
+                </div>
+                <button class="btn btn-danger btn-sm" onclick="updateSecurityPassword()">Update Security Password</button>
+            </div>
+        </div>
+
+    </div>
+
+    <nav class="mobile-tabbar" aria-label="Mobile navigation">
+        <button type="button" data-section="dashboard" onclick="switchDashboardSection('dashboard')"><span>H</span>Home</button>
+        <button type="button" data-section="planner" onclick="switchDashboardSection('planner')"><span>P</span>Planner</button>
+        <button type="button" class="mobile-plus-slot">+</button>
+        <button type="button" data-section="reports" onclick="switchDashboardSection('reports')"><span>R</span>Reports</button>
+        <button type="button" data-section="profile" onclick="switchDashboardSection('profile')"><span>U</span>Profile</button>
+    </nav>
+    <button type="button" class="mobile-fab" onclick="toggleQuickActions()">+</button>
+    <div id="quick-sheet-backdrop" class="quick-sheet-backdrop hidden" onclick="toggleQuickActions(false)"></div>
+    <div id="quick-action-sheet" class="quick-sheet hidden">
+        <button type="button" onclick="quickAdd('goal')">Add Goal</button>
+        <button type="button" onclick="quickAdd('time')">Add Time</button>
+        <button type="button" onclick="quickAdd('weekoff')">Add Weekoff</button>
+        <button type="button" onclick="quickAdd('leave')">Add Leave</button>
+    </div>
+
+    <div id="goal-modal" class="goal-modal hidden">
+        <div class="goal-modal-card">
+            <div class="section-head">
+                <h3>Add Goal</h3>
+                <button class="text-link" onclick="closeGoalModal()">Close</button>
+            </div>
+            <div class="input-group">
+                <label>Goal</label>
+                <input type="text" id="goal-modal-title" placeholder="What do you want to finish today?">
+            </div>
+            <button type="button" class="btn" onclick="addGoalFromModal()">Save Goal</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDoUUzyRcrCO-gabmXrt2Z-snBgBhA7J_c",
+        authDomain: "timesheet-app-ce774.firebaseapp.com",
+        projectId: "timesheet-app-ce774",
+        storageBucket: "timesheet-app-ce774.firebasestorage.app",
+        messagingSenderId: "592261213402",
+        appId: "1:592261213402:web:db3244af6d37f74f0289e3",
+        measurementId: "G-QE3YHWDQWB"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    let currentUserData    = {};
+    let allTsRecords       = [];   // all timesheet records (for filter)
+    let allWlRecords       = [];   // all work-log records (for filter)
+    let allGoalsRecords    = [];   // all goal records (for dashboard)
+
+    function showToast(message, isError = false) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${isError ? 'error' : ''}`;
+        toast.innerText = message;
+        
+        container.appendChild(toast);
+        void toast.offsetWidth; 
+        toast.classList.add('show');
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => { toast.remove(); }, 300);
+        }, 3000);
+    }
+
+    function getISTDateString() {
+        const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
+        return new Intl.DateTimeFormat('en-CA', options).format(new Date()); 
+    }
+
+    function parseCustomTime(idPrefix) {
+        const h = document.getElementById(idPrefix + '-h').value;
+        const m = document.getElementById(idPrefix + '-m').value;
+        
+        if(!h || !m) return '';
+        
+        let hour24 = parseInt(h, 10);
+        if (Number.isNaN(hour24) || hour24 < 0 || hour24 > 23) return '';
+        
+        return `${hour24.toString().padStart(2,'0')}:${m}`;
+    }
+
+    const format12hr = (timeStr) => {
+        if (!timeStr || timeStr === '-') return '-';
+        let [h, m] = timeStr.split(':');
+        let ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        return `${h.toString().padStart(2, '0')}:${m} ${ampm}`;
+    };
+
+    function fillMinuteOptions(selectId) {
+        const select = document.getElementById(selectId);
+        if (!select || select.dataset.filled === 'true') return;
+        for (let i = 0; i < 60; i++) {
+            const value = i.toString().padStart(2, '0');
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            select.appendChild(option);
+        }
+        select.dataset.filled = 'true';
+    }
+
+    function fillHourOptions(selectId, selectedValue = '') {
+        const select = document.getElementById(selectId);
+        if (!select || select.dataset.hoursFilled === 'true') return;
+        select.innerHTML = `<option value="" disabled ${selectedValue ? '' : 'selected'}>Hr</option>`;
+        for (let i = 0; i < 24; i++) {
+            const value = i.toString().padStart(2, '0');
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            option.selected = value === selectedValue;
+            select.appendChild(option);
+        }
+        select.dataset.hoursFilled = 'true';
+    }
+
+    function initializeTimeSelectors() {
+        ['login-time-m','logout-time-m','entry-in-m','entry-out-m','pe-start-m','pe-end-m'].forEach(fillMinuteOptions);
+        [
+            ['reg-start-h', '09'],
+            ['reg-end-h', '18'],
+            ['login-time-h', ''],
+            ['logout-time-h', ''],
+            ['pe-start-h', ''],
+            ['pe-end-h', '']
+        ].forEach(([id, selected]) => fillHourOptions(id, selected));
+    }
+
+    function fillEmployeeAutoFields() {
+        const fields = [
+            ['login-emp-name', currentUserData.name || ''],
+            ['login-emp-id', currentUserData.empId || ''],
+            ['logout-emp-name', currentUserData.name || ''],
+            ['logout-emp-id', currentUserData.empId || ''],
+            ['weekoff-emp-name', currentUserData.name || ''],
+            ['weekoff-emp-id', currentUserData.empId || ''],
+            ['leave-emp-name', currentUserData.name || ''],
+            ['leave-emp-id', currentUserData.empId || '']
         ];
+        fields.forEach(([id, value]) => {
+            const el = document.getElementById(id);
+            if (el) el.value = value;
+        });
+    }
 
-        let myChart = null;
+    // ── Feature 1: Now button ─────────────────────────────────────
+    function setCurrentTime(prefix) {
+        const parts = new Intl.DateTimeFormat('en-GB', {
+            timeZone:'Asia/Kolkata', hour:'2-digit', minute:'2-digit', hour12:false
+        }).formatToParts(new Date());
+        const hour = parts.find(part => part.type === 'hour')?.value || '';
+        const minute = parts.find(part => part.type === 'minute')?.value || '';
+        if (!hour || !minute) return;
+        document.getElementById(prefix+'-h').value = hour;
+        document.getElementById(prefix+'-m').value = minute;
+    }
 
-        // --- 2. Authentication Logic ---
-        function login() {
-            document.getElementById('auth-screen').style.display = 'none';
-            // Use flex for desktop, block for mobile fallback is handled in media query logic natively via flex layout
-            document.getElementById('app-screen').style.display = 'flex'; 
-            
-            // Initialize Dashboard Data
-            renderWl(allWlRecords);
-            calculateStats();
-            initChart();
+    // ── Feature 3 & 5: Stats + Overtime ──────────────────────────
+    function fmtMins(mins) {
+        mins = Math.max(0, Math.round(mins));
+        const h = Math.floor(mins/60), m = mins%60;
+        return m ? h+'h '+m+'m' : h+'h';
+    }
+
+    function toMins(t) {
+        const p = String(t).split(':');
+        return parseInt(p[0])*60 + parseInt(p[1]);
+    }
+
+    function parseProfileWorkMinutes(value) {
+        if (value === undefined || value === null || value === '') return 0;
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return value <= 24 ? Math.round(value * 60) : Math.round(value);
         }
-
-        // --- 3. UI Interactions ---
-        function switchTab(tabName) {
-            // Highlight active nav
-            const items = document.querySelectorAll('.nav-item');
-            items.forEach(item => item.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-
-            // Change title
-            const titles = {
-                'dashboard': 'Dashboard Overview',
-                'reports': 'Detailed Reports',
-                'logs': 'Work Logs'
-            };
-            document.getElementById('page-title').innerText = titles[tabName];
+        const s = String(value).trim().toLowerCase();
+        const colon = s.match(/^(\d{1,2}):(\d{2})$/);
+        if (colon) return parseInt(colon[1], 10) * 60 + parseInt(colon[2], 10);
+        const hourMatch = s.match(/(\d+(?:\.\d+)?)\s*(h|hr|hrs|hour|hours)\b/);
+        const minMatch = s.match(/(\d+)\s*(m|min|mins|minute|minutes)\b/);
+        if (hourMatch || minMatch) {
+            return Math.round((hourMatch ? parseFloat(hourMatch[1]) * 60 : 0) + (minMatch ? parseInt(minMatch[1], 10) : 0));
         }
+        const plain = Number(s);
+        return Number.isFinite(plain) ? (plain <= 24 ? Math.round(plain * 60) : Math.round(plain)) : 0;
+    }
 
-        function toggleFabMenu() {
-            const menu = document.getElementById('fab-options');
-            menu.classList.toggle('active');
+    function getProfileWorkMinutes() {
+        const profileHourKeys = [
+            'workingHours',
+            'workHours',
+            'dailyWorkingHours',
+            'standardWorkingHours',
+            'requiredHours',
+            'profileWorkingHours',
+            'workingMins',
+            'workMins',
+            'standardWorkMins'
+        ];
+        for (const key of profileHourKeys) {
+            const mins = parseProfileWorkMinutes(currentUserData[key]);
+            if (mins > 0) return mins;
         }
+        if (!currentUserData.shiftStart || !currentUserData.shiftEnd) return 0;
+        let mins = toMins(currentUserData.shiftEnd) - toMins(currentUserData.shiftStart);
+        if (mins < 0) mins += 24 * 60;
+        return Math.max(0, mins - (Number(currentUserData.stdBreak) || 0));
+    }
 
-        // --- 4. Core Logic Integration (Rendering Table & Stats) ---
-        function renderWl(records) {
-            const tbody = document.getElementById('work-body');
-            if (!records.length) {
-                tbody.innerHTML = '<tr><td colspan="3" style="color:var(--text-muted);padding:20px;text-align:center;">No records found.</td></tr>';
-                return;
-            }
-            tbody.innerHTML = records.map(d => {
-                let badgeClass = 'badge-yellow';
-                if(d.status === 'Completed') badgeClass = 'badge-green';
-                if(d.status === 'Pending') badgeClass = 'badge-red';
+    function updateStats(records) {
+        const month = getISTDateString().slice(0,7);
+        const mr    = records.filter(r => r.date && r.date.startsWith(month));
 
-                return `<tr>
-                    <td data-label="Date"><strong>${d.date}</strong></td>
-                    <td data-label="Work Done">${d.description}</td>
-                    <td data-label="Status"><span class="badge ${badgeClass}">${d.status}</span></td>
-                </tr>`;
-            }).join('');
-        }
+        const daysPresent = new Set(
+            mr.filter(r => (r.inTime||r.loginTime||'-') !== '-').map(r => r.date)
+        ).size;
 
-        function calculateStats() {
-            const total = allWlRecords.length;
-            const completed = allWlRecords.filter(r => r.status === 'Completed').length;
-            const pending = total - completed;
-
-            document.getElementById('stat-total').innerText = total;
-            document.getElementById('stat-completed').innerText = completed;
-            document.getElementById('stat-pending').innerText = pending;
-        }
-
-        // --- 5. Chart.js Real Data Integration ---
-        function initChart() {
-            const ctx = document.getElementById('statusChart').getContext('2d');
-            
-            // Calculate dynamic data from the integrated records
-            let completedCount = 0;
-            let inProgressCount = 0;
-            let pendingCount = 0;
-
-            allWlRecords.forEach(record => {
-                if (record.status === 'Completed') completedCount++;
-                else if (record.status === 'In Progress') inProgressCount++;
-                else pendingCount++;
-            });
-
-            if(myChart) myChart.destroy(); // destroy old chart if re-rendering
-
-            myChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Completed', 'In Progress', 'Pending'],
-                    datasets: [{
-                        data: [completedCount, inProgressCount, pendingCount],
-                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom' }
-                    },
-                    cutout: '75%'
-                }
-            });
-        }
-
-        // Close FAB menu when clicking outside
-        window.addEventListener('click', function(e) {
-            if (!e.target.closest('.mobile-fab') && !e.target.closest('.fab-menu')) {
-                document.getElementById('fab-options').classList.remove('active');
+        let totalMins = 0;
+        mr.forEach(r => {
+            const lIn  = r.inTime  || r.loginTime  || '-';
+            const lOut = r.outTime || r.logoutTime || '-';
+            if (lIn !== '-' && lOut !== '-') {
+                totalMins += toMins(calculateWorkedHours(lIn, lOut));
             }
         });
-    </script>
+
+        const schedPerDay = getProfileWorkMinutes();
+        const otMins  = schedPerDay > 0 ? Math.max(0, totalMins - daysPresent * schedPerDay) : 0;
+        const avgMins = daysPresent ? Math.round(totalMins/daysPresent) : 0;
+
+        document.getElementById('stat-days').textContent     = daysPresent;
+        document.getElementById('stat-hours').textContent    = fmtMins(totalMins);
+        document.getElementById('stat-avg').textContent      = fmtMins(avgMins);
+        document.getElementById('stat-overtime').textContent = fmtMins(otMins);
+        updateDashboardInsights();
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, ch => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[ch]));
+    }
+
+    function dateOffset(baseDate, offset) {
+        const d = new Date(baseDate + 'T00:00:00');
+        d.setDate(d.getDate() + offset);
+        return d.toISOString().slice(0, 10);
+    }
+
+    function lastSevenDates() {
+        const today = getISTDateString();
+        return Array.from({length: 7}, (_, i) => dateOffset(today, i - 6));
+    }
+
+    function setText(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    }
+
+    function renderEmptyList(id, message) {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = `<div class="mini-row"><span class="muted" style="margin-left:0;">${message}</span></div>`;
+    }
+
+    function renderGoals() {
+        const list = document.getElementById('goals-list');
+        if (!list) return;
+        const today = getISTDateString();
+        const goals = allGoalsRecords.filter(g => (g.date || today) === today);
+        const completed = goals.filter(g => g.completed).length;
+        const pct = goals.length ? Math.round((completed / goals.length) * 100) : 0;
+        const deg = Math.round((pct / 100) * 360);
+        const donut = document.getElementById('goal-donut');
+        if (donut) donut.style.background = `conic-gradient(#705cff ${deg}deg, #e8e4fb ${deg}deg)`;
+        setText('goal-percent', pct + '%');
+        if (!goals.length) {
+            renderEmptyList('goals-list', 'No goals added today.');
+            return;
+        }
+        list.innerHTML = goals.slice(0, 4).map(g => `
+            <div class="goal-row">
+                <button type="button" class="goal-check ${g.completed ? 'done' : ''}" onclick="toggleGoal('${g.id}', ${g.completed ? 'false' : 'true'})">${g.completed ? '✓' : ''}</button>
+                <span>${escapeHtml(g.title || 'Goal')}</span>
+            </div>
+        `).join('');
+    }
+
+    async function addGoal() {
+        const input = document.getElementById('goal-title');
+        const title = (input?.value || '').trim();
+        if (!title) return showToast('Please enter a goal.', true);
+        try {
+            await db.collection('goals').add({
+                userId: auth.currentUser.uid,
+                title,
+                date: getISTDateString(),
+                completed: false,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            input.value = '';
+            showToast('Goal added!');
+        } catch (err) {
+            showToast('Error saving goal: ' + err.message, true);
+        }
+    }
+
+    async function addGoalFromModal() {
+        const modalInput = document.getElementById('goal-modal-title');
+        const mainInput = document.getElementById('goal-title');
+        if (mainInput && modalInput) mainInput.value = modalInput.value;
+        await addGoal();
+        if (modalInput) modalInput.value = '';
+        closeGoalModal();
+    }
+
+    async function toggleGoal(goalId, completed) {
+        try {
+            await db.collection('goals').doc(goalId).update({
+                completed,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } catch (err) {
+            showToast('Error updating goal: ' + err.message, true);
+        }
+    }
+
+    function loadGoals(userId) {
+        db.collection('goals').where('userId', '==', userId)
+          .onSnapshot(snapshot => {
+            allGoalsRecords = [];
+            snapshot.forEach(doc => allGoalsRecords.push({ id: doc.id, ...doc.data() }));
+            allGoalsRecords.sort((a,b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+            renderGoals();
+            updateDashboardInsights();
+        }, err => showToast('DB Error: ' + err.message, true));
+    }
+
+    function classifyFocus(description) {
+        const text = String(description || '').toLowerCase();
+        if (/meet|call|sync|stand|client/.test(text)) return 'Meetings';
+        if (/plan|review|strategy|schedule/.test(text)) return 'Planning';
+        if (/learn|read|study|training/.test(text)) return 'Learning';
+        return 'Worksheets';
+    }
+
+    function updateDashboardInsights() {
+        const today = getISTDateString();
+        const weekDates = lastSevenDates();
+        const scheduleMins = getProfileWorkMinutes();
+        const weeklyRecords = allTsRecords.filter(r => weekDates.includes(r.date));
+        const dailyWorked = Object.fromEntries(weekDates.map(d => [d, 0]));
+        let totalWorked = 0;
+        let totalOvertime = 0;
+        let offDays = 0;
+
+        weeklyRecords.forEach(r => {
+            const lIn = r.inTime || r.loginTime || '-';
+            const lOut = r.outTime || r.logoutTime || '-';
+            const type = r.attendanceType || r.status || 'Present';
+            if (type === 'Weekoff' || type === 'Leave') offDays += 1;
+            if (lIn !== '-' && lOut !== '-') {
+                const mins = toMins(calculateWorkedHours(lIn, lOut));
+                dailyWorked[r.date] = (dailyWorked[r.date] || 0) + mins;
+                totalWorked += mins;
+                totalOvertime += scheduleMins > 0 ? Math.max(0, mins - scheduleMins) : 0;
+            }
+        });
+
+        const workedDays = weekDates.filter(d => dailyWorked[d] > 0).length;
+        const score = scheduleMins > 0 && workedDays ? Math.min(100, Math.round((totalWorked / (scheduleMins * workedDays)) * 100)) : 0;
+        setText('weekly-score', score + '%');
+        setText('weekly-delta', score >= 75 ? '+ good' : score > 0 ? 'building' : '0%');
+        setText('stat-days', score + '%');
+
+        const chartPoints = weekDates.map((d, i) => {
+            const pct = scheduleMins > 0 ? Math.min(100, Math.round((dailyWorked[d] / scheduleMins) * 100)) : 0;
+            const x = i * 60;
+            const y = 130 - (pct * 1.1);
+            return `${x},${Math.max(18, Math.min(130, y))}`;
+        });
+        const chartLine = document.getElementById('weekly-chart-line');
+        const chartFill = document.getElementById('weekly-chart-fill');
+        if (chartLine) chartLine.setAttribute('points', chartPoints.join(' '));
+        if (chartFill) chartFill.setAttribute('points', `0,140 ${chartPoints.join(' ')} 360,140`);
+
+        const completedTasks = allWlRecords.filter(r => r.status === 'Completed');
+        const inProgressTasks = allWlRecords.filter(r => r.status === 'In Progress');
+        const todayCompleted = completedTasks.filter(r => (r.date || '').slice(0,10) === today);
+        const taskTotal = allWlRecords.length;
+        setText('stat-hours', completedTasks.length);
+        setText('stat-avg', fmtMins(totalWorked));
+        setText('task-total', String(taskTotal));
+        const completedPct = taskTotal ? Math.round(completedTasks.length / taskTotal * 100) : 0;
+        const inProgressPct = taskTotal ? Math.round(inProgressTasks.length / taskTotal * 100) : 0;
+        const taskDonut = document.getElementById('task-donut');
+        if (taskDonut) {
+            const cDeg = Math.round(completedPct * 3.6);
+            const iDeg = cDeg + Math.round(inProgressPct * 3.6);
+            taskDonut.style.background = `conic-gradient(#43c977 0 ${cDeg}deg, #5f9dff ${cDeg}deg ${iDeg}deg, #ff9d42 ${iDeg}deg 360deg)`;
+        }
+        const taskLegend = document.getElementById('task-legend');
+        if (taskLegend) taskLegend.innerHTML = `
+            <div><span class="legend-dot" style="background:#43c977"></span>Completed ${completedTasks.length}</div>
+            <div><span class="legend-dot" style="background:#5f9dff"></span>In Progress ${inProgressTasks.length}</div>
+            <div><span class="legend-dot" style="background:#ff9d42"></span>Pending 0</div>
+        `;
+
+        const regularWorked = Math.max(0, totalWorked - totalOvertime);
+        const timeTotal = regularWorked + totalOvertime + (offDays * scheduleMins);
+        setText('time-total', fmtMins(totalWorked));
+        const workDeg = timeTotal ? Math.round((regularWorked / timeTotal) * 360) : 0;
+        const otDeg = timeTotal ? workDeg + Math.round((totalOvertime / timeTotal) * 360) : workDeg;
+        const timeDonut = document.getElementById('time-donut');
+        if (timeDonut) timeDonut.style.background = `conic-gradient(#705cff 0 ${workDeg}deg, #43c977 ${workDeg}deg ${otDeg}deg, #ff9d42 ${otDeg}deg 360deg)`;
+        const timeLegend = document.getElementById('time-legend');
+        if (timeLegend) timeLegend.innerHTML = `
+            <div><span class="legend-dot" style="background:#705cff"></span>Work ${fmtMins(regularWorked)}</div>
+            <div><span class="legend-dot" style="background:#43c977"></span>Overtime ${fmtMins(totalOvertime)}</div>
+            <div><span class="legend-dot" style="background:#ff9d42"></span>Off/Leave ${offDays}</div>
+        `;
+
+        const completedList = document.getElementById('completed-tasks-list');
+        if (completedList) {
+            const rows = completedTasks.slice(-3).reverse();
+            completedList.innerHTML = rows.length ? rows.map(task => `
+                <div class="mini-row"><span class="goal-check done">✓</span><span>${escapeHtml(task.description || 'Completed task')}</span><span class="muted">${escapeHtml(task.date || '')}</span></div>
+            `).join('') : '<div class="mini-row"><span class="muted" style="margin-left:0;">No completed tasks yet.</span></div>';
+        }
+
+        const upcoming = allTsRecords
+            .filter(r => r.date >= today && ['Weekoff','Leave'].includes(r.attendanceType || r.status))
+            .slice(0, 3);
+        setText('stat-overtime', upcoming.length);
+        const upcomingList = document.getElementById('upcoming-list');
+        if (upcomingList) {
+            upcomingList.innerHTML = upcoming.length ? upcoming.map(item => `
+                <div class="mini-row"><span class="nav-icon">${(item.attendanceType || item.status || 'O').charAt(0)}</span><span>${escapeHtml(item.attendanceType || item.status)}</span><span class="muted">${escapeHtml(item.date)}</span></div>
+            `).join('') : '<div class="mini-row"><span class="muted" style="margin-left:0;">No upcoming weekoff or leave.</span></div>';
+        }
+
+        const focusCounts = {};
+        allWlRecords.forEach(r => {
+            const focus = classifyFocus(r.description);
+            focusCounts[focus] = (focusCounts[focus] || 0) + 1;
+        });
+        const focusRows = Object.entries(focusCounts).sort((a,b) => b[1] - a[1]).slice(0, 4);
+        const focusList = document.getElementById('focus-list');
+        if (focusList) {
+            const focusTotal = focusRows.reduce((sum, [, count]) => sum + count, 0);
+            focusList.innerHTML = focusRows.length ? focusRows.map(([name, count]) => {
+                const pct = focusTotal ? Math.round((count / focusTotal) * 100) : 0;
+                return `<div class="focus-row"><span style="width:86px;">${name}</span><div class="focus-bar"><span style="width:${pct}%"></span></div><span class="muted">${pct}%</span></div>`;
+            }).join('') : '<div class="mini-row"><span class="muted" style="margin-left:0;">Add work logs to see focus areas.</span></div>';
+        }
+
+        setText('welcome-title', `Welcome back, ${(currentUserData.name || 'there').split(' ')[0]}`);
+    }
+
+    // ── Feature 4: Profile edit helpers ──────────────────────────
+    function setPickerFrom24(prefix, t24) {
+        if (!t24) return;
+        const [hs, ms] = t24.split(':');
+        const hEl = document.getElementById(prefix+'-h');
+        const mEl = document.getElementById(prefix+'-m');
+        if(hEl) hEl.value = hs.padStart(2,'0');
+        if(mEl) mEl.value = ms;
+    }
+
+    function enterEditMode() {
+        ['prof-name','prof-id'].forEach(id => {
+            const el = document.getElementById(id);
+            el.removeAttribute('readonly');
+            el.style.opacity = '1'; el.style.cursor = 'text';
+        });
+        document.getElementById('prof-hours-grp').classList.add('hidden');
+        document.getElementById('prof-edit-shifts').classList.remove('hidden');
+        document.getElementById('prof-save-row').classList.remove('hidden');
+        document.getElementById('edit-prof-btn').classList.add('hidden');
+        setPickerFrom24('pe-start', currentUserData.shiftStart||'');
+        setPickerFrom24('pe-end',   currentUserData.shiftEnd  ||'');
+        const bEl = document.getElementById('pe-break');
+        if(bEl) bEl.value = currentUserData.stdBreak ?? 60;
+    }
+
+    function exitEditMode() {
+        ['prof-name','prof-id'].forEach(id => {
+            const el = document.getElementById(id);
+            el.setAttribute('readonly','');
+            el.style.opacity = ''; el.style.cursor = '';
+        });
+        document.getElementById('prof-hours-grp').classList.remove('hidden');
+        document.getElementById('prof-edit-shifts').classList.add('hidden');
+        document.getElementById('prof-save-row').classList.add('hidden');
+        document.getElementById('edit-prof-btn').classList.remove('hidden');
+        document.getElementById('prof-name').value = currentUserData.name  || '';
+        document.getElementById('prof-id').value   = currentUserData.empId || '';
+    }
+
+    async function saveProfile() {
+        const name       = document.getElementById('prof-name').value.trim();
+        const empId      = document.getElementById('prof-id').value.trim();
+        const shiftStart = parseCustomTime('pe-start');
+        const shiftEnd   = parseCustomTime('pe-end');
+        const stdBreak   = parseInt(document.getElementById('pe-break').value)||0;
+        if (!name||!empId||!shiftStart||!shiftEnd)
+            return showToast('Please fill in all fields.', true);
+        try {
+            await db.collection('users').doc(auth.currentUser.uid)
+                    .update({ name, empId, shiftStart, shiftEnd, stdBreak });
+            currentUserData = {...currentUserData, name, empId, shiftStart, shiftEnd, stdBreak};
+            const disp = format12hr(shiftStart)+' to '+format12hr(shiftEnd)+' ('+stdBreak+'m break)';
+            document.getElementById('prof-hours').value        = disp;
+            document.getElementById('sidebar-name').innerText  = name;
+            document.getElementById('sidebar-empId').innerText = empId;
+            document.getElementById('top-user-name').innerText = name;
+            document.getElementById('top-user-role').innerText = empId;
+            fillEmployeeAutoFields();
+            updateStats(allTsRecords);
+            renderTs(allTsRecords);
+            exitEditMode();
+            showToast('Profile updated!');
+        } catch(err) { showToast('Error: '+err.message, true); }
+    }
+
+    function switchTimesheetTab(tabName) {
+        ['login', 'logout', 'weekoff', 'leave'].forEach(tab => {
+            document.getElementById(tab + '-tab').classList.toggle('active', tabName === tab);
+            document.getElementById(tab + '-tab-btn').classList.toggle('active', tabName === tab);
+        });
+    }
+
+    initializeTimeSelectors();
+
+    if(localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-theme');
+        document.getElementById('theme-toggle').checked = true;
+        document.getElementById('theme-slider').style.transform = "translateX(22px)";
+    }
+
+    function toggleAuth(view) {
+        document.getElementById('login-form').classList.toggle('hidden', view !== 'login');
+        document.getElementById('register-form').classList.toggle('hidden', view !== 'register');
+    }
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebar-overlay').classList.toggle('open');
+    }
+
+    function setActiveSection(sectionName) {
+        document.querySelectorAll('[data-section]').forEach(el => {
+            el.classList.toggle('active', el.dataset.section === sectionName);
+        });
+    }
+
+    function closeSidebarIfOpen() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (sidebar?.classList.contains('open')) sidebar.classList.remove('open');
+        if (overlay?.classList.contains('open')) overlay.classList.remove('open');
+    }
+
+    function switchView(viewName, sectionName = viewName) {
+        const views = ['timesheet', 'work', 'profile', 'settings'];
+        views.forEach(v => {
+            document.getElementById('view-' + v).classList.add('hidden');
+        });
+        document.getElementById('view-' + viewName).classList.remove('hidden');
+        setActiveSection(sectionName);
+        closeSidebarIfOpen();
+    }
+
+    function switchDashboardSection(sectionName) {
+        const dashboardTargets = {
+            dashboard: 'dashboard-panel',
+            planner: 'planner-panel',
+            reports: 'reports-panel'
+        };
+        if (dashboardTargets[sectionName]) {
+            switchView('timesheet', sectionName);
+            setTimeout(() => document.getElementById(dashboardTargets[sectionName])?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 40);
+            return;
+        }
+        if (sectionName === 'worksheets') return switchView('work', 'worksheets');
+        if (sectionName === 'profile') return switchView('profile', 'profile');
+        if (sectionName === 'settings') return switchView('settings', 'settings');
+    }
+
+    function toggleQuickActions(force) {
+        const sheet = document.getElementById('quick-action-sheet');
+        const backdrop = document.getElementById('quick-sheet-backdrop');
+        const shouldOpen = typeof force === 'boolean' ? force : sheet.classList.contains('hidden');
+        sheet.classList.toggle('hidden', !shouldOpen);
+        backdrop.classList.toggle('hidden', !shouldOpen);
+    }
+
+    function quickAdd(type) {
+        toggleQuickActions(false);
+        if (type === 'goal') return openGoalModal();
+        switchDashboardSection('planner');
+        if (type === 'time') switchTimesheetTab('login');
+        if (type === 'weekoff') switchTimesheetTab('weekoff');
+        if (type === 'leave') switchTimesheetTab('leave');
+    }
+
+    function openGoalModal() {
+        document.getElementById('goal-modal').classList.remove('hidden');
+        setTimeout(() => document.getElementById('goal-modal-title')?.focus(), 40);
+    }
+
+    function closeGoalModal() {
+        document.getElementById('goal-modal').classList.add('hidden');
+    }
+
+    function toggleTheme() {
+        const isDark = document.body.classList.toggle('dark-theme');
+        document.getElementById('theme-slider').style.transform = isDark ? "translateX(22px)" : "translateX(0)";
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    // Handle any in-progress redirect sign-in (e.g. if popup was blocked and we fell back to redirect)
+    auth.getRedirectResult().catch(err => {
+        if (err.code && err.code !== 'auth/no-auth-event') {
+            showToast('Google sign-in failed: ' + err.message, true);
+        }
+    });
+
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('app-section').classList.remove('hidden');
+            
+            const istDate = getISTDateString();
+            document.getElementById('login-date').value = istDate;
+            document.getElementById('logout-date').value = istDate;
+            document.getElementById('weekoff-date').value = istDate;
+            document.getElementById('leave-date').value = istDate;
+            document.getElementById('work-date').value = istDate;
+
+            let doc;
+            try {
+                doc = await db.collection('users').doc(user.uid).get();
+            } catch (fetchErr) {
+                showToast('Could not load profile. Check your connection.', true);
+                return;
+            }
+            if (doc.exists) {
+                currentUserData = doc.data();
+                
+                document.getElementById('sidebar-name').innerText = currentUserData.name;
+                document.getElementById('sidebar-empId').innerText = currentUserData.empId;
+                document.getElementById('top-user-name').innerText = currentUserData.name || 'User';
+                document.getElementById('top-user-role').innerText = currentUserData.empId || 'Worksheet Member';
+                
+                document.getElementById('prof-name').value = currentUserData.name;
+                document.getElementById('prof-id').value = currentUserData.empId;
+                document.getElementById('prof-email').value = currentUserData.email;
+                
+                const shiftDisplay = `${format12hr(currentUserData.shiftStart)} to ${format12hr(currentUserData.shiftEnd)} (${currentUserData.stdBreak}m break)`;
+                document.getElementById('prof-hours').value = shiftDisplay;
+                const displayHoursEl = document.getElementById('display-hours');
+                if (displayHoursEl) displayHoursEl.innerText = shiftDisplay;
+                fillEmployeeAutoFields();
+
+                if(currentUserData.photoURL) {
+                    document.getElementById('profile-img').src = currentUserData.photoURL;
+                    document.getElementById('sidebar-profile-img').src = currentUserData.photoURL;
+                    document.getElementById('top-profile-img').src = currentUserData.photoURL;
+                    document.getElementById('delete-pic-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('delete-pic-btn').classList.add('hidden');
+                }
+                
+                loadTimesheets(user.uid);
+                loadWorkLogs(user.uid);
+                loadGoals(user.uid);
+                setActiveSection('dashboard');
+            } else {
+                // Google-authenticated but no Firestore profile exists — show No User Found modal
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('app-section').classList.add('hidden');
+                document.getElementById('no-user-modal').classList.remove('hidden');
+                // Pre-fill register form so user can jump straight in
+                document.getElementById('reg-email').value = user.email || "";
+                document.getElementById('reg-name').value = user.displayName || "";
+            }
+        } else {
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('app-section').classList.add('hidden');
+        }
+    });
+
+    function uploadProfilePic(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            return showToast("File is too large. Maximum size is 5MB.", true);
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = async () => {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 250;
+                const scaleSize = MAX_WIDTH / img.width;
+                canvas.width = MAX_WIDTH;
+                canvas.height = img.height * scaleSize;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+                
+                try {
+                    await db.collection('users').doc(auth.currentUser.uid).update({ photoURL: compressedBase64 });
+                    document.getElementById('profile-img').src = compressedBase64;
+                    document.getElementById('sidebar-profile-img').src = compressedBase64;
+                    document.getElementById('top-profile-img').src = compressedBase64;
+                    document.getElementById('delete-pic-btn').classList.remove('hidden');
+                    showToast("Profile picture updated!");
+                } catch(err) {
+                    showToast("Error saving image: " + err.message, true);
+                }
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async function deleteProfilePic() {
+        if(!confirm("Are you sure you want to remove your profile photo?")) return;
+        try {
+            await db.collection('users').doc(auth.currentUser.uid).update({ photoURL: firebase.firestore.FieldValue.delete() });
+            document.getElementById('profile-img').src = "https://via.placeholder.com/150";
+            document.getElementById('sidebar-profile-img').src = "https://via.placeholder.com/150";
+            document.getElementById('top-profile-img').src = "https://via.placeholder.com/150";
+            document.getElementById('delete-pic-btn').classList.add('hidden');
+            showToast("Profile picture removed");
+        } catch(err) {
+            showToast("Error removing image: " + err.message, true);
+        }
+    }
+
+    async function register() {
+        const email = document.getElementById('reg-email').value.trim().toLowerCase();
+        const pass = document.getElementById('reg-password').value;
+        const name = document.getElementById('reg-name').value;
+        const empId = document.getElementById('reg-empId').value;
+        
+        const shiftStart = parseCustomTime('reg-start');
+        const shiftEnd = parseCustomTime('reg-end');
+        const stdBreak = document.getElementById('reg-std-break').value;
+
+        if(!name || !empId || !shiftStart || !shiftEnd || !email) return showToast("All fields are mandatory.", true);
+
+        try {
+            let userUid;
+            if (auth.currentUser) {
+                userUid = auth.currentUser.uid;
+            } else {
+                if(!pass) return showToast("Please provide a password.", true);
+                const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
+                userUid = userCredential.user.uid;
+            }
+
+            await db.collection('users').doc(userUid).set({ 
+                name: name, empId: empId, shiftStart: shiftStart, shiftEnd: shiftEnd, stdBreak: Number(stdBreak) || 0, email: email 
+            });
+            showToast("Profile successfully saved!");
+            setTimeout(() => window.location.reload(), 1000); 
+        } catch (error) {
+            if (error.code === "auth/email-already-in-use" || error.code === 400) {
+                showToast("Email already linked to an account.", true);
+            } else { showToast(error.message, true); }
+        }
+    }
+
+    async function login() {
+        const email = document.getElementById('login-email').value.trim().toLowerCase();
+        const pass = document.getElementById('login-password').value;
+        if (!email || !pass) return showToast("Please enter credentials.", true);
+
+        try {
+            const profileScan = await db.collection('users').where("email", "==", email).get();
+            if (profileScan.empty) return showToast("No account found, please register.", true);
+            await auth.signInWithEmailAndPassword(email, pass);
+            showToast("Logged in successfully!");
+        } catch (err) {
+            if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
+                showToast("wrong password", true);
+            } else { showToast(err.message, true); }
+        }
+    }
+
+    async function updateSecurityPassword() {
+        const oldPass = document.getElementById('old-pass').value;
+        const newPass = document.getElementById('new-pass').value;
+        const confirmPass = document.getElementById('confirm-pass').value;
+
+        if(!oldPass || !newPass || !confirmPass) return showToast("Please fill out all password fields.", true);
+        if(newPass !== confirmPass) return showToast("New passwords do not match!", true);
+
+        const user = auth.currentUser;
+        const credential = firebase.auth.EmailAuthProvider.credential(user.email, oldPass);
+
+        try {
+            await user.reauthenticateWithCredential(credential);
+            await user.updatePassword(newPass);
+            showToast("Password successfully changed!");
+            document.getElementById('old-pass').value = '';
+            document.getElementById('new-pass').value = '';
+            document.getElementById('confirm-pass').value = '';
+        } catch (err) {
+            if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential" || err.message.includes("INVALID_LOGIN_CREDENTIALS")) {
+                showToast("wrong password", true);
+            } else { showToast(err.message, true); }
+        }
+    }
+
+    function loginWithGoogle() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        // No prompt:'select_account' so Google remembers the last used account.
+        // Using signInWithPopup on all platforms — works on all modern mobile browsers and
+        // avoids the full-page redirect which can cause blank-screen issues on mobile.
+        auth.signInWithPopup(provider).then(result => {
+            // onAuthStateChanged handles the rest
+        }).catch(err => {
+            if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+                showToast('Google sign-in was cancelled.', true);
+            } else if (err.code === 'auth/popup-blocked') {
+                // Fallback to redirect if popup was blocked by the browser
+                showToast('Popup blocked. Redirecting…', false);
+                auth.signInWithRedirect(provider).catch(e => showToast(e.message, true));
+            } else {
+                showToast(err.message, true);
+            }
+        });
+    }
+
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
+    function loginWithPhone() {
+        const phoneNumber = prompt("Enter Phone Number (e.g., +919876543210):");
+        if (!phoneNumber) return;
+        auth.signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
+            .then((confirmationResult) => {
+                const code = prompt("Enter verification OTP token:");
+                if(code) confirmationResult.confirm(code).catch(() => showToast("Verification rejected.", true));
+            }).catch(err => showToast(err.message, true));
+    }
+
+    function logout() { 
+        auth.signOut(); 
+        showToast("Logged out successfully");
+    }
+
+    // ---- No User Found modal helpers ----
+    function goToRegisterFromModal() {
+        document.getElementById('no-user-modal').classList.add('hidden');
+        document.getElementById('auth-section').classList.remove('hidden');
+        toggleAuth('register');
+    }
+
+    async function cancelGoogleLogin() {
+        await auth.signOut();
+        document.getElementById('no-user-modal').classList.add('hidden');
+        document.getElementById('auth-section').classList.remove('hidden');
+        document.getElementById('app-section').classList.add('hidden');
+        toggleAuth('login');
+    }
+
+    function calculateWorkedHours(loginTimeStr, logoutTimeStr) {
+        if (!loginTimeStr || !logoutTimeStr || loginTimeStr === '-' || logoutTimeStr === '-') return '00:00';
+
+        const getMins = (t) => {
+            const parts = String(t).split(':');
+            return (parseInt(parts[0], 10) * 60) + parseInt(parts[1], 10);
+        };
+        const formatTime = (mins) => {
+            mins = Math.max(0, Math.round(mins));
+            const h = Math.floor(mins / 60).toString().padStart(2, '0');
+            const m = (mins % 60).toString().padStart(2, '0');
+            return `${h}:${m}`;
+        };
+
+        let loginMins = getMins(loginTimeStr);
+        let logoutMins = getMins(logoutTimeStr);
+        if (logoutMins < loginMins) logoutMins += 24 * 60;
+        return formatTime(logoutMins - loginMins);
+    }
+
+    function resetTimePicker(idPrefix) {
+        const h = document.getElementById(idPrefix + '-h');
+        const m = document.getElementById(idPrefix + '-m');
+        if (h) h.selectedIndex = 0;
+        if (m) m.selectedIndex = 0;
+    }
+
+    async function saveLogin() {
+        const date = document.getElementById('login-date').value;
+        const loginTime = parseCustomTime('login-time');
+
+        if (!date) return showToast("Date is required.", true);
+        if (!loginTime) return showToast("Please select Login Time.", true);
+
+        const record = {
+            userId: auth.currentUser.uid,
+            employeeName: currentUserData.name || '',
+            empId: currentUserData.empId || '',
+            date: date,
+            inTime: loginTime,
+            outTime: '-',
+            loginTime: loginTime,
+            logoutTime: '-',
+            workedHrs: '00:00',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        try {
+            await db.collection('timesheets').add(record);
+            showToast("Login saved successfully!");
+            resetTimePicker('login-time');
+            switchTimesheetTab('logout');
+        } catch (err) {
+            showToast("Error saving login: " + err.message, true);
+        }
+    }
+
+    async function saveLogout() {
+        const date = document.getElementById('logout-date').value;
+        const logoutTime = parseCustomTime('logout-time');
+
+        if (!date) return showToast("Date is required.", true);
+        if (!logoutTime) return showToast("Please select Logout Time.", true);
+
+        try {
+            const snapshot = await db.collection('timesheets')
+                .where("userId", "==", auth.currentUser.uid)
+                .where("date", "==", date)
+                .get();
+
+            let openRecords = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const existingOut = data.outTime || data.logoutTime || '-';
+                const existingIn = data.inTime || data.loginTime || '-';
+                if (existingIn !== '-' && existingOut === '-') openRecords.push({ id: doc.id, data });
+            });
+
+            openRecords.sort((a, b) => {
+                const aTime = a.data.createdAt && a.data.createdAt.toMillis ? a.data.createdAt.toMillis() : 0;
+                const bTime = b.data.createdAt && b.data.createdAt.toMillis ? b.data.createdAt.toMillis() : 0;
+                return aTime - bTime;
+            });
+
+            if (openRecords.length > 0) {
+                const target = openRecords[0];
+                const loginTime = target.data.inTime || target.data.loginTime;
+                const workedHrs = calculateWorkedHours(loginTime, logoutTime);
+
+                await db.collection('timesheets').doc(target.id).update({
+                    employeeName: currentUserData.name || target.data.employeeName || '',
+                    empId: currentUserData.empId || target.data.empId || '',
+                    outTime: logoutTime,
+                    logoutTime: logoutTime,
+                    workedHrs: workedHrs,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } else {
+                await db.collection('timesheets').add({
+                    userId: auth.currentUser.uid,
+                    employeeName: currentUserData.name || '',
+                    empId: currentUserData.empId || '',
+                    date: date,
+                    inTime: '-',
+                    outTime: logoutTime,
+                    loginTime: '-',
+                    logoutTime: logoutTime,
+                    workedHrs: '00:00',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+
+            showToast("Logout saved successfully!");
+            resetTimePicker('logout-time');
+            switchTimesheetTab('login');
+        } catch (err) {
+            showToast("Error saving logout: " + err.message, true);
+        }
+    }
+
+    async function saveDayStatus(type) {
+        if (!['Weekoff', 'Leave'].includes(type)) return;
+        const key = type.toLowerCase();
+        const date = document.getElementById(key + '-date').value;
+        const note = document.getElementById(key + '-note').value.trim();
+
+        if (!date) return showToast("Date is required.", true);
+
+        const record = {
+            userId: auth.currentUser.uid,
+            employeeName: currentUserData.name || '',
+            empId: currentUserData.empId || '',
+            date: date,
+            attendanceType: type,
+            status: type,
+            note: note,
+            inTime: '-',
+            outTime: '-',
+            loginTime: '-',
+            logoutTime: '-',
+            workedHrs: '00:00',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        try {
+            await db.collection('timesheets').add(record);
+            document.getElementById(key + '-note').value = '';
+            showToast(type + " saved successfully!");
+        } catch (err) {
+            showToast("Error saving " + type.toLowerCase() + ": " + err.message, true);
+        }
+    }
+
+    function addEntry() {
+        // Backward compatibility if any old button still calls addEntry().
+        saveLogin();
+    }
+
+    function loadTimesheets(userId) {
+        db.collection('timesheets').where("userId","==",userId)
+          .onSnapshot(snapshot => {
+            allTsRecords = [];
+            snapshot.forEach(doc => allTsRecords.push(doc.data()));
+            allTsRecords.sort((a,b) => {
+                const dc = new Date(a.date||'') - new Date(b.date||'');
+                if (dc) return dc;
+                return (a.createdAt?.toMillis?.()||0) - (b.createdAt?.toMillis?.()||0);
+            });
+            updateStats(allTsRecords);
+            renderTs(allTsRecords);
+        }, err => showToast("DB Error: "+err.message, true));
+    }
+
+    function applyTsFilter() {
+        const f = document.getElementById('ts-from').value;
+        const t = document.getElementById('ts-to').value;
+        renderTs(allTsRecords.filter(r => (!f||r.date>=f) && (!t||r.date<=t)));
+    }
+    function clearTsFilter() {
+        document.getElementById('ts-from').value = '';
+        document.getElementById('ts-to').value   = '';
+        renderTs(allTsRecords);
+    }
+
+    function renderTs(records) {
+        const tbody = document.getElementById('timesheet-body');
+        if (!records.length) {
+            tbody.innerHTML = '<tr><td colspan="8" style="color:var(--text-muted);padding:20px;text-align:center;">No records found.</td></tr>';
+            return;
+        }
+        const schedPerDay = getProfileWorkMinutes();
+        tbody.innerHTML = records.map(d => {
+            const lIn  = d.inTime  || d.loginTime  || '-';
+            const lOut = d.outTime || d.logoutTime || '-';
+            const rawType = d.attendanceType || d.status || 'Present';
+            const attendanceType = ['Weekoff', 'Leave'].includes(rawType) ? rawType : 'Present';
+            const statusClass = attendanceType === 'Weekoff' ? 'badge-blue' : attendanceType === 'Leave' ? 'badge-yellow' : 'badge-green';
+            const wHrs = (lIn!=='-'&&lOut!=='-') ? calculateWorkedHours(lIn,lOut) : (d.workedHrs||'00:00');
+            let otCell = '<span style="color:var(--text-muted)">—</span>';
+            if (lIn!=='-' && lOut!=='-' && schedPerDay>0) {
+                const ot = Math.max(0, toMins(wHrs) - schedPerDay);
+                const otColor = ot > 0 ? '#10b981' : 'var(--text-muted)';
+                otCell = `<span style="color:${otColor};font-weight:700;">${fmtMins(ot)}</span>`;
+            }
+            return `<tr>
+                <td data-label="Employee Name"><strong>${d.employeeName||currentUserData.name||'-'}</strong></td>
+                <td data-label="Employee ID">${d.empId||currentUserData.empId||'-'}</td>
+                <td data-label="Date">${d.date||'-'}</td>
+                <td data-label="Status"><span class="badge ${statusClass}">${attendanceType}</span></td>
+                <td data-label="Login Time">${format12hr(lIn)}</td>
+                <td data-label="Logout Time">${format12hr(lOut)}</td>
+                <td data-label="Worked Hrs" style="font-weight:600;">${wHrs}</td>
+                <td data-label="Overtime">${otCell}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    function addWorkLog() {
+        const date = document.getElementById('work-date').value;
+        const desc = document.getElementById('work-desc').value;
+        const status = document.getElementById('work-status').value;
+
+        if (status !== 'Completed') return showToast("please click completed to save it", true);
+        if (!desc.trim()) return showToast("Please enter a description of work done.", true);
+
+        db.collection('workLogs').add({
+            userId: auth.currentUser.uid,
+            date: date,
+            description: desc,
+            status: status
+        }).then(() => {
+            showToast("Work task logged securely!");
+            loadWorkLogs(auth.currentUser.uid);
+            document.getElementById('work-desc').value = ''; 
+        }).catch(err => showToast("Error: " + err.message, true));
+    }
+
+    function loadWorkLogs(userId) {
+        db.collection('workLogs').where("userId","==",userId)
+          .onSnapshot(snapshot => {
+            allWlRecords = [];
+            snapshot.forEach(doc => allWlRecords.push(doc.data()));
+            allWlRecords.sort((a,b) => new Date(a.date)-new Date(b.date));
+            renderWl(allWlRecords);
+            updateDashboardInsights();
+        }, err => showToast("DB Error: "+err.message, true));
+    }
+
+    function applyWlFilter() {
+        const f = document.getElementById('wl-from').value;
+        const t = document.getElementById('wl-to').value;
+        renderWl(allWlRecords.filter(r => (!f||r.date>=f) && (!t||r.date<=t)));
+    }
+    function clearWlFilter() {
+        document.getElementById('wl-from').value = '';
+        document.getElementById('wl-to').value   = '';
+        renderWl(allWlRecords);
+    }
+
+    function renderWl(records) {
+        const tbody = document.getElementById('work-body');
+        if (!records.length) {
+            tbody.innerHTML = '<tr><td colspan="3" style="color:var(--text-muted);padding:20px;text-align:center;">No records found.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = records.map(d => `<tr>
+            <td data-label="Date" style="width:15%;"><strong>${d.date}</strong></td>
+            <td data-label="Work Done">${d.description}</td>
+            <td data-label="Status" style="width:15%;"><span class="badge badge-green">${d.status}</span></td>
+        </tr>`).join('');
+    }
+
+    function loadPdfFallbackScript() {
+        return new Promise(resolve => {
+            if (document.getElementById('html2pdf-fallback-script')) return resolve();
+            const script = document.createElement('script');
+            script.id = 'html2pdf-fallback-script';
+            script.src = 'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js';
+            script.onload = () => resolve();
+            script.onerror = () => resolve();
+            document.head.appendChild(script);
+        });
+    }
+
+    function waitForPdfEngine(timeoutMs = 4000) {
+        if (window.html2pdf) return Promise.resolve(window.html2pdf);
+        return new Promise(resolve => {
+            const started = Date.now();
+            const timer = setInterval(() => {
+                if (window.html2pdf) {
+                    clearInterval(timer);
+                    resolve(window.html2pdf);
+                } else if (Date.now() - started >= timeoutMs) {
+                    clearInterval(timer);
+                    resolve(null);
+                }
+            }, 100);
+        }).then(async pdfEngine => {
+            if (pdfEngine) return pdfEngine;
+            await loadPdfFallbackScript();
+            return window.html2pdf || null;
+        });
+    }
+
+    async function downloadPDF(elementId, filename, buttonEl) {
+        const element = document.getElementById(elementId);
+        if (!element) return showToast("Report not found.", true);
+
+        const originalText = buttonEl ? buttonEl.textContent : '';
+        if (buttonEl) {
+            buttonEl.disabled = true;
+            buttonEl.textContent = 'Preparing PDF...';
+        }
+
+        try {
+            const pdfEngine = await waitForPdfEngine();
+            if (!pdfEngine) {
+                window.print();
+                showToast("PDF tool is still loading. Print dialog opened instead.");
+                return;
+            }
+
+            const opt = {
+                margin:       0.4,
+                filename:     `${filename}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, scrollY: 0, backgroundColor: document.body.classList.contains('dark-theme') ? '#0a0a0a' : '#ffffff' },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+            };
+            await pdfEngine().set(opt).from(element).save();
+        } catch (err) {
+            showToast("PDF download failed: " + err.message, true);
+        } finally {
+            if (buttonEl) {
+                buttonEl.disabled = false;
+                buttonEl.textContent = originalText;
+            }
+        }
+    }
+</script>
 </body>
 </html>
